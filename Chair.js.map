@@ -1,1 +1,1 @@
-{"version":3,"file":"Chair.js","sourceRoot":"","sources":["Chair.ts"],"names":[],"mappings":""}
+{"version":3,"file":"Chair.js","sourceRoot":"","sources":["Chair.ts"],"names":[],"mappings":";AAAA,IAAU,SAAS,CAmBlB;AAnBD,WAAU,SAAS;IACf,MAAa,KAAM,SAAQ,UAAA,QAAQ;QAE/B,6BAA6B;QAE7B,YAAa,SAAiB;YAC1B,kCAAkC;YAClC,KAAK,CAAC,SAAS,CAAC,CAAA;QACpB,CAAC;QAEM,aAAa;QAEpB,CAAC;QAES,IAAI;YACV,OAAO,CAAC,GAAG,CAAC,YAAY,CAAC,CAAA;QAE7B,CAAC;KACJ;IAjBY,eAAK,QAiBjB,CAAA;AACL,CAAC,EAnBS,SAAS,KAAT,SAAS,QAmBlB"}

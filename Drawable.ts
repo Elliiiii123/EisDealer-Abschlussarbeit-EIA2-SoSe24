@@ -1,17 +1,14 @@
 namespace EisDealer {
     export abstract class Drawable {
-        public x:number;
-        public y:number;
+        public position: Vector
 
-        constructor (_x:number, _y:number){
-            this.x = _x;
-            this.y = _y;
+        constructor (_position: Vector){
+            this.position = _position
         }
 
         protected abstract draw() :void 
            
-        
-
+    
         public update(): void {
             this.draw();
         }

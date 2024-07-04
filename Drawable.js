@@ -2,11 +2,9 @@
 var EisDealer;
 (function (EisDealer) {
     class Drawable {
-        x;
-        y;
-        constructor(_x, _y) {
-            this.x = _x;
-            this.y = _y;
+        position;
+        constructor(_position) {
+            this.position = _position;
         }
         update() {
             this.draw();
