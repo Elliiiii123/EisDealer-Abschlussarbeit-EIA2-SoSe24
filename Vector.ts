@@ -8,26 +8,46 @@ namespace EisDealer {
         this.set(_x, _y);
         }
 
-        // scale(_factor: number): void {
-        // this.x *= _factor;
-        // this.y *= _factor;
-        // }
+        public scale(factor: number): Vector {
+            return new Vector(this.x * factor, this.y * factor);
+        }
 
-        // add(_addend: Vector): void {
-        //     this.x += _addend.x;
-        //     this.y += _addend.y;
-        // }
+        public add(vector: Vector): Vector {
+            return new Vector(this.x + vector.x, this.y + vector.y);
+        }
+
+        public subtract(vector: Vector): Vector {
+            return new Vector(this.x - vector.x, this.y - vector.y);
+        }
+
+        // Method to multiply vector by scalar
+        multiply(scalar: number): Vector {
+            return new Vector(this.x * scalar, this.y * scalar);
+        }
+
+        // Method to get the magnitude of the vector
+        magnitude(): number {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        }
 
         public set(_x: number, _y: number): void {
             this.x = _x;
             this.y = _y;
         }
 
-        public normalize(): Vector {
-            let length = Math.sqrt(this.x * this.x + this.y * this.y);
-            this.x /= length;
-            this.y /= length;
-            return this;
+        normalize(): Vector {
+            const mag = this.magnitude();
+            if (mag === 0) {
+              return new Vector(0, 0);
+            }
+            return new Vector(this.x / mag, this.y / mag);
+          }
+        
+
+        public distanceTo(vector: Vector): number {
+            let dx = this.x - vector.x;
+            let dy = this.y - vector.y;
+            return Math.sqrt(dx * dx + dy * dy);
         }
     }
 }

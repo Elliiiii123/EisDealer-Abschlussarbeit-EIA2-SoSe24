@@ -6,44 +6,51 @@ namespace EisDealer {
     export let crc2: CanvasRenderingContext2D;
     export let allObjects: Drawable[] = [];
 
+
     function handleLoad(_event: Event): void {
         let canvas: HTMLCanvasElement | null = document.querySelector("canvas");
         if (!canvas) return;
         crc2 = <CanvasRenderingContext2D>canvas.getContext("2d");
         canvas.addEventListener("click", handleClick);
 
+        generateContent(data);
+
         let door: Door = new Door (new Vector(795, 195), new Vector(0, 0), new Vector(0, 0));
         console.log(door);
         allObjects.push(door);
 
-        let chairs: Chair = new Chair (new Vector(425, 420), 0);
-        console.log(chairs);
-        allObjects.push(chairs);
-
-        new Chair (new Vector(300, 420), 0);
-        console.log(chairs);
-        allObjects.push(chairs);
+        const chairs = [
+            { position: new Vector(425, 420), rotation: 0 },
+            { position: new Vector(400, 340), rotation: 120 },
+            { position: new Vector(520, 380), rotation: 240 },
+            { position: new Vector(415, 155), rotation: 0 },
+            { position: new Vector(410, 50), rotation: 120 },
+            { position: new Vector(500, 100), rotation: 240 },
+            { position: new Vector(705, 520), rotation: 300 },
+            { position: new Vector(620, 450), rotation: 90 },
+            { position: new Vector(710, 430), rotation: 200 },
+            { position: new Vector(655, 180), rotation: 330 },
+            { position: new Vector(600, 100), rotation: 90 },
+            { position: new Vector(700, 90), rotation: 220 }
+        ];
+        
+        chairs.forEach(data => {
+            let chair = new Chair(data.position, data.rotation);
+            //console.log(chair);
+            allObjects.push(chair);
+        });
 
         let trash: Trash =new Trash (new Vector(115, 410));
         console.log(trash);
         allObjects.push(trash);
 
+        // let customer: Customer = new Customer(new Vector(200, 200), new Vector(0, 0),new Vector(0, 0),EisDealer.CustomerType.Normal,"Happy");
+        // console.log(customer);
+        // allObjects.push(customer);
 
-        let scoop: Scoop =new Scoop (new Vector(170, 120));
-        console.log(scoop);
-        allObjects.push(scoop);
-
-        let toppings: Topping =new Topping (new Vector(210, 400));
-        console.log(toppings);
-        allObjects.push(toppings);
-
-        let saucen: Sauce =new Sauce (new Vector(180, 420));
-        console.log(saucen);
-        allObjects.push(saucen);
-
-        let customer: Customer = new Customer(new Vector(200, 200), new Vector(0, 0),new Vector(0, 0),EisDealer.CustomerType.Normal,"Happy");
-        console.log(customer);
-        allObjects.push(customer);
+        for (let i: number = 0; i < 7; i++) {
+            allObjects.push(createCustomer());
+          }
 
         let dealer: Dealer = new Dealer(new Vector(100, 200), new Vector(0, 0),new Vector(0, 0),EisDealer.DealerType.withoutIce,"Happy");
         console.log(dealer);
@@ -60,6 +67,77 @@ namespace EisDealer {
         for (let object of allObjects) {
           object.update();
         }
+    }
+
+    export function createCustomer(): Customer {
+        // Zufällige Position innerhalb des Canvas
+        let x: number = Math.random() * 1000;
+        let y: number = Math.random() * 600;
+
+        // Zufällige Geschwindigkeit und Richtung
+        let speed: Vector = new Vector(2, 2);
+        let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
+
+        // Erstelle einen neuen Kunden
+        let customer: Customer = new Customer(new Vector(x, y), speed, direction, CustomerType.Normal, "Happy");
+
+        // Finde den nächsten unbesetzten Stuhl für diesen Kunden
+        let unoccupiedChairs = allObjects.filter(obj => obj instanceof Chair && !(obj as Chair).isOccupied) as Chair[];
+
+        if (unoccupiedChairs.length === 0) {
+            console.warn("Es gibt keine verfügbaren Stühle für diesen Kunden.");
+            return customer; // Rückgabe des Kunden, auch wenn kein Stuhl verfügbar ist
+        }
+
+        // Wähle zufällig einen unbesetzten Stuhl aus
+        let randomIndex = Math.floor(Math.random() * unoccupiedChairs.length);
+        let chosenChair = unoccupiedChairs[randomIndex];
+
+        // Setze die Position des Kunden auf die Position des gewählten Stuhls
+        customer.position = chosenChair.position;
+        chosenChair.occupied = true; // Markiere den Stuhl als besetzt
+        console.log(`Kunde erstellt an Position (${x}, ${y}) am Stuhl (${chosenChair.position.x}, ${chosenChair.position.y})`);
+
+        if (customer.position.x < 0 || customer.position.x > 1000 || customer.position.y < 0 || customer.position.y > 600) {
+            console.warn("Kunde außerhalb des Canvas-Bereichs.");
+        }
+        if (customer.position.x < 0 || customer.position.x > crc2.canvas.width || customer.position.y < 0 || customer.position.y > crc2.canvas.height) {
+            console.warn("Kunde außerhalb des Canvas-Bereichs.");
+        }
+        return customer;
+        
+            // // Zufällige Position innerhalb des Canvas
+            // let x: number = Math.random() * canvasWidth;
+            // let y: number = Math.random() * canvasHeight;
+    
+            // // Zufällige Geschwindigkeit und Richtung
+            // let speed: Vector = new Vector(2, 2);
+            // let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
+    
+            // // Erstelle einen neuen Kunden
+            // let customer: Customer = new Customer(new Vector(x, y), speed, direction, CustomerType.Normal, "Happy");
+    
+    
+            // return customer;
+    
+        // // Zufällige Position innerhalb des Canvas von 1000x600
+        // let x: number = Math.random() * (canvasWidth - 200) + 100;
+        // let y: number = Math.random() * (canvasHeight - 100) + 50;
+
+        // // Geschwindigkeit und Richtung zufällig festlegen
+        // let speed: Vector = new Vector(2, 2);
+        // let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
+
+        // // Kunden-Typ und Emotion zufällig wählen
+        // let type: CustomerType = Math.random() < 0.5 ? CustomerType.Normal : CustomerType.VIP;
+        // let emotion: string = Math.random() < 0.5 ? "Happy" : "Sad";
+
+        // // Türposition und Stühle übergeben
+        // let doorPosition: Vector = new Vector(795, 195); // Beispielposition
+        // let chairs: Chair[] = allObjects.filter(obj => obj instanceof Chair);
+
+        // // Kunden erstellen und zurückgeben
+        // return new Customer(new Vector(x, y), speed, direction, type, emotion, doorPosition, chairs);
     }
 
     function handleClick(_event: MouseEvent): void {

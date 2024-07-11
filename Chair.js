@@ -4,17 +4,26 @@ var EisDealer;
     class Chair extends EisDealer.Drawable {
         rotation;
         //private isClicked: boolean;
-        constructor(_position, _rotation) {
+        occupied;
+        constructor(_position, _rotation, _occupied = false) {
             //console.log("Chair Constructor")
             super(_position);
             this.rotation = _rotation;
+            this.occupied = _occupied;
+        }
+        isOccupied() {
+            return this.occupied;
+        }
+        occupy() {
+            this.occupied = true;
         }
         handleClicked() {
         }
         draw() {
-            console.log("Chair draw");
+            //console.log("Chair draw")
             EisDealer.crc2.save();
             EisDealer.crc2.translate(this.position.x, this.position.y);
+            EisDealer.crc2.rotate(this.rotation * Math.PI / 180);
             // Zeichne Sitzfläche
             EisDealer.crc2.beginPath();
             EisDealer.crc2.rect(0, 0, 50, 50); // Ein Rechteck für die Sitzfläche

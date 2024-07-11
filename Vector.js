@@ -7,23 +7,38 @@ var EisDealer;
         constructor(_x, _y) {
             this.set(_x, _y);
         }
-        // scale(_factor: number): void {
-        // this.x *= _factor;
-        // this.y *= _factor;
-        // }
-        // add(_addend: Vector): void {
-        //     this.x += _addend.x;
-        //     this.y += _addend.y;
-        // }
+        scale(factor) {
+            return new Vector(this.x * factor, this.y * factor);
+        }
+        add(vector) {
+            return new Vector(this.x + vector.x, this.y + vector.y);
+        }
+        subtract(vector) {
+            return new Vector(this.x - vector.x, this.y - vector.y);
+        }
+        // Method to multiply vector by scalar
+        multiply(scalar) {
+            return new Vector(this.x * scalar, this.y * scalar);
+        }
+        // Method to get the magnitude of the vector
+        magnitude() {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        }
         set(_x, _y) {
             this.x = _x;
             this.y = _y;
         }
         normalize() {
-            let length = Math.sqrt(this.x * this.x + this.y * this.y);
-            this.x /= length;
-            this.y /= length;
-            return this;
+            const mag = this.magnitude();
+            if (mag === 0) {
+                return new Vector(0, 0);
+            }
+            return new Vector(this.x / mag, this.y / mag);
+        }
+        distanceTo(vector) {
+            let dx = this.x - vector.x;
+            let dy = this.y - vector.y;
+            return Math.sqrt(dx * dx + dy * dy);
         }
     }
     EisDealer.Vector = Vector;

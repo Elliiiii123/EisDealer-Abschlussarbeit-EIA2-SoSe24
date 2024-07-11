@@ -17,11 +17,13 @@ namespace EisDealer {
         }
 
         protected move(): void {
-            
+
+        
+    
         }
     
         protected draw():void{
-            console.log("Customer draw")
+            //console.log("Customer draw")
             this.withoutIce();
             this.withIce();
             }

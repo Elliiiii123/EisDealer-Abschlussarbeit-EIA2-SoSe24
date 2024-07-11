@@ -2,21 +2,32 @@ namespace EisDealer {
     export class Chair extends Drawable{
         rotation: number;
         //private isClicked: boolean;
+        public occupied: boolean;
 
-        constructor (_position: Vector, _rotation: number){
+        constructor (_position: Vector, _rotation: number,_occupied: boolean = false){
             //console.log("Chair Constructor")
             super(_position)
             this.rotation = _rotation;
+            this.occupied = _occupied;
         }
-        
+
+        public isOccupied(): boolean {
+            return this.occupied;
+        }
+
+        public occupy(): void {
+            this.occupied = true;
+        }
+
         public handleClicked():void{
 
         }
     
         protected draw():void{
-            console.log("Chair draw")
+            //console.log("Chair draw")
             crc2.save();
             crc2.translate(this.position.x, this.position.y);
+            crc2.rotate(this.rotation * Math.PI / 180);
             
             // Zeichne Sitzfläche
             crc2.beginPath();

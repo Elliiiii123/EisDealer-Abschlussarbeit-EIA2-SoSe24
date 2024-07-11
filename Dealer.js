@@ -16,7 +16,7 @@ var EisDealer;
         move() {
         }
         draw() {
-            console.log("Customer draw");
+            //console.log("Customer draw")
             this.withoutIce();
             this.withIce();
         }
