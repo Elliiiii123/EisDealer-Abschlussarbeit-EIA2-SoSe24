@@ -23,7 +23,7 @@ namespace EisDealer {
 
         }
     
-        protected draw():void{
+        public draw():void{
             //console.log("Chair draw")
             crc2.save();
             crc2.translate(this.position.x, this.position.y);

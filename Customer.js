@@ -2,69 +2,109 @@
 var EisDealer;
 (function (EisDealer) {
     class Customer extends EisDealer.Moveable {
-        type;
-        emotion;
-        targetChair = null;
-        allObjects;
+        // private type: CustomerType;
+        // private emotion: string;
+        targetPosition = null;
+        static targetPositions = [
+            new EisDealer.Vector(295, 235),
+            new EisDealer.Vector(262, 173),
+            new EisDealer.Vector(370, 255),
+            new EisDealer.Vector(190, 30),
+            new EisDealer.Vector(220, 90),
+            new EisDealer.Vector(180, 175),
+            new EisDealer.Vector(225, 220),
+            new EisDealer.Vector(350, 200),
+            new EisDealer.Vector(250, 35),
+            new EisDealer.Vector(290, 60),
+            new EisDealer.Vector(343, 30),
+            new EisDealer.Vector(345, 97),
+        ];
         constructor(_position, _speed, _direction, _type, _emotion) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
             this.position = _position;
             this.speed = _speed;
             this.direction = _direction;
-            this.type = _type;
-            this.emotion = _emotion;
-            this.targetChair = null;
-            this.allObjects = EisDealer.allObjects;
+            // this.type = _type;
+            // this.emotion = _emotion;
+            this.findNextTargetPosition(); // Initial Target setzen
+        }
+        setPosition(position) {
+            this.position = position;
         }
         handleClicked() {
         }
         move() {
-            console.log("customer move");
-            if (!this.targetChair || this.targetChair.isOccupied()) {
-                this.findNextUnoccupiedChair();
+            if (!this.targetPosition)
+                return;
+            const goalPosition = this.targetPosition; // Zielkoordinate
+            const passingPoint = new EisDealer.Vector(417, 115); // Punkt, den der Customer passieren soll
+            // Berechne die Distanz zum Ziel und zum Passierpunkt
+            const distanceToGoal = this.position.distanceTo(goalPosition);
+            const distanceToPassingPoint = this.position.distanceTo(passingPoint);
+            // Bewegung in Richtung Zielkoordinate oder Passierpunkt je nach Entfernung
+            if (distanceToPassingPoint > 1) {
+                // Bewege zum Passierpunkt (417, 115)
+                const dxToPassingPoint = passingPoint.x - this.position.x;
+                const dyToPassingPoint = passingPoint.y - this.position.y;
+                this.position.x += Math.sign(dxToPassingPoint);
+                this.position.y += Math.sign(dyToPassingPoint);
             }
-            if (this.targetChair) {
-                const dx = this.targetChair.position.x - this.position.x + 50;
-                const dy = this.targetChair.position.y - this.position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const moveDistance = Math.min(this.speed.x, distance);
-                this.position.x += (dx / distance) * moveDistance;
-                this.position.y += (dy / distance) * moveDistance;
-                if (distance < this.speed.x) {
-                    this.targetChair.occupy();
-                    this.speed = new EisDealer.Vector(0, 0);
-                    this.targetChair = null;
+            else {
+                // Bewege zur Zielkoordinate
+                const dxToGoal = goalPosition.x - this.position.x;
+                const dyToGoal = goalPosition.y - this.position.y;
+                this.position.x += Math.sign(dxToGoal);
+                this.position.y += Math.sign(dyToGoal);
+                // Kunden erreichen das Ziel
+                if (distanceToGoal <= 1) {
+                    console.log("Customer reached the target position");
+                    this.findNextTargetPosition(); // Nächstes Ziel setzen
                 }
             }
         }
-        findNextUnoccupiedChair() {
-            for (const obj of this.allObjects) {
-                if (obj instanceof EisDealer.Chair && !obj.isOccupied()) {
-                    this.targetChair = obj;
-                    break;
+        findNextTargetPosition() {
+            const queueOffset = 30; // Offset zwischen den Kunden in der Warteschlange
+            // Liste der verfügbaren Zielpositionen
+            let availablePositions = Customer.targetPositions.filter(pos => !this.isPositionOccupied(pos));
+            // Wenn keine freie Position gefunden wurde
+            if (availablePositions.length === 0) {
+                // Position im Bereich 420, 115 wählen, aber mit Anpassung des Offsets
+                let basePosition = new EisDealer.Vector(420, 115);
+                // Suche die nächste freie Position mit dem richtigen Offset
+                let newPosition = basePosition;
+                while (this.isPositionOccupied(newPosition)) {
+                    newPosition = new EisDealer.Vector(newPosition.x, newPosition.y + queueOffset);
                 }
+                this.targetPosition = newPosition;
             }
+            else {
+                // Wähle die nächste Position in der Warteschlange basierend auf der Reihenfolge aus
+                let nextPositionIndex = 0;
+                for (let i = 0; i < Customer.targetPositions.length; i++) {
+                    if (!this.isPositionOccupied(Customer.targetPositions[i])) {
+                        nextPositionIndex = i;
+                        break;
+                    }
+                }
+                this.targetPosition = Customer.targetPositions[nextPositionIndex];
+            }
+            // Markiere die Zielposition als belegt
+            this.markPositionAsOccupied(this.targetPosition);
         }
-        // private isColliding(position: Vector): boolean {
-        //     // Definiere die Bereiche, in denen die Customer nicht laufen können
-        //     const noWalkAreas = [
-        //         { x: 0, y: 100, width: 300, height: 350 }, // Thekenbereich
-        //         { x: 440 - 45, y: 100 - 45, width: 90, height: 90 }, // Tisch 1
-        //         { x: 650 - 45, y: 120 - 45, width: 90, height: 90 }, // Tisch 2
-        //         { x: 450 - 45, y: 370 - 45, width: 90, height: 90 }, // Tisch 3
-        //         { x: 670 - 45, y: 470 - 45, width: 90, height: 90 }, // Tisch 4
-        //         // Weitere Bereiche hinzufügen
-        //     ];
-        //     // Prüfe auf Kollision mit den noWalkAreas
-        //     for (let area of noWalkAreas) {
-        //         if (position.x > area.x && position.x < area.x + area.width &&
-        //             position.y > area.y && position.y < area.y + area.height) {
-        //             return true;
-        //         }
-        //     }
-        //     return false;
-        // }
+        isPositionOccupied(position) {
+            // Überprüfe, ob die Zielposition bereits von einem anderen Kunden besetzt ist
+            return EisDealer.allObjects.some(obj => {
+                if (obj instanceof Customer && obj !== this) {
+                    return obj.targetPosition && obj.targetPosition.equals(position);
+                }
+                return false;
+            });
+        }
+        markPositionAsOccupied(position) {
+            // Füge die Zielposition zur Liste der belegten Positionen hinzu
+            Customer.targetPositions.push(position);
+        }
         draw() {
             //console.log("Customer draw")
             this.drawNormal();

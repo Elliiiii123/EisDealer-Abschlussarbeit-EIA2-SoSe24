@@ -5,6 +5,7 @@ namespace EisDealer {
       //Definiton der crc2 Variable als den HTML Canvas
     export let crc2: CanvasRenderingContext2D;
     export let allObjects: Drawable[] = [];
+    let selectionScreen: SelectionScreen;
 
 
     function handleLoad(_event: Event): void {
@@ -44,104 +45,103 @@ namespace EisDealer {
         console.log(trash);
         allObjects.push(trash);
 
-        // let customer: Customer = new Customer(new Vector(200, 200), new Vector(0, 0),new Vector(0, 0),EisDealer.CustomerType.Normal,"Happy");
-        // console.log(customer);
-        // allObjects.push(customer);
+        // Initialisieren Sie die Auswahlbildschirm-Instanz
+        const initialPosition = new Vector(0, 0); // Beispielwert für die Position
+        selectionScreen = new SelectionScreen(initialPosition);
 
-        for (let i: number = 0; i < 7; i++) {
-            allObjects.push(createCustomer());
-          }
+        // for (let i: number = 0; i < 15; i++) {
+        //     createCustomer();
+        // }
 
-        let dealer: Dealer = new Dealer(new Vector(100, 200), new Vector(0, 0),new Vector(0, 0),EisDealer.DealerType.withoutIce,"Happy");
+        let dealer: Dealer = new Dealer(new Vector(100, 250), new Vector(0, 0),new Vector(0, 0),EisDealer.DealerType.withoutIce,"Happy");
         console.log(dealer);
         allObjects.push(dealer);
 
         drawBackground();
-        setInterval(animate, 40);
+        // setInterval(animate, 40);
+        createCustomer();
+        setInterval(createCustomer, 30000);
+        animate();
+        
     }
 
     function animate(): void {
         console.log("animate");
         drawBackground();
-    
+
         for (let object of allObjects) {
-          object.update();
+            object.update();
         }
+        selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
+
+        requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
     }
 
-    export function createCustomer(): Customer {
-        // Zufällige Position innerhalb des Canvas
-        let x: number = Math.random() * 1000;
-        let y: number = Math.random() * 600;
-
-        // Zufällige Geschwindigkeit und Richtung
-        let speed: Vector = new Vector(2, 2);
+    export function createCustomer(): void {
+        // Zufällige Richtung und Geschwindigkeit
         let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
 
-        // Erstelle einen neuen Kunden
-        let customer: Customer = new Customer(new Vector(x, y), speed, direction, CustomerType.Normal, "Happy");
+        // Erstelle einen neuen Kunden an der gewählten Zielkoordinate
+        let customer: Customer = new Customer(new Vector(570, 200), new Vector(1, 1), direction, CustomerType.Normal, "Happy");
 
-        // Finde den nächsten unbesetzten Stuhl für diesen Kunden
-        let unoccupiedChairs = allObjects.filter(obj => obj instanceof Chair && !(obj as Chair).isOccupied) as Chair[];
-
-        if (unoccupiedChairs.length === 0) {
-            console.warn("Es gibt keine verfügbaren Stühle für diesen Kunden.");
-            return customer; // Rückgabe des Kunden, auch wenn kein Stuhl verfügbar ist
-        }
-
-        // Wähle zufällig einen unbesetzten Stuhl aus
-        let randomIndex = Math.floor(Math.random() * unoccupiedChairs.length);
-        let chosenChair = unoccupiedChairs[randomIndex];
-
-        // Setze die Position des Kunden auf die Position des gewählten Stuhls
-        customer.position = chosenChair.position;
-        chosenChair.occupied = true; // Markiere den Stuhl als besetzt
-        console.log(`Kunde erstellt an Position (${x}, ${y}) am Stuhl (${chosenChair.position.x}, ${chosenChair.position.y})`);
-
-        if (customer.position.x < 0 || customer.position.x > 1000 || customer.position.y < 0 || customer.position.y > 600) {
-            console.warn("Kunde außerhalb des Canvas-Bereichs.");
-        }
-        if (customer.position.x < 0 || customer.position.x > crc2.canvas.width || customer.position.y < 0 || customer.position.y > crc2.canvas.height) {
-            console.warn("Kunde außerhalb des Canvas-Bereichs.");
-        }
-        return customer;
-        
-            // // Zufällige Position innerhalb des Canvas
-            // let x: number = Math.random() * canvasWidth;
-            // let y: number = Math.random() * canvasHeight;
-    
-            // // Zufällige Geschwindigkeit und Richtung
-            // let speed: Vector = new Vector(2, 2);
-            // let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
-    
-            // // Erstelle einen neuen Kunden
-            // let customer: Customer = new Customer(new Vector(x, y), speed, direction, CustomerType.Normal, "Happy");
-    
-    
-            // return customer;
-    
-        // // Zufällige Position innerhalb des Canvas von 1000x600
-        // let x: number = Math.random() * (canvasWidth - 200) + 100;
-        // let y: number = Math.random() * (canvasHeight - 100) + 50;
-
-        // // Geschwindigkeit und Richtung zufällig festlegen
-        // let speed: Vector = new Vector(2, 2);
-        // let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
-
-        // // Kunden-Typ und Emotion zufällig wählen
-        // let type: CustomerType = Math.random() < 0.5 ? CustomerType.Normal : CustomerType.VIP;
-        // let emotion: string = Math.random() < 0.5 ? "Happy" : "Sad";
-
-        // // Türposition und Stühle übergeben
-        // let doorPosition: Vector = new Vector(795, 195); // Beispielposition
-        // let chairs: Chair[] = allObjects.filter(obj => obj instanceof Chair);
-
-        // // Kunden erstellen und zurückgeben
-        // return new Customer(new Vector(x, y), speed, direction, type, emotion, doorPosition, chairs);
+        allObjects.push(customer); // Füge den Kunden der Liste hinzu
     }
 
     function handleClick(_event: MouseEvent): void {
         console.log("canvas is clicked");
+        const x = _event.clientX;
+        const y = _event.clientY;
+
+            // Check if any Scoop was clicked
+            for (let object of allObjects) {
+                if (object instanceof Scoop) {
+                    const scoop = object as Scoop;
+                    if (x >= scoop.position.x && x <= scoop.position.x + 50 &&
+                        y >= scoop.position.y && y <= scoop.position.y + 50) {
+                        // Füge den Scoop als Symbol in den Auswahlbildschirm ein
+                        selectionScreen.addItem(scoop);
+                    }
+                }
+            }
+
+            // Überprüfen, ob eine Sauce angeklickt wurde
+            for (let object of allObjects) {
+                if (object instanceof Sauce) {
+                    const sauce = object as Sauce;
+                    if (x >= sauce.position.x - 20 && x <= sauce.position.x + 20 &&
+                        y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
+                        // Add the sauce as a symbol in the selection screen
+                        selectionScreen.addItem(sauce);
+                        return;
+                    }
+                }
+            }
+
+            // Überprüfen, ob ein Topping angeklickt wurde
+            for (let object of allObjects) {
+                if (object instanceof Topping) {
+                    const topping = object as Topping;
+                    if (x >= topping.position.x - 20 && x <= topping.position.x + 20 &&
+                        y >= topping.position.y - 20 && y <= topping.position.y + 20) {
+                        // Add the topping as a symbol in the selection screen
+                        selectionScreen.addItem(topping);
+                        return;
+                    }
+                }
+            }
+
+            // Überprüfen, ob der Trash-Behälter angeklickt wurde
+            for (let object of allObjects) {
+                if (object instanceof Trash) {
+                    const trash = object as Trash;
+                    if (x >= trash.position.x - 20 && x <= trash.position.x + 20 &&
+                        y >= trash.position.y - 20 && y <= trash.position.y + 20) {
+                        // Clear all items from the selection screen
+                        selectionScreen.clearItems();
+                        return;
+                    }
+                }
+            }
     }
 
     function drawBackground(): void {

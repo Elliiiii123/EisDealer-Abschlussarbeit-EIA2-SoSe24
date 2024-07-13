@@ -1,24 +1,37 @@
 namespace EisDealer {
     export class Customer extends Moveable{
 
-        private type: CustomerType;
-        private emotion: string;
-        private targetChair: Chair | null = null; 
-        private allObjects: Drawable[];
-
+        // private type: CustomerType;
+        // private emotion: string;
+        private targetPosition: Vector | null = null;
+        private static targetPositions: Vector[] = [
+            new Vector(295, 235),
+            new Vector(262, 173),
+            new Vector(370, 255),
+            new Vector(190, 30),
+            new Vector(220, 90),
+            new Vector(180, 175),
+            new Vector(225, 220),
+            new Vector(350, 200),
+            new Vector(250, 35),
+            new Vector(290, 60),
+            new Vector(343, 30),
+            new Vector(345, 97),
+        ]
         
-
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string){
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction)
             this.position = _position;
             this.speed = _speed;
             this.direction = _direction;
-            this.type = _type;
-            this.emotion = _emotion;
-            this.targetChair = null;
-            this.allObjects = allObjects;
+            // this.type = _type;
+            // this.emotion = _emotion;
+            this.findNextTargetPosition(); // Initial Target setzen
+        }
 
+        public setPosition(position: Vector): void {
+            this.position = position;
         }
         
         public handleClicked(): void {
@@ -26,63 +39,90 @@ namespace EisDealer {
         }
 
         public move(): void {
-            
-
-            console.log("customer move");
-            if (!this.targetChair || this.targetChair.isOccupied()) {
-                this.findNextUnoccupiedChair();
-            }
-
-            if (this.targetChair) {
-                const dx = this.targetChair.position.x - this.position.x + 50;
-                const dy = this.targetChair.position.y - this.position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const moveDistance = Math.min(this.speed.x, distance);
-
-                this.position.x += (dx / distance) * moveDistance;
-                this.position.y += (dy / distance) * moveDistance;
-
-                if (distance < this.speed.x) {
-                    this.targetChair.occupy();
-                    this.speed = new Vector(0, 0);
-                    this.targetChair = null;
+            if (!this.targetPosition) return;
+        
+            const goalPosition = this.targetPosition; // Zielkoordinate
+            const passingPoint = new Vector(417, 115); // Punkt, den der Customer passieren soll
+        
+            // Berechne die Distanz zum Ziel und zum Passierpunkt
+            const distanceToGoal = this.position.distanceTo(goalPosition);
+            const distanceToPassingPoint = this.position.distanceTo(passingPoint);
+        
+            // Bewegung in Richtung Zielkoordinate oder Passierpunkt je nach Entfernung
+            if (distanceToPassingPoint > 1) {
+                // Bewege zum Passierpunkt (417, 115)
+                const dxToPassingPoint = passingPoint.x - this.position.x;
+                const dyToPassingPoint = passingPoint.y - this.position.y;
+                this.position.x += Math.sign(dxToPassingPoint);
+                this.position.y += Math.sign(dyToPassingPoint);
+            } else {
+                // Bewege zur Zielkoordinate
+                const dxToGoal = goalPosition.x - this.position.x;
+                const dyToGoal = goalPosition.y - this.position.y;
+                this.position.x += Math.sign(dxToGoal);
+                this.position.y += Math.sign(dyToGoal);
+        
+                // Kunden erreichen das Ziel
+                if (distanceToGoal <= 1) {
+                    console.log("Customer reached the target position");
+                    this.findNextTargetPosition(); // Nächstes Ziel setzen
                 }
             }
         }
 
-        private findNextUnoccupiedChair(): void {
-            for (const obj of this.allObjects) {
-                if (obj instanceof Chair && !obj.isOccupied()) {
-                    this.targetChair = obj;
-                    break;
+        private findNextTargetPosition(): void {
+            const queueOffset = 30; // Offset zwischen den Kunden in der Warteschlange
+
+            // Liste der verfügbaren Zielpositionen
+            let availablePositions = Customer.targetPositions.filter(pos => !this.isPositionOccupied(pos));
+
+            // Wenn keine freie Position gefunden wurde
+            if (availablePositions.length === 0) {
+                // Position im Bereich 420, 115 wählen, aber mit Anpassung des Offsets
+                let basePosition = new Vector(420, 115);
+
+                // Suche die nächste freie Position mit dem richtigen Offset
+                let newPosition = basePosition;
+                while (this.isPositionOccupied(newPosition)) {
+                    newPosition = new Vector(newPosition.x, newPosition.y + queueOffset);
                 }
+
+                this.targetPosition = newPosition;
+            } else {
+                // Wähle die nächste Position in der Warteschlange basierend auf der Reihenfolge aus
+                let nextPositionIndex = 0;
+                for (let i = 0; i < Customer.targetPositions.length; i++) {
+                    if (!this.isPositionOccupied(Customer.targetPositions[i])) {
+                        nextPositionIndex = i;
+                        break;
+                    }
+                }
+
+                this.targetPosition = Customer.targetPositions[nextPositionIndex];
             }
+
+            // Markiere die Zielposition als belegt
+            this.markPositionAsOccupied(this.targetPosition);
         }
 
-        // private isColliding(position: Vector): boolean {
+        private isPositionOccupied(position: Vector): boolean {
+            // Überprüfe, ob die Zielposition bereits von einem anderen Kunden besetzt ist
+            return allObjects.some(obj => {
+                if (obj instanceof Customer && obj !== this) {
+                    return obj.targetPosition && obj.targetPosition.equals(position);
+                }
+                return false;
+            });
+        }
 
-        //     // Definiere die Bereiche, in denen die Customer nicht laufen können
-        //     const noWalkAreas = [
-        //         { x: 0, y: 100, width: 300, height: 350 }, // Thekenbereich
-        //         { x: 440 - 45, y: 100 - 45, width: 90, height: 90 }, // Tisch 1
-        //         { x: 650 - 45, y: 120 - 45, width: 90, height: 90 }, // Tisch 2
-        //         { x: 450 - 45, y: 370 - 45, width: 90, height: 90 }, // Tisch 3
-        //         { x: 670 - 45, y: 470 - 45, width: 90, height: 90 }, // Tisch 4
-        //         // Weitere Bereiche hinzufügen
-        //     ];
-
-        //     // Prüfe auf Kollision mit den noWalkAreas
-        //     for (let area of noWalkAreas) {
-        //         if (position.x > area.x && position.x < area.x + area.width &&
-        //             position.y > area.y && position.y < area.y + area.height) {
-        //             return true;
-        //         }
-        //     }
-
-        //     return false;
-        // }
+        private markPositionAsOccupied(position: Vector): void {
+            // Füge die Zielposition zur Liste der belegten Positionen hinzu
+            Customer.targetPositions.push(position);
+        }
     
-        protected draw():void{
+    
+    
+        public draw():void{
             //console.log("Customer draw")
             this.drawNormal();
             this.drawHappy();

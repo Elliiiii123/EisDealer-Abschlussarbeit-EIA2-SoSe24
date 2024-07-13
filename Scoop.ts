@@ -2,6 +2,7 @@ namespace EisDealer {
     export class Scoop extends Drawable{
         public price: number;
         private flavor: ScoopFlavour;
+        private color: string;
         //private isClicked: boolean;
 
         constructor (_position: Vector, _flavor: ScoopFlavour, _price: number){
@@ -9,13 +10,14 @@ namespace EisDealer {
             super(_position)
             this.flavor = _flavor;
             this.price = _price;
+            this.color = this.getColor(_flavor);
         }
         
-        public handleClicked():void{
-
+        public handleClicked(selectionScreen: SelectionScreen): void {
+            selectionScreen.addItem(this);
         }
     
-        protected draw():void{
+        public draw():void{
             //console.log("Scoop draw")
             switch (this.flavor) {
                 case ScoopFlavour.Chocolate:
@@ -40,6 +42,36 @@ namespace EisDealer {
                     console.error("Unknown flavor: " + this.flavor);
             }
 
+        }
+
+        public drawSymbol(position: Vector): void {
+            crc2.save();
+            crc2.fillStyle = this.color;
+            crc2.beginPath();
+            crc2.arc(position.x, position.y, 20, 0, 2 * Math.PI); // Draw a circle with radius 20
+            crc2.fill();
+            crc2.restore();
+        }
+
+        //entsprechende farbe für die darstellung im selected screen
+        private getColor(_flavor: ScoopFlavour): string {
+            switch (this.flavor) {
+                case ScoopFlavour.Pistaccio:
+                    return "#98ff98";
+                case ScoopFlavour.Chocolate:
+                    return "#8B4513";
+                case ScoopFlavour.Straciatella:
+                    return "white";
+                case ScoopFlavour.Lemon:
+                    return "yellow";
+                case ScoopFlavour.Strawberry:
+                    return "#ffc0cb";
+                case ScoopFlavour.Mint:
+                    return "#99f09b";
+                // Füge hier weitere Geschmacksrichtungen hinzu
+                default:
+                    return "white";
+            }
         }
 
         private drawChocolate():void{
@@ -87,7 +119,7 @@ namespace EisDealer {
             crc2.save();
             crc2.beginPath();
             crc2.rect(x, y,50, 50); // Square shape
-            crc2.fillStyle = "#ffc0cb"; // Chocolate color
+            crc2.fillStyle = "#ffc0cb"; // Strawberry color
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 1;
@@ -143,7 +175,7 @@ namespace EisDealer {
             crc2.save();
             crc2.beginPath();
             crc2.rect(x, y,50, 50); // Square shape
-            crc2.fillStyle = "#98ff98"; // Chocolate color
+            crc2.fillStyle = "#98ff98"; // Pistaccio color
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 1;
@@ -178,7 +210,7 @@ namespace EisDealer {
             crc2.save();
             crc2.beginPath();
             crc2.rect(x, y,50, 50); // Square shape
-            crc2.fillStyle = "#ffff00"; // Chocolate color
+            crc2.fillStyle = "#ffff00"; // Lemon color
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 1;

@@ -4,6 +4,7 @@ var EisDealer;
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     EisDealer.allObjects = [];
+    let selectionScreen;
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
         if (!canvas)
@@ -36,17 +37,20 @@ var EisDealer;
         let trash = new EisDealer.Trash(new EisDealer.Vector(115, 410));
         console.log(trash);
         EisDealer.allObjects.push(trash);
-        // let customer: Customer = new Customer(new Vector(200, 200), new Vector(0, 0),new Vector(0, 0),EisDealer.CustomerType.Normal,"Happy");
-        // console.log(customer);
-        // allObjects.push(customer);
-        for (let i = 0; i < 7; i++) {
-            EisDealer.allObjects.push(createCustomer());
-        }
-        let dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 200), new EisDealer.Vector(0, 0), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "Happy");
+        // Initialisieren Sie die Auswahlbildschirm-Instanz
+        const initialPosition = new EisDealer.Vector(0, 0); // Beispielwert für die Position
+        selectionScreen = new EisDealer.SelectionScreen(initialPosition);
+        // for (let i: number = 0; i < 15; i++) {
+        //     createCustomer();
+        // }
+        let dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(0, 0), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "Happy");
         console.log(dealer);
         EisDealer.allObjects.push(dealer);
         drawBackground();
-        setInterval(animate, 40);
+        // setInterval(animate, 40);
+        createCustomer();
+        setInterval(createCustomer, 30000);
+        animate();
     }
     function animate() {
         console.log("animate");
@@ -54,63 +58,68 @@ var EisDealer;
         for (let object of EisDealer.allObjects) {
             object.update();
         }
+        selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
+        requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
     }
     function createCustomer() {
-        // Zufällige Position innerhalb des Canvas
-        let x = Math.random() * 1000;
-        let y = Math.random() * 600;
-        // Zufällige Geschwindigkeit und Richtung
-        let speed = new EisDealer.Vector(2, 2);
+        // Zufällige Richtung und Geschwindigkeit
         let direction = new EisDealer.Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
-        // Erstelle einen neuen Kunden
-        let customer = new EisDealer.Customer(new EisDealer.Vector(x, y), speed, direction, EisDealer.CustomerType.Normal, "Happy");
-        // Finde den nächsten unbesetzten Stuhl für diesen Kunden
-        let unoccupiedChairs = EisDealer.allObjects.filter(obj => obj instanceof EisDealer.Chair && !obj.isOccupied);
-        if (unoccupiedChairs.length === 0) {
-            console.warn("Es gibt keine verfügbaren Stühle für diesen Kunden.");
-            return customer; // Rückgabe des Kunden, auch wenn kein Stuhl verfügbar ist
-        }
-        // Wähle zufällig einen unbesetzten Stuhl aus
-        let randomIndex = Math.floor(Math.random() * unoccupiedChairs.length);
-        let chosenChair = unoccupiedChairs[randomIndex];
-        // Setze die Position des Kunden auf die Position des gewählten Stuhls
-        customer.position = chosenChair.position;
-        chosenChair.occupied = true; // Markiere den Stuhl als besetzt
-        console.log(`Kunde erstellt an Position (${x}, ${y}) am Stuhl (${chosenChair.position.x}, ${chosenChair.position.y})`);
-        if (customer.position.x < 0 || customer.position.x > 1000 || customer.position.y < 0 || customer.position.y > 600) {
-            console.warn("Kunde außerhalb des Canvas-Bereichs.");
-        }
-        if (customer.position.x < 0 || customer.position.x > EisDealer.crc2.canvas.width || customer.position.y < 0 || customer.position.y > EisDealer.crc2.canvas.height) {
-            console.warn("Kunde außerhalb des Canvas-Bereichs.");
-        }
-        return customer;
-        // // Zufällige Position innerhalb des Canvas
-        // let x: number = Math.random() * canvasWidth;
-        // let y: number = Math.random() * canvasHeight;
-        // // Zufällige Geschwindigkeit und Richtung
-        // let speed: Vector = new Vector(2, 2);
-        // let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
-        // // Erstelle einen neuen Kunden
-        // let customer: Customer = new Customer(new Vector(x, y), speed, direction, CustomerType.Normal, "Happy");
-        // return customer;
-        // // Zufällige Position innerhalb des Canvas von 1000x600
-        // let x: number = Math.random() * (canvasWidth - 200) + 100;
-        // let y: number = Math.random() * (canvasHeight - 100) + 50;
-        // // Geschwindigkeit und Richtung zufällig festlegen
-        // let speed: Vector = new Vector(2, 2);
-        // let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
-        // // Kunden-Typ und Emotion zufällig wählen
-        // let type: CustomerType = Math.random() < 0.5 ? CustomerType.Normal : CustomerType.VIP;
-        // let emotion: string = Math.random() < 0.5 ? "Happy" : "Sad";
-        // // Türposition und Stühle übergeben
-        // let doorPosition: Vector = new Vector(795, 195); // Beispielposition
-        // let chairs: Chair[] = allObjects.filter(obj => obj instanceof Chair);
-        // // Kunden erstellen und zurückgeben
-        // return new Customer(new Vector(x, y), speed, direction, type, emotion, doorPosition, chairs);
+        // Erstelle einen neuen Kunden an der gewählten Zielkoordinate
+        let customer = new EisDealer.Customer(new EisDealer.Vector(570, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy");
+        EisDealer.allObjects.push(customer); // Füge den Kunden der Liste hinzu
     }
     EisDealer.createCustomer = createCustomer;
     function handleClick(_event) {
         console.log("canvas is clicked");
+        const x = _event.clientX;
+        const y = _event.clientY;
+        // Check if any Scoop was clicked
+        for (let object of EisDealer.allObjects) {
+            if (object instanceof EisDealer.Scoop) {
+                const scoop = object;
+                if (x >= scoop.position.x && x <= scoop.position.x + 50 &&
+                    y >= scoop.position.y && y <= scoop.position.y + 50) {
+                    // Füge den Scoop als Symbol in den Auswahlbildschirm ein
+                    selectionScreen.addItem(scoop);
+                }
+            }
+        }
+        // Überprüfen, ob eine Sauce angeklickt wurde
+        for (let object of EisDealer.allObjects) {
+            if (object instanceof EisDealer.Sauce) {
+                const sauce = object;
+                if (x >= sauce.position.x - 20 && x <= sauce.position.x + 20 &&
+                    y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
+                    // Add the sauce as a symbol in the selection screen
+                    selectionScreen.addItem(sauce);
+                    return;
+                }
+            }
+        }
+        // Überprüfen, ob ein Topping angeklickt wurde
+        for (let object of EisDealer.allObjects) {
+            if (object instanceof EisDealer.Topping) {
+                const topping = object;
+                if (x >= topping.position.x - 20 && x <= topping.position.x + 20 &&
+                    y >= topping.position.y - 20 && y <= topping.position.y + 20) {
+                    // Add the topping as a symbol in the selection screen
+                    selectionScreen.addItem(topping);
+                    return;
+                }
+            }
+        }
+        // Überprüfen, ob der Trash-Behälter angeklickt wurde
+        for (let object of EisDealer.allObjects) {
+            if (object instanceof EisDealer.Trash) {
+                const trash = object;
+                if (x >= trash.position.x - 20 && x <= trash.position.x + 20 &&
+                    y >= trash.position.y - 20 && y <= trash.position.y + 20) {
+                    // Clear all items from the selection screen
+                    selectionScreen.clearItems();
+                    return;
+                }
+            }
+        }
     }
     function drawBackground() {
         EisDealer.crc2.save();

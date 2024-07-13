@@ -35,6 +35,10 @@ var EisDealer;
             }
             return new Vector(this.x / mag, this.y / mag);
         }
+        // Methode zur Überprüfung, ob zwei Vektoren gleich sind
+        equals(other) {
+            return this.x === other.x && this.y === other.y;
+        }
         distanceTo(vector) {
             let dx = this.x - vector.x;
             let dy = this.y - vector.y;

@@ -12,7 +12,7 @@ namespace EisDealer {
 
         }
     
-        protected draw():void{
+        public draw():void{
             console.log("Receipt draw")
 
         }

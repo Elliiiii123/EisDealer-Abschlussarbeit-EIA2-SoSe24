@@ -41,8 +41,12 @@ namespace EisDealer {
               return new Vector(0, 0);
             }
             return new Vector(this.x / mag, this.y / mag);
-          }
+        }
         
+            // Methode zur Überprüfung, ob zwei Vektoren gleich sind
+        public equals(other: Vector): boolean {
+            return this.x === other.x && this.y === other.y;
+        }
 
         public distanceTo(vector: Vector): number {
             let dx = this.x - vector.x;

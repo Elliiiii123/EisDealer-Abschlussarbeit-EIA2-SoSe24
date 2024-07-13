@@ -4,14 +4,17 @@ var EisDealer;
     class Scoop extends EisDealer.Drawable {
         price;
         flavor;
+        color;
         //private isClicked: boolean;
         constructor(_position, _flavor, _price) {
             //console.log("Scoop Constructor")
             super(_position);
             this.flavor = _flavor;
             this.price = _price;
+            this.color = this.getColor(_flavor);
         }
-        handleClicked() {
+        handleClicked(selectionScreen) {
+            selectionScreen.addItem(this);
         }
         draw() {
             //console.log("Scoop draw")
@@ -36,6 +39,34 @@ var EisDealer;
                     break;
                 default:
                     console.error("Unknown flavor: " + this.flavor);
+            }
+        }
+        drawSymbol(position) {
+            EisDealer.crc2.save();
+            EisDealer.crc2.fillStyle = this.color;
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(position.x, position.y, 20, 0, 2 * Math.PI); // Draw a circle with radius 20
+            EisDealer.crc2.fill();
+            EisDealer.crc2.restore();
+        }
+        //entsprechende farbe für die darstellung im selected screen
+        getColor(_flavor) {
+            switch (this.flavor) {
+                case EisDealer.ScoopFlavour.Pistaccio:
+                    return "#98ff98";
+                case EisDealer.ScoopFlavour.Chocolate:
+                    return "#8B4513";
+                case EisDealer.ScoopFlavour.Straciatella:
+                    return "white";
+                case EisDealer.ScoopFlavour.Lemon:
+                    return "yellow";
+                case EisDealer.ScoopFlavour.Strawberry:
+                    return "#ffc0cb";
+                case EisDealer.ScoopFlavour.Mint:
+                    return "#99f09b";
+                // Füge hier weitere Geschmacksrichtungen hinzu
+                default:
+                    return "white";
             }
         }
         drawChocolate() {
@@ -75,7 +106,7 @@ var EisDealer;
             EisDealer.crc2.save();
             EisDealer.crc2.beginPath();
             EisDealer.crc2.rect(x, y, 50, 50); // Square shape
-            EisDealer.crc2.fillStyle = "#ffc0cb"; // Chocolate color
+            EisDealer.crc2.fillStyle = "#ffc0cb"; // Strawberry color
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;
@@ -121,7 +152,7 @@ var EisDealer;
             EisDealer.crc2.save();
             EisDealer.crc2.beginPath();
             EisDealer.crc2.rect(x, y, 50, 50); // Square shape
-            EisDealer.crc2.fillStyle = "#98ff98"; // Chocolate color
+            EisDealer.crc2.fillStyle = "#98ff98"; // Pistaccio color
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;
@@ -150,7 +181,7 @@ var EisDealer;
             EisDealer.crc2.save();
             EisDealer.crc2.beginPath();
             EisDealer.crc2.rect(x, y, 50, 50); // Square shape
-            EisDealer.crc2.fillStyle = "#ffff00"; // Chocolate color
+            EisDealer.crc2.fillStyle = "#ffff00"; // Lemon color
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;

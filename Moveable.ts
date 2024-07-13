@@ -15,10 +15,10 @@ namespace EisDealer {
             let newPosition = this.position.add(this.speed);
 
             // Check for canvas boundaries
-            if (newPosition.x < 0 || newPosition.x > canvasWidth) {
+            if (newPosition.x < 0 || newPosition.x > crc2.canvas.width) {
                 this.speed.x *= -1;
             }
-            if (newPosition.y < 0 || newPosition.y > canvasHeight) {
+            if (newPosition.y < 0 || newPosition.y > crc2.canvas.height) {
                 this.speed.y *= -1;
             }
 
@@ -26,7 +26,7 @@ namespace EisDealer {
         }
         
 
-        protected abstract draw(): void 
+        public abstract draw(): void 
 
         public update(): void {
             this.draw();

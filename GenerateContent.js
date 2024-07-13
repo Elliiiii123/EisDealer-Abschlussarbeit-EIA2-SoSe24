@@ -24,7 +24,7 @@ var EisDealer;
                 case "Toppings":
                     EisDealer.data.Toppings.forEach((product, index) => {
                         let flavor = EisDealer.ToppingFlavour[product.name];
-                        let position = new EisDealer.Vector(210 + (index * 40), 400);
+                        let position = new EisDealer.Vector(180 + (index * 40), 370);
                         let topping = new EisDealer.Topping(position, flavor, product.price);
                         EisDealer.allObjects.push(topping);
                     });

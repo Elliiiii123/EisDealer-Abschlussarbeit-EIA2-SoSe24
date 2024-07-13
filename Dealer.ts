@@ -1,7 +1,7 @@
 namespace EisDealer {
     export class Dealer extends Moveable{
 
-        private type: DealerType;
+        // private type: DealerType;
 
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: DealerType, _emotion: string){
             //console.log("Receipt Constructor")
@@ -9,7 +9,7 @@ namespace EisDealer {
             this.position = _position;
             this.speed = _speed;
             this.direction = _direction;
-            this.type = _type;
+            // this.type = _type;
         }
         
         public handleClicked():void{
@@ -22,7 +22,7 @@ namespace EisDealer {
     
         }
     
-        protected draw():void{
+        public draw():void{
             //console.log("Customer draw")
             this.withoutIce();
             this.withIce();

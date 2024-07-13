@@ -15,7 +15,7 @@ namespace EisDealer {
 
         }
 
-        protected draw():void{
+        public draw():void{
             this.drawOpen();
             this.drawClose();
         }

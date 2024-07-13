@@ -2,14 +2,14 @@
 var EisDealer;
 (function (EisDealer) {
     class Dealer extends EisDealer.Moveable {
-        type;
+        // private type: DealerType;
         constructor(_position, _speed, _direction, _type, _emotion) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
             this.position = _position;
             this.speed = _speed;
             this.direction = _direction;
-            this.type = _type;
+            // this.type = _type;
         }
         handleClicked() {
         }
