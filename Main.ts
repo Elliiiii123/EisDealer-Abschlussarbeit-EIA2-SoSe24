@@ -5,7 +5,10 @@ namespace EisDealer {
       //Definiton der crc2 Variable als den HTML Canvas
     export let crc2: CanvasRenderingContext2D;
     export let allObjects: Drawable[] = [];
+    export let allCustomers: Customer[] = [];
     let selectionScreen: SelectionScreen;
+    export let orderScreen: OrderScreen;
+    let dealer: Dealer;  
 
 
     function handleLoad(_event: Event): void {
@@ -46,14 +49,12 @@ namespace EisDealer {
         allObjects.push(trash);
 
         // Initialisieren Sie die Auswahlbildschirm-Instanz
-        const initialPosition = new Vector(0, 0); // Beispielwert für die Position
-        selectionScreen = new SelectionScreen(initialPosition);
+    
+        selectionScreen = new SelectionScreen(new Vector(0,0));
+        orderScreen = new OrderScreen(new Vector(780,0));
+        
 
-        // for (let i: number = 0; i < 15; i++) {
-        //     createCustomer();
-        // }
-
-        let dealer: Dealer = new Dealer(new Vector(100, 250), new Vector(0, 0),new Vector(0, 0),EisDealer.DealerType.withoutIce,"Happy");
+        dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce,"Happy");
         console.log(dealer);
         allObjects.push(dealer);
 
@@ -73,6 +74,7 @@ namespace EisDealer {
             object.update();
         }
         selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
+        orderScreen.draw();
 
         requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
     }
@@ -82,15 +84,43 @@ namespace EisDealer {
         let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
 
         // Erstelle einen neuen Kunden an der gewählten Zielkoordinate
-        let customer: Customer = new Customer(new Vector(570, 200), new Vector(1, 1), direction, CustomerType.Normal, "Happy");
+        let customer: Customer = new Customer(new Vector(1070, 200), new Vector(1, 1), direction, CustomerType.Normal, "Happy");
 
         allObjects.push(customer); // Füge den Kunden der Liste hinzu
+        allCustomers.push(customer); // Füge den Kunden der Liste aller Kunden hinzu
     }
 
     function handleClick(_event: MouseEvent): void {
-        console.log("canvas is clicked");
+        //console.log("canvas is clicked");
         const x = _event.clientX;
         const y = _event.clientY;
+        console.log(`Mouse clicked at (${x}, ${y})`);
+
+            // Überprüfen, ob ein Kunde angeklickt wurde
+            for (let customer of allCustomers) {
+                const dx = x - customer.position.x;
+                const dy = y - customer.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
+                if (distance < 25) { // Annahme: Radius des Kunden ist 25
+                    console.log('Customer clicked!');
+                    customer.showOrder();
+                    // Setze das Ziel des Dealers auf die Position des Kunden
+                    
+                    // Setze das Ziel des Dealers auf eine Position neben dem Kunden
+                    const offsetAngle = Math.random() * 2 * Math.PI;
+                    const offsetDistance = 80; // Beispielhafte Verschiebung um 30 Pixel
+                    const targetPosition = new Vector(
+                    customer.position.x + offsetDistance * Math.cos(offsetAngle),
+                    customer.position.y + offsetDistance * Math.sin(offsetAngle)
+            );
+
+            dealer.setTargetPosition(targetPosition);
+
+                    return;
+                }
+            }
+            console.log('No customer clicked.');
 
             // Check if any Scoop was clicked
             for (let object of allObjects) {
@@ -100,6 +130,7 @@ namespace EisDealer {
                         y >= scoop.position.y && y <= scoop.position.y + 50) {
                         // Füge den Scoop als Symbol in den Auswahlbildschirm ein
                         selectionScreen.addItem(scoop);
+                        dealer.moveToOriginalPosition();
                     }
                 }
             }
@@ -112,6 +143,7 @@ namespace EisDealer {
                         y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
                         // Add the sauce as a symbol in the selection screen
                         selectionScreen.addItem(sauce);
+                        dealer.moveToOriginalPosition();
                         return;
                     }
                 }
@@ -125,6 +157,7 @@ namespace EisDealer {
                         y >= topping.position.y - 20 && y <= topping.position.y + 20) {
                         // Add the topping as a symbol in the selection screen
                         selectionScreen.addItem(topping);
+                        dealer.moveToOriginalPosition();
                         return;
                     }
                 }
@@ -142,6 +175,7 @@ namespace EisDealer {
                     }
                 }
             }
+            
     }
 
     function drawBackground(): void {

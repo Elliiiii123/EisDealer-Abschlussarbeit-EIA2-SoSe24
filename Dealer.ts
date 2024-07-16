@@ -2,6 +2,8 @@ namespace EisDealer {
     export class Dealer extends Moveable{
 
         // private type: DealerType;
+        private originalPosition: Vector;
+        private targetPosition: Vector | null = null;
 
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: DealerType, _emotion: string){
             //console.log("Receipt Constructor")
@@ -9,6 +11,7 @@ namespace EisDealer {
             this.position = _position;
             this.speed = _speed;
             this.direction = _direction;
+            this.originalPosition = new Vector(_position.x, _position.y);
             // this.type = _type;
         }
         
@@ -16,14 +19,34 @@ namespace EisDealer {
 
         }
 
+        public setTargetPosition(position: Vector): void {
+            this.targetPosition = new Vector(position.x, position.y);
+        }
+
+        public moveToOriginalPosition(): void {
+            this.targetPosition = new Vector(this.originalPosition.x, this.originalPosition.y);
+        }
+
         protected move(): void {
 
-        
-    
+            if (this.targetPosition) {
+                const dx = this.targetPosition.x - this.position.x;
+                const dy = this.targetPosition.y - this.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 1) {
+                    const moveX = (dx / distance) * this.speed.x;
+                    const moveY = (dy / distance) * this.speed.y;
+                    this.position.x += moveX;
+                    this.position.y += moveY;
+                } else {
+                    this.position = this.targetPosition;
+                    this.targetPosition = null; // Ziel erreicht
+                }
+            }
         }
     
         public draw():void{
-            //console.log("Customer draw")
+            //console.log("Dealer draw")
             this.withoutIce();
             this.withIce();
             }

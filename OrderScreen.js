@@ -1,7 +1,7 @@
 "use strict";
 var EisDealer;
 (function (EisDealer) {
-    class SelectionScreen extends EisDealer.Drawable {
+    class OrderScreen extends EisDealer.Drawable {
         selectedSauce;
         selectedToppings;
         scoops;
@@ -43,13 +43,13 @@ var EisDealer;
             // Draw background green circle
             EisDealer.crc2.beginPath();
             EisDealer.crc2.arc(x + 80, y + 125, 70, 0, 2 * Math.PI); // Adjust radius and position as needed
-            EisDealer.crc2.fillStyle = "#ff6961";
+            EisDealer.crc2.fillStyle = "#bff461";
             EisDealer.crc2.fill();
             EisDealer.crc2.closePath();
             // Draw text "Your selection:"
             EisDealer.crc2.fillStyle = "black";
             EisDealer.crc2.font = "20px Arial";
-            EisDealer.crc2.fillText("Your selection:", x + 10, y + 45);
+            EisDealer.crc2.fillText("Current Order:", x + 10, y + 45);
             // Draw a simple bowl shape
             EisDealer.crc2.beginPath();
             EisDealer.crc2.fillStyle = "#f5deb3"; // BurlyWood color
@@ -89,19 +89,21 @@ var EisDealer;
                     new EisDealer.Vector(centerX + radius * 2, baseY + radius)
                 ]
             ];
-            this.scoops.forEach((scoop, index) => {
-                const row = Math.floor((-1 + Math.sqrt(1 + 8 * index)) / 2);
-                const col = index - row * (row + 1) / 2;
-                const position = positions[row][col];
-                scoop.drawSymbol(position);
-                // Draw sauce on the scoop if a sauce is selected
-                if (this.selectedSauce) {
-                    this.selectedSauce.drawSymbol(position);
+            let scoopIndex = 0;
+            this.scoops.forEach((scoop) => {
+                if (scoopIndex < positions.length) {
+                    const row = positions[scoopIndex];
+                    row.forEach(position => {
+                        scoop.drawSymbol(position);
+                        if (this.selectedSauce) {
+                            this.selectedSauce.drawSymbol(position);
+                        }
+                        this.selectedToppings.forEach(topping => {
+                            topping.drawSymbol(position);
+                        });
+                    });
+                    scoopIndex++;
                 }
-                // Draw toppings on the scoop if toppings are selected
-                this.selectedToppings.forEach(topping => {
-                    topping.drawSymbol(position);
-                });
             });
             EisDealer.crc2.restore();
         }
@@ -117,6 +119,6 @@ var EisDealer;
             EisDealer.crc2.fill();
         }
     }
-    EisDealer.SelectionScreen = SelectionScreen;
+    EisDealer.OrderScreen = OrderScreen;
 })(EisDealer || (EisDealer = {}));
-//# sourceMappingURL=SelectionScreen.js.map
+//# sourceMappingURL=OrderScreen.js.map

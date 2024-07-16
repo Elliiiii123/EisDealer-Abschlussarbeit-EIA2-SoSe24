@@ -4,7 +4,9 @@ var EisDealer;
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     EisDealer.allObjects = [];
+    EisDealer.allCustomers = [];
     let selectionScreen;
+    let dealer;
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
         if (!canvas)
@@ -38,12 +40,9 @@ var EisDealer;
         console.log(trash);
         EisDealer.allObjects.push(trash);
         // Initialisieren Sie die Auswahlbildschirm-Instanz
-        const initialPosition = new EisDealer.Vector(0, 0); // Beispielwert für die Position
-        selectionScreen = new EisDealer.SelectionScreen(initialPosition);
-        // for (let i: number = 0; i < 15; i++) {
-        //     createCustomer();
-        // }
-        let dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(0, 0), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "Happy");
+        selectionScreen = new EisDealer.SelectionScreen(new EisDealer.Vector(0, 0));
+        EisDealer.orderScreen = new EisDealer.OrderScreen(new EisDealer.Vector(780, 0));
+        dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "Happy");
         console.log(dealer);
         EisDealer.allObjects.push(dealer);
         drawBackground();
@@ -59,20 +58,42 @@ var EisDealer;
             object.update();
         }
         selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
+        EisDealer.orderScreen.draw();
         requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
     }
     function createCustomer() {
         // Zufällige Richtung und Geschwindigkeit
         let direction = new EisDealer.Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
         // Erstelle einen neuen Kunden an der gewählten Zielkoordinate
-        let customer = new EisDealer.Customer(new EisDealer.Vector(570, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy");
+        let customer = new EisDealer.Customer(new EisDealer.Vector(1070, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy");
         EisDealer.allObjects.push(customer); // Füge den Kunden der Liste hinzu
+        EisDealer.allCustomers.push(customer); // Füge den Kunden der Liste aller Kunden hinzu
     }
     EisDealer.createCustomer = createCustomer;
     function handleClick(_event) {
-        console.log("canvas is clicked");
+        //console.log("canvas is clicked");
         const x = _event.clientX;
         const y = _event.clientY;
+        console.log(`Mouse clicked at (${x}, ${y})`);
+        // Überprüfen, ob ein Kunde angeklickt wurde
+        for (let customer of EisDealer.allCustomers) {
+            const dx = x - customer.position.x;
+            const dy = y - customer.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
+            if (distance < 25) { // Annahme: Radius des Kunden ist 25
+                console.log('Customer clicked!');
+                customer.showOrder();
+                // Setze das Ziel des Dealers auf die Position des Kunden
+                // Setze das Ziel des Dealers auf eine Position neben dem Kunden
+                const offsetAngle = Math.random() * 2 * Math.PI;
+                const offsetDistance = 80; // Beispielhafte Verschiebung um 30 Pixel
+                const targetPosition = new EisDealer.Vector(customer.position.x + offsetDistance * Math.cos(offsetAngle), customer.position.y + offsetDistance * Math.sin(offsetAngle));
+                dealer.setTargetPosition(targetPosition);
+                return;
+            }
+        }
+        console.log('No customer clicked.');
         // Check if any Scoop was clicked
         for (let object of EisDealer.allObjects) {
             if (object instanceof EisDealer.Scoop) {
@@ -81,6 +102,7 @@ var EisDealer;
                     y >= scoop.position.y && y <= scoop.position.y + 50) {
                     // Füge den Scoop als Symbol in den Auswahlbildschirm ein
                     selectionScreen.addItem(scoop);
+                    dealer.moveToOriginalPosition();
                 }
             }
         }
@@ -92,6 +114,7 @@ var EisDealer;
                     y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
                     // Add the sauce as a symbol in the selection screen
                     selectionScreen.addItem(sauce);
+                    dealer.moveToOriginalPosition();
                     return;
                 }
             }
@@ -104,6 +127,7 @@ var EisDealer;
                     y >= topping.position.y - 20 && y <= topping.position.y + 20) {
                     // Add the topping as a symbol in the selection screen
                     selectionScreen.addItem(topping);
+                    dealer.moveToOriginalPosition();
                     return;
                 }
             }

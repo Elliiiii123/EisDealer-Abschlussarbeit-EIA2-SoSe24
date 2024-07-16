@@ -4,20 +4,9 @@ namespace EisDealer {
         // private type: CustomerType;
         // private emotion: string;
         private targetPosition: Vector | null = null;
-        private static targetPositions: Vector[] = [
-            new Vector(295, 235),
-            new Vector(262, 173),
-            new Vector(370, 255),
-            new Vector(190, 30),
-            new Vector(220, 90),
-            new Vector(180, 175),
-            new Vector(225, 220),
-            new Vector(350, 200),
-            new Vector(250, 35),
-            new Vector(290, 60),
-            new Vector(343, 30),
-            new Vector(345, 97),
-        ]
+        private passingPointReached: boolean = false;
+        private static chairOffset = new Vector(25, 25);
+        private orderPlaced: boolean = false;
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string){
             //console.log("Receipt Constructor")
@@ -39,88 +28,147 @@ namespace EisDealer {
         }
 
         public move(): void {
-            if (!this.targetPosition) return;
-        
-            const goalPosition = this.targetPosition; // Zielkoordinate
-            const passingPoint = new Vector(417, 115); // Punkt, den der Customer passieren soll
-        
-            // Berechne die Distanz zum Ziel und zum Passierpunkt
-            const distanceToGoal = this.position.distanceTo(goalPosition);
-            const distanceToPassingPoint = this.position.distanceTo(passingPoint);
-        
-            // Bewegung in Richtung Zielkoordinate oder Passierpunkt je nach Entfernung
-            if (distanceToPassingPoint > 1) {
-                // Bewege zum Passierpunkt (417, 115)
-                const dxToPassingPoint = passingPoint.x - this.position.x;
-                const dyToPassingPoint = passingPoint.y - this.position.y;
-                this.position.x += Math.sign(dxToPassingPoint);
-                this.position.y += Math.sign(dyToPassingPoint);
-            } else {
-                // Bewege zur Zielkoordinate
-                const dxToGoal = goalPosition.x - this.position.x;
-                const dyToGoal = goalPosition.y - this.position.y;
-                this.position.x += Math.sign(dxToGoal);
-                this.position.y += Math.sign(dyToGoal);
-        
-                // Kunden erreichen das Ziel
-                if (distanceToGoal <= 1) {
-                    console.log("Customer reached the target position");
-                    this.findNextTargetPosition(); // Nächstes Ziel setzen
+            if (this.speed.x === 0 && this.speed.y === 0) return; // Wenn die Geschwindigkeit 0 ist, nicht weiter bewegen
+
+            const passingPoint = new Vector(800, 215); // Punkt, den der Customer passieren soll
+
+            if (!this.passingPointReached) {
+                this.moveToPoint(passingPoint);
+                if (this.position.equals(passingPoint)) {
+                    console.log("Customer passed the point at", this.position);
+                    this.passingPointReached = true;
                 }
+            } else if (this.targetPosition) {
+                this.moveToPoint(this.targetPosition);
+                if (this.position.equals(this.targetPosition)) {
+                    console.log("Customer reached the target position at", this.position);
+                    this.speed = new Vector(0, 0); // Geschwindigkeit auf 0 setzen, damit der Kunde dort bleibt
+                }
+            }
+        }
+
+        private moveToPoint(point: Vector): void {
+            const dx = point.x - this.position.x;
+            const dy = point.y - this.position.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 1) {
+                const moveX = (dx / distance) * this.speed.x;
+                const moveY = (dy / distance) * this.speed.y;
+                this.position.x += moveX;
+                this.position.y += moveY;
+            } else {
+                this.position = point;
             }
         }
 
         private findNextTargetPosition(): void {
-            const queueOffset = 30; // Offset zwischen den Kunden in der Warteschlange
-
-            // Liste der verfügbaren Zielpositionen
-            let availablePositions = Customer.targetPositions.filter(pos => !this.isPositionOccupied(pos));
+            const availableChairs = this.getAvailableChairs();
 
             // Wenn keine freie Position gefunden wurde
-            if (availablePositions.length === 0) {
-                // Position im Bereich 420, 115 wählen, aber mit Anpassung des Offsets
-                let basePosition = new Vector(420, 115);
-
-                // Suche die nächste freie Position mit dem richtigen Offset
-                let newPosition = basePosition;
-                while (this.isPositionOccupied(newPosition)) {
-                    newPosition = new Vector(newPosition.x, newPosition.y + queueOffset);
-                }
-
-                this.targetPosition = newPosition;
-            } else {
-                // Wähle die nächste Position in der Warteschlange basierend auf der Reihenfolge aus
-                let nextPositionIndex = 0;
-                for (let i = 0; i < Customer.targetPositions.length; i++) {
-                    if (!this.isPositionOccupied(Customer.targetPositions[i])) {
-                        nextPositionIndex = i;
-                        break;
-                    }
-                }
-
-                this.targetPosition = Customer.targetPositions[nextPositionIndex];
+            if (availableChairs.length === 0) {
+                console.warn("No available chairs found for customer.");
+                return;
             }
 
+            const chosenChair = availableChairs[0];
+            this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
+
+
             // Markiere die Zielposition als belegt
-            this.markPositionAsOccupied(this.targetPosition);
+            availableChairs[0].occupy();
+            console.log("Customer assigned to target position at", this.targetPosition);
         }
 
-        private isPositionOccupied(position: Vector): boolean {
-            // Überprüfe, ob die Zielposition bereits von einem anderen Kunden besetzt ist
-            return allObjects.some(obj => {
-                if (obj instanceof Customer && obj !== this) {
-                    return obj.targetPosition && obj.targetPosition.equals(position);
+        private calculateOffset(rotation: number): Vector {
+            const radians = rotation * Math.PI / 180;
+            const offsetX = Customer.chairOffset.x * Math.cos(radians) - Customer.chairOffset.y * Math.sin(radians);
+            const offsetY = Customer.chairOffset.x * Math.sin(radians) + Customer.chairOffset.y * Math.cos(radians);
+            return new Vector(offsetX, offsetY);
+        }
+
+        private getAvailableChairs(): Chair[] {
+            // Filtere alle Objekte und erhalte nur die verfügbaren Stühle
+            return allObjects.filter(obj => obj instanceof Chair && !obj.isOccupied()) as Chair[];
+        }
+    
+        public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } {
+            const numberOfScoops = Math.floor(Math.random() * 3) + 1; // Zufällige Anzahl von Kugeln (1 bis 3)
+            const selectedScoops = [];
+
+            for (let i = 0; i < numberOfScoops; i++) {
+                const randomScoop = this.getRandomScoop();
+                selectedScoops.push(randomScoop);
+            }
+
+            const addTopping = Math.random() < 0.5; // 50% Wahrscheinlichkeit für ein Topping
+            const selectedTopping = addTopping ? this.getRandomTopping() : null;
+
+            const addSauce = Math.random() < 0.5; // 50% Wahrscheinlichkeit für eine Sauce
+            const selectedSauce = addSauce ? this.getRandomSauce() : null;
+
+            console.log(selectedSauce, selectedScoops, selectedTopping);
+            return { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
+            
+        }
+
+        private getRandomScoop(): Scoop {
+            const flavors = [
+                ScoopFlavour.Chocolate,
+                ScoopFlavour.Strawberry,
+                ScoopFlavour.Mint,
+                ScoopFlavour.Straciatella,
+                ScoopFlavour.Pistaccio,
+                ScoopFlavour.Lemon
+            ];
+
+            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
+            return new Scoop(new Vector(0, 0), randomFlavor, 1);
+        }
+
+        private getRandomTopping(): Topping {
+            const flavors = [
+                ToppingFlavour.Sprinkles,
+                ToppingFlavour.Cookie,
+                ToppingFlavour.Strawberry
+            ];
+
+            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
+            return new Topping(new Vector(0, 0), randomFlavor, 3);
+        }
+
+        private getRandomSauce(): Sauce {
+            const flavors = [
+                SauceFlavour.Chocolate,
+                SauceFlavour.Caramel,
+                SauceFlavour.Strawberry
+            ];
+
+            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
+            return new Sauce(new Vector(0, 0), randomFlavor, 3);
+        }
+        public showOrder(): void {
+            if (!this.orderPlaced && this.targetPosition && this.position.equals(this.targetPosition)) {
+                const order = this.generateRandomOrder();
+
+                orderScreen.clearItems();
+
+                order.scoops.forEach(scoop => {
+                    orderScreen.addItem(scoop);
+                });
+                if (order.topping) {
+                    orderScreen.addItem(order.topping);
                 }
-                return false;
-            });
-        }
+                if (order.sauce) {
+                    orderScreen.addItem(order.sauce);
+                }
 
-        private markPositionAsOccupied(position: Vector): void {
-            // Füge die Zielposition zur Liste der belegten Positionen hinzu
-            Customer.targetPositions.push(position);
+                this.orderPlaced = true;  // Markiere die Bestellung als aufgegeben
+            } else if (this.orderPlaced) {
+                console.log("This customer has already placed an order.");
+            } else {
+                console.log("Customer is not seated yet.");
+            }
         }
-    
-    
     
         public draw():void{
             //console.log("Customer draw")
@@ -138,7 +186,7 @@ namespace EisDealer {
             const radius = 25;
 
             crc2.save();
-            crc2.translate(this.position.x, this.position.y);
+            // crc2.translate(this.position.x, this.position.y);
             // Zeichne den Kopf
             crc2.beginPath();
             crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);

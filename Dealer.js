@@ -3,20 +3,44 @@ var EisDealer;
 (function (EisDealer) {
     class Dealer extends EisDealer.Moveable {
         // private type: DealerType;
+        originalPosition;
+        targetPosition = null;
         constructor(_position, _speed, _direction, _type, _emotion) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
             this.position = _position;
             this.speed = _speed;
             this.direction = _direction;
+            this.originalPosition = new EisDealer.Vector(_position.x, _position.y);
             // this.type = _type;
         }
         handleClicked() {
         }
+        setTargetPosition(position) {
+            this.targetPosition = new EisDealer.Vector(position.x, position.y);
+        }
+        moveToOriginalPosition() {
+            this.targetPosition = new EisDealer.Vector(this.originalPosition.x, this.originalPosition.y);
+        }
         move() {
+            if (this.targetPosition) {
+                const dx = this.targetPosition.x - this.position.x;
+                const dy = this.targetPosition.y - this.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 1) {
+                    const moveX = (dx / distance) * this.speed.x;
+                    const moveY = (dy / distance) * this.speed.y;
+                    this.position.x += moveX;
+                    this.position.y += moveY;
+                }
+                else {
+                    this.position = this.targetPosition;
+                    this.targetPosition = null; // Ziel erreicht
+                }
+            }
         }
         draw() {
-            //console.log("Customer draw")
+            //console.log("Dealer draw")
             this.withoutIce();
             this.withIce();
         }

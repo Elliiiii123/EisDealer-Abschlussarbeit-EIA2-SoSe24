@@ -53,7 +53,7 @@ var EisDealer;
         getColor(_flavor) {
             switch (this.flavor) {
                 case EisDealer.ScoopFlavour.Pistaccio:
-                    return "#98ff98";
+                    return "#90b083";
                 case EisDealer.ScoopFlavour.Chocolate:
                     return "#8B4513";
                 case EisDealer.ScoopFlavour.Straciatella:
@@ -152,7 +152,7 @@ var EisDealer;
             EisDealer.crc2.save();
             EisDealer.crc2.beginPath();
             EisDealer.crc2.rect(x, y, 50, 50); // Square shape
-            EisDealer.crc2.fillStyle = "#98ff98"; // Pistaccio color
+            EisDealer.crc2.fillStyle = "#90b083"; // Pistaccio color
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;

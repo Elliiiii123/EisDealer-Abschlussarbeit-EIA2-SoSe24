@@ -1,5 +1,5 @@
 namespace EisDealer{
-    export class SelectionScreen extends Drawable{
+    export class OrderScreen extends Drawable{
         private selectedSauce: Sauce | null;
         private selectedToppings: Topping[];
         private scoops: Scoop[];
@@ -13,7 +13,7 @@ namespace EisDealer{
             this.draw();
         }
 
-        public addItem(item: Scoop | Sauce |Topping): void {
+        public addItem(item: Scoop | Sauce | Topping): void {
             if (item instanceof Scoop) {
                 this.scoops.push(item);
             } else if (item instanceof Sauce) {
@@ -23,7 +23,7 @@ namespace EisDealer{
                 if (!this.selectedToppings.includes(item)) {
                     this.selectedToppings.push(item);
                 }
-            }    
+            }
             this.draw();
         }
 
@@ -46,14 +46,14 @@ namespace EisDealer{
             // Draw background green circle
             crc2.beginPath();
             crc2.arc(x + 80, y + 125, 70, 0, 2 * Math.PI); // Adjust radius and position as needed
-            crc2.fillStyle = "#ff6961";
+            crc2.fillStyle = "#bff461";
             crc2.fill();
             crc2.closePath();
 
             // Draw text "Your selection:"
             crc2.fillStyle = "black";
             crc2.font = "20px Arial";
-            crc2.fillText("Your selection:", x + 10, y + 45);
+            crc2.fillText("Current Order:", x + 10, y + 45);
 
             // Draw a simple bowl shape
             crc2.beginPath();
@@ -100,21 +100,24 @@ namespace EisDealer{
                 ]
             ];
 
-            this.scoops.forEach((scoop, index) => {
-                const row = Math.floor((-1 + Math.sqrt(1 + 8 * index)) / 2);
-                const col = index - row * (row + 1) / 2;
-                const position = positions[row][col];
-                scoop.drawSymbol(position);
 
-                // Draw sauce on the scoop if a sauce is selected
-                if (this.selectedSauce) {
-                    this.selectedSauce.drawSymbol(position);
+            let scoopIndex = 0;
+            this.scoops.forEach((scoop) => {
+                if (scoopIndex < positions.length) {
+                    const row = positions[scoopIndex];
+                    row.forEach(position => {
+                        scoop.drawSymbol(position);
+
+                        if (this.selectedSauce) {
+                            this.selectedSauce.drawSymbol(position);
+                        }
+
+                        this.selectedToppings.forEach(topping => {
+                            topping.drawSymbol(position);
+                        });
+                    });
+                    scoopIndex++;
                 }
-
-                // Draw toppings on the scoop if toppings are selected
-                this.selectedToppings.forEach(topping => {
-                    topping.drawSymbol(position);
-                });
             });
             crc2.restore();
         }
