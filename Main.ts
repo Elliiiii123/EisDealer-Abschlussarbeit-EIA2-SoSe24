@@ -96,15 +96,20 @@ namespace EisDealer {
         const y = _event.clientY;
         console.log(`Mouse clicked at (${x}, ${y})`);
 
+        let customerClicked = false;
+        let itemSelected = false;
+
             // Überprüfen, ob ein Kunde angeklickt wurde
             for (let customer of allCustomers) {
                 const dx = x - customer.position.x;
                 const dy = y - customer.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
+                //console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
                 if (distance < 25) { // Annahme: Radius des Kunden ist 25
                     console.log('Customer clicked!');
+                    customerClicked = true;
                     customer.showOrder();
+                    dealer.customerClicked = true; // Setze die Eigenschaft auf true
                     // Setze das Ziel des Dealers auf die Position des Kunden
                     
                     // Setze das Ziel des Dealers auf eine Position neben dem Kunden
@@ -113,55 +118,72 @@ namespace EisDealer {
                     const targetPosition = new Vector(
                     customer.position.x + offsetDistance * Math.cos(offsetAngle),
                     customer.position.y + offsetDistance * Math.sin(offsetAngle)
-            );
+                    );
 
-            dealer.setTargetPosition(targetPosition);
-
+                    dealer.updateDealerType();
+                    dealer.setTargetPosition(targetPosition);
                     return;
+                    }
                 }
-            }
-            console.log('No customer clicked.');
+            //console.log('No customer clicked.');
 
-            // Check if any Scoop was clicked
+
+            // Überprüfen, ob ein Scoop angeklickt wurde
             for (let object of allObjects) {
                 if (object instanceof Scoop) {
                     const scoop = object as Scoop;
                     if (x >= scoop.position.x && x <= scoop.position.x + 50 &&
                         y >= scoop.position.y && y <= scoop.position.y + 50) {
-                        // Füge den Scoop als Symbol in den Auswahlbildschirm ein
+                        console.log('Scoop clicked!');
                         selectionScreen.addItem(scoop);
                         dealer.moveToOriginalPosition();
+                        dealer.setSelectedScoop(scoop);
+                        itemSelected = true;
+                        break;
                     }
                 }
             }
 
             // Überprüfen, ob eine Sauce angeklickt wurde
-            for (let object of allObjects) {
-                if (object instanceof Sauce) {
-                    const sauce = object as Sauce;
-                    if (x >= sauce.position.x - 20 && x <= sauce.position.x + 20 &&
-                        y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
-                        // Add the sauce as a symbol in the selection screen
-                        selectionScreen.addItem(sauce);
-                        dealer.moveToOriginalPosition();
-                        return;
+            if (!itemSelected) {
+                for (let object of allObjects) {
+                    if (object instanceof Sauce) {
+                        const sauce = object as Sauce;
+                        if (x >= sauce.position.x - 20 && x <= sauce.position.x + 20 &&
+                            y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
+                            console.log('Sauce clicked!');
+                            selectionScreen.addItem(sauce);
+                            dealer.moveToOriginalPosition();
+                            dealer.setSelectedSauce(sauce);
+                            itemSelected = true;
+                            break;
+                        }
                     }
                 }
             }
 
             // Überprüfen, ob ein Topping angeklickt wurde
-            for (let object of allObjects) {
-                if (object instanceof Topping) {
-                    const topping = object as Topping;
-                    if (x >= topping.position.x - 20 && x <= topping.position.x + 20 &&
-                        y >= topping.position.y - 20 && y <= topping.position.y + 20) {
-                        // Add the topping as a symbol in the selection screen
-                        selectionScreen.addItem(topping);
-                        dealer.moveToOriginalPosition();
-                        return;
+            if (!itemSelected) {
+                for (let object of allObjects) {
+                    if (object instanceof Topping) {
+                        const topping = object as Topping;
+                        if (x >= topping.position.x - 20 && x <= topping.position.x + 20 &&
+                            y >= topping.position.y - 20 && y <= topping.position.y + 20) {
+                            console.log('Topping clicked!');
+                            selectionScreen.addItem(topping);
+                            dealer.moveToOriginalPosition();
+                            dealer.addSelectedTopping(topping);
+                            itemSelected = true;
+                            break;
+                        }
                     }
                 }
             }
+            // Nur wenn ein Kunde angeklickt wurde und mindestens ein Item ausgewählt wurde, den Typ ändern
+            if (customerClicked || itemSelected) {
+                dealer.updateDealerType();
+            }
+   
 
             // Überprüfen, ob der Trash-Behälter angeklickt wurde
             for (let object of allObjects) {
@@ -174,9 +196,8 @@ namespace EisDealer {
                         return;
                     }
                 }
-            }
-            
-    }
+            }         
+        }
 
     function drawBackground(): void {
         crc2.save();

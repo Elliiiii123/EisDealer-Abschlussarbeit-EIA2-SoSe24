@@ -20,10 +20,14 @@ namespace EisDealer {
             return new Vector(this.x - vector.x, this.y - vector.y);
         }
 
-        // Method to multiply vector by scalar
-        multiply(scalar: number): Vector {
-            return new Vector(this.x * scalar, this.y * scalar);
+        public clone(): Vector {
+            return new Vector(this.x, this.y);
         }
+
+        // Method to multiply vector by scalar
+        // multiply(scalar: number): Vector {
+        //     return new Vector(this.x * scalar, this.y * scalar);
+        // }
 
         // Method to get the magnitude of the vector
         magnitude(): number {
@@ -48,10 +52,10 @@ namespace EisDealer {
             return this.x === other.x && this.y === other.y;
         }
 
-        public distanceTo(vector: Vector): number {
-            let dx = this.x - vector.x;
-            let dy = this.y - vector.y;
-            return Math.sqrt(dx * dx + dy * dy);
-        }
+        // public distanceTo(vector: Vector): number {
+        //     let dx = this.x - vector.x;
+        //     let dy = this.y - vector.y;
+        //     return Math.sqrt(dx * dx + dy * dy);
+        // }
     }
 }
