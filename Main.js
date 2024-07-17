@@ -131,7 +131,7 @@ var EisDealer;
                 const scoop = object;
                 if (x >= scoop.position.x && x <= scoop.position.x + 50 &&
                     y >= scoop.position.y && y <= scoop.position.y + 50) {
-                    console.log('Scoop clicked!');
+                    //console.log('Scoop clicked!');
                     selectionScreen.addItem(scoop);
                     dealer.moveToOriginalPosition();
                     dealer.setSelectedScoop(scoop);
@@ -147,7 +147,7 @@ var EisDealer;
                     const sauce = object;
                     if (x >= sauce.position.x - 20 && x <= sauce.position.x + 20 &&
                         y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
-                        console.log('Sauce clicked!');
+                        //console.log('Sauce clicked!');
                         selectionScreen.addItem(sauce);
                         dealer.moveToOriginalPosition();
                         dealer.setSelectedSauce(sauce);
@@ -164,7 +164,7 @@ var EisDealer;
                     const topping = object;
                     if (x >= topping.position.x - 20 && x <= topping.position.x + 20 &&
                         y >= topping.position.y - 20 && y <= topping.position.y + 20) {
-                        console.log('Topping clicked!');
+                        //console.log('Topping clicked!');
                         selectionScreen.addItem(topping);
                         dealer.moveToOriginalPosition();
                         dealer.addSelectedTopping(topping);
