@@ -98,28 +98,22 @@ var EisDealer;
             this.order = { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
             return this.order;
         }
-        moveToOriginalPosition() {
-            this.position = this.originalPosition.copy();
-        }
         getRandomScoop() {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Ice.length);
             const randomIce = EisDealer.data.Ice[randomIndex];
-            const position = new EisDealer.Vector(0, 0); // Placeholder position
-            const scoop = new EisDealer.Scoop(position, randomIce.name, randomIce.price, randomIce.color); // Cast name to any to match constructor
+            const scoop = new EisDealer.Scoop(new EisDealer.Vector(0, 0), randomIce.name, randomIce.price, randomIce.color); // Cast name to any to match constructor
             return scoop;
         }
         getRandomTopping() {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Toppings.length);
             const randomTopping = EisDealer.data.Toppings[randomIndex];
-            const position = new EisDealer.Vector(0, 0); // Placeholder position
-            const topping = new EisDealer.Topping(position, randomTopping.name, randomTopping.price, randomTopping.color); // Cast name to any to match constructor
+            const topping = new EisDealer.Topping(new EisDealer.Vector(0, 0), randomTopping.name, randomTopping.price, randomTopping.color); // Cast name to any to match constructor
             return topping;
         }
         getRandomSauce() {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Sauce.length);
             const randomSauce = EisDealer.data.Sauce[randomIndex];
-            const position = new EisDealer.Vector(0, 0); // Placeholder position
-            const sauce = new EisDealer.Sauce(position, randomSauce.name, randomSauce.price, randomSauce.color); // Cast name to any to match constructor
+            const sauce = new EisDealer.Sauce(new EisDealer.Vector(0, 0), randomSauce.name, randomSauce.price, randomSauce.color); // Cast name to any to match constructor
             return sauce;
         }
         showOrder() {
@@ -144,37 +138,15 @@ var EisDealer;
                 //console.log("Customer is not seated yet.");
             }
         }
-        draw() {
-            switch (this.type) {
-                case EisDealer.CustomerType.Normal:
-                    this.drawNormal();
-                    break;
-                case EisDealer.CustomerType.Happy:
-                    this.drawHappy();
-                    break;
-                case EisDealer.CustomerType.Sad:
-                    this.drawSad();
-                    break;
-                case EisDealer.CustomerType.Eat:
-                    this.drawEat();
-                    console.log("Kunde isst");
-                    break;
-                default:
-                    console.error("Unknown state");
-                    break;
-            }
-        }
         compareOrders(selectionScreen) {
             if (!this.order) {
                 console.warn("Customer order has not been generated yet.");
                 return false;
             }
             const selectedOrder = selectionScreen.getSelection();
-            // Vergleiche die Bestellung des Kunden mit der Auswahl auf dem Bildschirm
-            const scoopsMatch = this.compareScoops(this.order.scoops, selectedOrder.scoops);
-            const toppingMatch = this.compareTopping(this.order.topping, selectedOrder.topping);
-            const sauceMatch = this.compareSauce(this.order.sauce, selectedOrder.sauce);
-            return scoopsMatch && toppingMatch && sauceMatch;
+            return this.compareScoops(this.order.scoops, selectedOrder.scoops) &&
+                this.compareTopping(this.order.topping, selectedOrder.topping) &&
+                this.compareSauce(this.order.sauce, selectedOrder.sauce);
         }
         compareScoops(scoops1, scoops2) {
             if (scoops1.length !== scoops2.length)
@@ -202,6 +174,48 @@ var EisDealer;
             if (sauce1 === null || sauce2 === null)
                 return false;
             return sauce1.name === sauce2.name && sauce1.color === sauce2.color;
+        }
+        changeToHappy() {
+            console.log("HAPPY");
+            this.setType(EisDealer.CustomerType.Happy);
+            const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)));
+            EisDealer.allObjects.push(receipt);
+        }
+        changeToSad() {
+            console.log("SAD");
+            this.setType(EisDealer.CustomerType.Sad);
+            this.moveToOriginalPosition();
+            setTimeout(() => {
+                const index = EisDealer.allObjects.indexOf(this);
+                if (index !== -1) {
+                    EisDealer.allObjects.splice(index, 1);
+                }
+            }, 2000); // 2 Sekunden warten, bevor der Kunde entfernt wird
+        }
+        moveToOriginalPosition() {
+            this.targetPosition = this.originalPosition;
+            this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
+            this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
+        }
+        draw() {
+            switch (this.type) {
+                case EisDealer.CustomerType.Normal:
+                    this.drawNormal();
+                    break;
+                case EisDealer.CustomerType.Happy:
+                    this.drawHappy();
+                    break;
+                case EisDealer.CustomerType.Sad:
+                    this.drawSad();
+                    break;
+                // case CustomerType.Eat:
+                //     this.drawEat();
+                //     console.log("Kunde isst")
+                //     break;
+                default:
+                    console.error("Unknown state");
+                    break;
+            }
         }
         drawNormal() {
             //console.log("Customer draw")
@@ -261,8 +275,118 @@ var EisDealer;
             EisDealer.crc2.restore();
         }
         drawSad() {
+            //console.log("Customer drawsad")
+            const centerX = this.position.x;
+            const centerY = this.position.y;
+            const radius = 25;
+            EisDealer.crc2.save();
+            // crc2.translate(this.position.x, this.position.y);
+            // Zeichne den Kopf
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "blue";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 2;
+            EisDealer.crc2.stroke();
+            EisDealer.crc2.closePath();
+            // Zeichne die Augen
+            const eyeRadius = 5;
+            const eyeOffsetX = 8;
+            const eyeOffsetY = 10;
+            // Linkes Auge
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX - eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Rechtes Auge
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX + eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Zeichne den Mund
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 2;
+            EisDealer.crc2.stroke();
+            EisDealer.crc2.closePath();
+            // Zeichne Wangenröte
+            const blushRadius = 7;
+            const blushOffsetX = 15;
+            const blushOffsetY = 2;
+            // Linke Wange
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "blue";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Rechte Wange
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "pink";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            EisDealer.crc2.restore();
         }
         drawHappy() {
+            console.log("Customer drawHappy");
+            const centerX = this.position.x;
+            const centerY = this.position.y;
+            const radius = 25;
+            EisDealer.crc2.save();
+            // crc2.translate(this.position.x, this.position.y);
+            // Zeichne den Kopf
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "red";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 2;
+            EisDealer.crc2.stroke();
+            EisDealer.crc2.closePath();
+            // Zeichne die Augen
+            const eyeRadius = 5;
+            const eyeOffsetX = 8;
+            const eyeOffsetY = 10;
+            // Linkes Auge
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX - eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Rechtes Auge
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX + eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Zeichne den Mund
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 2;
+            EisDealer.crc2.stroke();
+            EisDealer.crc2.closePath();
+            // Zeichne Wangenröte
+            const blushRadius = 7;
+            const blushOffsetX = 15;
+            const blushOffsetY = 2;
+            // Linke Wange
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "blue";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Rechte Wange
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "pink";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            EisDealer.crc2.restore();
         }
         drawEat() {
             console.log("Customer drawEat");

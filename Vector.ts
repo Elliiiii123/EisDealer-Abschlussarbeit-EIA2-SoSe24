@@ -56,10 +56,10 @@ namespace EisDealer {
             return new Vector(this.x, this.y);
         }
 
-        // public distanceTo(vector: Vector): number {
-        //     let dx = this.x - vector.x;
-        //     let dy = this.y - vector.y;
-        //     return Math.sqrt(dx * dx + dy * dy);
-        // }
+        public distanceTo(vector: Vector): number {
+            let dx = this.x - vector.x;
+            let dy = this.y - vector.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
     }
 }

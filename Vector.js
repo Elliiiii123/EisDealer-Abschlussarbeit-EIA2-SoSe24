@@ -45,6 +45,11 @@ var EisDealer;
         copy() {
             return new Vector(this.x, this.y);
         }
+        distanceTo(vector) {
+            let dx = this.x - vector.x;
+            let dy = this.y - vector.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
     }
     EisDealer.Vector = Vector;
 })(EisDealer || (EisDealer = {}));

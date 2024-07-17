@@ -8,7 +8,6 @@ var EisDealer;
     let selectionScreen;
     let moneyScreen;
     let dealer;
-    let customer;
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
         if (!canvas)
@@ -51,7 +50,7 @@ var EisDealer;
         drawBackground();
         // setInterval(animate, 40);
         createCustomer();
-        setInterval(createCustomer, 30000);
+        setInterval(createCustomer, 10000);
         animate();
     }
     function animate() {
@@ -94,21 +93,35 @@ var EisDealer;
                 dealer.customerClicked = true;
                 dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
                 const customerOrderCorrect = customer.compareOrders(selectionScreen);
-                if (customerOrderCorrect) {
-                    console.log("Customer's order matches dealer's selection!");
-                    // Weitere Logik für den Fall, dass die Bestellung übereinstimmt
+                // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
+                function checkDealerProximity() {
+                    const dealerDistanceX = dealer.position.x - customer.position.x;
+                    const dealerDistanceY = dealer.position.y - customer.position.y;
+                    const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
+                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100) { // Annahme: Radius des Dealers ist 25
+                        if (customerOrderCorrect) {
+                            console.log("Customer's order matches dealer's selection!");
+                            customer.changeToHappy();
+                            // Weitere Logik für den Fall, dass die Bestellung übereinstimmt
+                        }
+                        else {
+                            console.log("Customer's order does not match dealer's selection.");
+                            customer.changeToSad();
+                            // Weitere Logik für den Fall, dass die Bestellung nicht übereinstimmt
+                        }
+                        // Entferne den Interval, wenn der Zustand geändert wurde
+                        clearInterval(proximityInterval);
+                    }
                 }
-                else {
-                    console.log("Customer's order does not match dealer's selection.");
-                    // Weitere Logik für den Fall, dass die Bestellung nicht übereinstimmt
-                }
+                // Setze ein Intervall, um die Nähe des Dealers zum Kunden zu überprüfen
+                const proximityInterval = setInterval(checkDealerProximity, 100);
                 // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                 const offsetAngle = Math.random() * 2 * Math.PI;
                 const offsetDistance = 80; // Verschiebung um 80 Pixel
                 const targetPosition = new EisDealer.Vector(customer.position.x + offsetDistance * Math.cos(offsetAngle), customer.position.y + offsetDistance * Math.sin(offsetAngle));
                 dealer.updateDealerType();
                 dealer.setTargetPosition(targetPosition);
-                return;
+                break;
             }
         }
         //console.log('No customer clicked.');

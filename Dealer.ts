@@ -28,13 +28,8 @@ namespace EisDealer {
 
         public handleCustomerClick(): void {
             this.customerClicked = true;
-            if (this.itemClickedFirst) {
-                this.customerClickedAfterItem = true;
-            } else {
-                this.customerClickedAfterItem = false;
-            }
+            this.customerClickedAfterItem = this.itemClickedFirst;
             this.updateDealerType();
-            
         }
 
         public setSelectedScoop(scoop: Scoop): void {
@@ -100,13 +95,16 @@ namespace EisDealer {
             }
         }
 
-        // Interne Methode zum Aktualisieren des Dealer-Typs
         public updateDealerType(): void {
             if (this.itemClickedFirst && this.customerClickedAfterItem) {
                 if (this.selectedScoop || this.selectedToppings.length > 0 || this.selectedSauce) {
-                    this.type = DealerType.withIce;
+                    if (this.type !== DealerType.withIce) {
+                        this.type = DealerType.withIce;
+                    }
                 } else {
-                    this.type = DealerType.withoutIce;
+                    if (this.type !== DealerType.withoutIce) {
+                        this.type = DealerType.withoutIce;
+                    }
                 }
             }
         }
@@ -128,7 +126,7 @@ namespace EisDealer {
             switch (this.type) {
                 case DealerType.withIce:
                     this.withIce();
-                    console.log("type changed to withIce")
+                    //console.log("type changed to withIce")
                     break;
 
                 case DealerType.withoutIce:

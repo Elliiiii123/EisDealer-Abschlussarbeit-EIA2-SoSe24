@@ -13,7 +13,11 @@ namespace EisDealer {
         }
     
         public draw():void{
-            console.log("Receipt draw")
+            //console.log("Receipt draw")
+            crc2.fillStyle = "white";
+            crc2.fillRect(this.position.x, this.position.y, 20, 10);
+            crc2.fillStyle = "white";
+            crc2.fillText("Receipt", this.position.x, this.position.y + 10);
 
         }
     }

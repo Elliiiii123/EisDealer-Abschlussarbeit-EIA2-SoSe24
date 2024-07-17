@@ -25,12 +25,7 @@ var EisDealer;
         }
         handleCustomerClick() {
             this.customerClicked = true;
-            if (this.itemClickedFirst) {
-                this.customerClickedAfterItem = true;
-            }
-            else {
-                this.customerClickedAfterItem = false;
-            }
+            this.customerClickedAfterItem = this.itemClickedFirst;
             this.updateDealerType();
         }
         setSelectedScoop(scoop) {
@@ -88,14 +83,17 @@ var EisDealer;
                 this.resetFlags();
             }
         }
-        // Interne Methode zum Aktualisieren des Dealer-Typs
         updateDealerType() {
             if (this.itemClickedFirst && this.customerClickedAfterItem) {
                 if (this.selectedScoop || this.selectedToppings.length > 0 || this.selectedSauce) {
-                    this.type = EisDealer.DealerType.withIce;
+                    if (this.type !== EisDealer.DealerType.withIce) {
+                        this.type = EisDealer.DealerType.withIce;
+                    }
                 }
                 else {
-                    this.type = EisDealer.DealerType.withoutIce;
+                    if (this.type !== EisDealer.DealerType.withoutIce) {
+                        this.type = EisDealer.DealerType.withoutIce;
+                    }
                 }
             }
         }
@@ -115,7 +113,7 @@ var EisDealer;
             switch (this.type) {
                 case EisDealer.DealerType.withIce:
                     this.withIce();
-                    console.log("type changed to withIce");
+                    //console.log("type changed to withIce")
                     break;
                 case EisDealer.DealerType.withoutIce:
                     this.withoutIce();
