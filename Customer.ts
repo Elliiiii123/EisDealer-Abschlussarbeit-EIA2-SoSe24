@@ -9,8 +9,9 @@ namespace EisDealer {
         private originalPosition: Vector;
         private order: { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } | null = null;
         public proximityIntervalSet: boolean = false; // Neue Eigenschaft
+        private moneyScreen: Money;
         
-        constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string){
+        constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string, _moneyScreen: Money){
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction)
             this.position = _position;
@@ -19,6 +20,7 @@ namespace EisDealer {
             this.direction = _direction;
             this.type = _type;
             this.findNextTargetPosition(); // Initial Target setzen
+            this.moneyScreen = _moneyScreen;
         }
 
         public setPosition(position: Vector): void {
@@ -206,8 +208,10 @@ namespace EisDealer {
         public changeToHappy(): void {
             console.log("HAPPY")
             this.setType(CustomerType.Happy);
-            const receipt = new Receipt(this.position.add(new Vector(0, -50)));
+            const receipt = new Receipt(this.position.add(new Vector(0, -50)),this.moneyScreen);
             allObjects.push(receipt);
+            this.moveToOriginalPosition();
+            
             setTimeout(() => {
                 const index = allObjects.indexOf(this);
                 if (index !== -1) {

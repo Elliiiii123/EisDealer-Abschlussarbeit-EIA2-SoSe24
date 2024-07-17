@@ -4,12 +4,12 @@ namespace EisDealer {
         private moneyScreen: Money;
         //private isClicked: boolean;
 
-        constructor (_position: Vector){
+        constructor (_position: Vector, _moneyScreen: Money){
             //console.log("Receipt Constructor")
             super(_position)
+            this.moneyScreen = _moneyScreen;
         }
 
-        
         public handleClicked():void{
 
             // Calculate total price
@@ -19,6 +19,7 @@ namespace EisDealer {
             for (let object of allObjects) {
                 if (object instanceof Scoop) {
                     totalPrice += object.price;
+                    console.log(object.price)
                 } else if (object instanceof Topping) {
                     totalPrice += object.price;
                 } else if (object instanceof Sauce) {
@@ -26,8 +27,12 @@ namespace EisDealer {
                 }
             }
 
-            // Add total price to moneyScreen
-            this.moneyScreen.addToTotal(totalPrice);
+            // Füge den Gesamtpreis zu moneyScreen hinzu
+            if (this.moneyScreen) {
+                this.moneyScreen.addToTotal(totalPrice); // Hier wird addToTotal auf moneyScreen aufgerufen
+            } else {
+                console.error("moneyScreen is not defined in Receipt.");
+            }
 
             // Find associated customer and change to happy state
             const customer = this.findAssociatedCustomer();

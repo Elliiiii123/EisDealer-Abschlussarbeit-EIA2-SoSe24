@@ -10,7 +10,8 @@ var EisDealer;
         originalPosition;
         order = null;
         proximityIntervalSet = false; // Neue Eigenschaft
-        constructor(_position, _speed, _direction, _type, _emotion) {
+        moneyScreen;
+        constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
             this.position = _position;
@@ -19,6 +20,7 @@ var EisDealer;
             this.direction = _direction;
             this.type = _type;
             this.findNextTargetPosition(); // Initial Target setzen
+            this.moneyScreen = _moneyScreen;
         }
         setPosition(position) {
             this.position = position;
@@ -179,8 +181,9 @@ var EisDealer;
         changeToHappy() {
             console.log("HAPPY");
             this.setType(EisDealer.CustomerType.Happy);
-            const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)));
+            const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)), this.moneyScreen);
             EisDealer.allObjects.push(receipt);
+            this.moveToOriginalPosition();
             setTimeout(() => {
                 const index = EisDealer.allObjects.indexOf(this);
                 if (index !== -1) {

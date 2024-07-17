@@ -17,6 +17,9 @@ var EisDealer;
         occupy() {
             this.occupied = true;
         }
+        free() {
+            this.occupied = false;
+        }
         handleClicked() {
         }
         draw() {

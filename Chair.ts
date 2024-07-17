@@ -19,6 +19,10 @@ namespace EisDealer {
             this.occupied = true;
         }
 
+        public free():void{
+            this.occupied = false;
+        }
+
         public handleClicked():void{
 
         }

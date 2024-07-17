@@ -136,8 +136,6 @@ namespace EisDealer {
                 default:console.error("Unknown type");
                     break;
             }
-            // this.withoutIce();
-            // this.withIce();
         }
 
         private withoutIce():void{

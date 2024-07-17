@@ -68,7 +68,7 @@ var EisDealer;
         // Zufällige Richtung und Geschwindigkeit
         let direction = new EisDealer.Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
         // Erstelle einen neuen Kunden an der gewählten Zielkoordinate
-        let customer = new EisDealer.Customer(new EisDealer.Vector(1070, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy");
+        let customer = new EisDealer.Customer(new EisDealer.Vector(1070, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy", moneyScreen);
         EisDealer.allObjects.push(customer); // Füge den Kunden der Liste hinzu
         EisDealer.allCustomers.push(customer); // Füge den Kunden der Liste aller Kunden hinzu
     }
@@ -80,19 +80,6 @@ var EisDealer;
         console.log(`Mouse clicked at (${x}, ${y})`);
         let customerClicked = false;
         let itemSelected = false;
-        // Check if a receipt was clicked
-        for (let object of EisDealer.allObjects) {
-            if (object instanceof EisDealer.Receipt) {
-                const receipt = object;
-                const dx = x - receipt.position.x;
-                const dy = y - receipt.position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 10) { // Assuming the click range for receipt
-                    receipt.handleClicked();
-                    return;
-                }
-            }
-        }
         // Überprüfen, ob ein Kunde angeklickt wurde
         for (let customer of EisDealer.allCustomers) {
             const dx = x - customer.position.x;
@@ -110,7 +97,7 @@ var EisDealer;
                     const dealerDistanceX = dealer.position.x - customer.position.x;
                     const dealerDistanceY = dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100) {
+                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 150) {
                         const customerOrderCorrect = customer.compareOrders(selectionScreen);
                         if (customerOrderCorrect) {
                             console.log("Customer's order matches dealer's selection!");
@@ -187,6 +174,20 @@ var EisDealer;
         // Nur wenn ein Kunde angeklickt wurde und mindestens ein Item ausgewählt wurde, den Typ ändern
         if (customerClicked || itemSelected) {
             dealer.updateDealerType();
+        }
+        // Check if a receipt was clicked
+        for (let object of EisDealer.allObjects) {
+            if (object instanceof EisDealer.Receipt) {
+                console.log('receipt clicked!');
+                const receipt = object;
+                const dx = x - receipt.position.x;
+                const dy = y - receipt.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 50) { // Assuming the click range for receipt
+                    receipt.handleClicked();
+                    return;
+                }
+            }
         }
         // Überprüfen, ob der Trash-Behälter angeklickt wurde
         for (let object of EisDealer.allObjects) {

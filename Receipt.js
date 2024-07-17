@@ -4,9 +4,10 @@ var EisDealer;
     class Receipt extends EisDealer.Drawable {
         moneyScreen;
         //private isClicked: boolean;
-        constructor(_position) {
+        constructor(_position, _moneyScreen) {
             //console.log("Receipt Constructor")
             super(_position);
+            this.moneyScreen = _moneyScreen;
         }
         handleClicked() {
             // Calculate total price
@@ -15,6 +16,7 @@ var EisDealer;
             for (let object of EisDealer.allObjects) {
                 if (object instanceof EisDealer.Scoop) {
                     totalPrice += object.price;
+                    console.log(object.price);
                 }
                 else if (object instanceof EisDealer.Topping) {
                     totalPrice += object.price;
@@ -23,8 +25,13 @@ var EisDealer;
                     totalPrice += object.price;
                 }
             }
-            // Add total price to moneyScreen
-            this.moneyScreen.addToTotal(totalPrice);
+            // Füge den Gesamtpreis zu moneyScreen hinzu
+            if (this.moneyScreen) {
+                this.moneyScreen.addToTotal(totalPrice); // Hier wird addToTotal auf moneyScreen aufgerufen
+            }
+            else {
+                console.error("moneyScreen is not defined in Receipt.");
+            }
             // Find associated customer and change to happy state
             const customer = this.findAssociatedCustomer();
             if (customer) {

@@ -122,8 +122,6 @@ var EisDealer;
                     console.error("Unknown type");
                     break;
             }
-            // this.withoutIce();
-            // this.withIce();
         }
         withoutIce() {
             const centerX = this.position.x;
