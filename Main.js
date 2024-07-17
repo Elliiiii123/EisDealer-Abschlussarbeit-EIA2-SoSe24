@@ -94,27 +94,25 @@ var EisDealer;
                 dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
                 const customerOrderCorrect = customer.compareOrders(selectionScreen);
                 // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
-                function checkDealerProximity() {
+                const proximityInterval = setInterval(() => {
                     const dealerDistanceX = dealer.position.x - customer.position.x;
                     const dealerDistanceY = dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100) { // Annahme: Radius des Dealers ist 25
+                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100) {
+                        const customerOrderCorrect = customer.compareOrders(selectionScreen);
                         if (customerOrderCorrect) {
                             console.log("Customer's order matches dealer's selection!");
                             customer.changeToHappy();
-                            // Weitere Logik für den Fall, dass die Bestellung übereinstimmt
+                            // Additional logic for correct order
                         }
                         else {
                             console.log("Customer's order does not match dealer's selection.");
                             customer.changeToSad();
-                            // Weitere Logik für den Fall, dass die Bestellung nicht übereinstimmt
+                            // Additional logic for incorrect order
                         }
-                        // Entferne den Interval, wenn der Zustand geändert wurde
-                        clearInterval(proximityInterval);
+                        clearInterval(proximityInterval); // Clear the interval once conditions are met
                     }
-                }
-                // Setze ein Intervall, um die Nähe des Dealers zum Kunden zu überprüfen
-                const proximityInterval = setInterval(checkDealerProximity, 100);
+                }, 100);
                 // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                 const offsetAngle = Math.random() * 2 * Math.PI;
                 const offsetDistance = 80; // Verschiebung um 80 Pixel

@@ -8,6 +8,7 @@ namespace EisDealer {
         private type: CustomerType = CustomerType.Normal;
         private originalPosition: Vector;
         private order: { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } | null = null;
+        public proximityIntervalSet: boolean = false; // Neue Eigenschaft
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string){
             //console.log("Receipt Constructor")

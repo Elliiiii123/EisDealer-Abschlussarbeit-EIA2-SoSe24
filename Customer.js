@@ -9,6 +9,7 @@ var EisDealer;
         type = EisDealer.CustomerType.Normal;
         originalPosition;
         order = null;
+        proximityIntervalSet = false; // Neue Eigenschaft
         constructor(_position, _speed, _direction, _type, _emotion) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);

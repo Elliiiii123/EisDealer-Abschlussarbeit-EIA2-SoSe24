@@ -116,29 +116,29 @@ namespace EisDealer {
                     const customerOrderCorrect = customer.compareOrders(selectionScreen);
 
                 // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
-                    function checkDealerProximity() {
-                        const dealerDistanceX = dealer.position.x - customer.position.x;
-                        const dealerDistanceY = dealer.position.y - customer.position.y;
-                        const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-
-                        if (dealer.type === DealerType.withIce && dealerDistance < 100) { // Annahme: Radius des Dealers ist 25
-                            if (customerOrderCorrect) {
-                                console.log("Customer's order matches dealer's selection!");
-                                customer.changeToHappy();
-                                // Weitere Logik für den Fall, dass die Bestellung übereinstimmt
-                            } else {
-                                console.log("Customer's order does not match dealer's selection.");
-                                customer.changeToSad();
-                                // Weitere Logik für den Fall, dass die Bestellung nicht übereinstimmt
-                            }
-
-                            // Entferne den Interval, wenn der Zustand geändert wurde
-                            clearInterval(proximityInterval);
+                const proximityInterval = setInterval(() => {
+                    const dealerDistanceX = dealer.position.x - customer.position.x;
+                    const dealerDistanceY = dealer.position.y - customer.position.y;
+                    const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
+    
+                    if (dealer.type === DealerType.withIce && dealerDistance < 100) {
+                        const customerOrderCorrect = customer.compareOrders(selectionScreen);
+    
+                        if (customerOrderCorrect) {
+                            console.log("Customer's order matches dealer's selection!");
+                            customer.changeToHappy();
+                            // Additional logic for correct order
+                        } else {
+                            console.log("Customer's order does not match dealer's selection.");
+                            customer.changeToSad();
+                            // Additional logic for incorrect order
                         }
-                }
-
-                // Setze ein Intervall, um die Nähe des Dealers zum Kunden zu überprüfen
-                const proximityInterval = setInterval(checkDealerProximity, 100);
+    
+                        clearInterval(proximityInterval); // Clear the interval once conditions are met
+                    }
+                }, 100);
+    
+                
 
                     
                     
