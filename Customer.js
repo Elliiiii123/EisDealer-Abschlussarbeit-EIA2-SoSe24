@@ -94,34 +94,25 @@ var EisDealer;
             return { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
         }
         getRandomScoop() {
-            const flavors = [
-                EisDealer.ScoopFlavour.Chocolate,
-                EisDealer.ScoopFlavour.Strawberry,
-                EisDealer.ScoopFlavour.Mint,
-                EisDealer.ScoopFlavour.Straciatella,
-                EisDealer.ScoopFlavour.Pistaccio,
-                EisDealer.ScoopFlavour.Lemon
-            ];
-            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
-            return new EisDealer.Scoop(new EisDealer.Vector(0, 0), randomFlavor, 1);
+            const randomIndex = Math.floor(Math.random() * EisDealer.data.Ice.length);
+            const randomIce = EisDealer.data.Ice[randomIndex];
+            const position = new EisDealer.Vector(0, 0); // Placeholder position
+            const scoop = new EisDealer.Scoop(position, randomIce.name, randomIce.price, randomIce.color); // Cast name to any to match constructor
+            return scoop;
         }
         getRandomTopping() {
-            const flavors = [
-                EisDealer.ToppingFlavour.Sprinkles,
-                EisDealer.ToppingFlavour.Cookie,
-                EisDealer.ToppingFlavour.Strawberry
-            ];
-            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
-            return new EisDealer.Topping(new EisDealer.Vector(0, 0), randomFlavor, 3);
+            const randomIndex = Math.floor(Math.random() * EisDealer.data.Toppings.length);
+            const randomTopping = EisDealer.data.Toppings[randomIndex];
+            const position = new EisDealer.Vector(0, 0); // Placeholder position
+            const topping = new EisDealer.Topping(position, randomTopping.name, randomTopping.price, randomTopping.color); // Cast name to any to match constructor
+            return topping;
         }
         getRandomSauce() {
-            const flavors = [
-                EisDealer.SauceFlavour.Chocolate,
-                EisDealer.SauceFlavour.Caramel,
-                EisDealer.SauceFlavour.Strawberry
-            ];
-            const randomFlavor = flavors[Math.floor(Math.random() * flavors.length)];
-            return new EisDealer.Sauce(new EisDealer.Vector(0, 0), randomFlavor, 3);
+            const randomIndex = Math.floor(Math.random() * EisDealer.data.Sauce.length);
+            const randomSauce = EisDealer.data.Sauce[randomIndex];
+            const position = new EisDealer.Vector(0, 0); // Placeholder position
+            const sauce = new EisDealer.Sauce(position, randomSauce.name, randomSauce.price, randomSauce.color); // Cast name to any to match constructor
+            return sauce;
         }
         showOrder() {
             if (!this.orderPlaced && this.targetPosition && this.position.equals(this.targetPosition)) {

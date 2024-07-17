@@ -9,6 +9,8 @@ namespace EisDealer {
         public selectedSauce: Sauce | null = null;
         private itemSelected: boolean = false; // Flag, um zu prüfen, ob ein Item ausgewählt wurde
         public customerClicked: boolean = false;  // Neue Eigenschaft
+        private itemClickedFirst: boolean = false; // Flag, um zu prüfen, ob zuerst ein Item geklickt wurde
+        private customerClickedAfterItem: boolean = false; // Flag, um zu prüfen, ob der Kunde nach dem Item geklickt wurde
 
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: DealerType, _emotion: string){
             //console.log("Receipt Constructor")
@@ -24,9 +26,26 @@ namespace EisDealer {
 
         }
 
+        public handleCustomerClick(): void {
+            this.customerClicked = true;
+            if (this.itemClickedFirst) {
+                this.customerClickedAfterItem = true;
+            } else {
+                this.customerClickedAfterItem = false;
+            }
+            this.updateDealerType();
+        }
+
         public setSelectedScoop(scoop: Scoop): void {
             this.selectedScoop = scoop;
             this.itemSelected = true;
+            this.itemClickedFirst = true;
+            this.updateDealerType();
+        }
+
+        public handleItemClick(): void {
+            this.itemSelected = true;
+            this.itemClickedFirst = true;
             this.updateDealerType();
         }
 
@@ -34,6 +53,7 @@ namespace EisDealer {
             if (!this.selectedToppings.includes(topping)) {
                 this.selectedToppings.push(topping);
                 this.itemSelected = true;
+                this.itemClickedFirst = true;
                 this.updateDealerType();
             }
         }
@@ -41,6 +61,7 @@ namespace EisDealer {
         public setSelectedSauce(sauce: Sauce): void {
             this.selectedSauce = sauce;
             this.itemSelected = true;
+            this.itemClickedFirst = true;
             this.updateDealerType();
         }
 
@@ -72,13 +93,21 @@ namespace EisDealer {
 
         // Interne Methode zum Aktualisieren des Dealer-Typs
         public updateDealerType(): void {
-            if (this.customerClicked && this.itemSelected) {
+            if (this.itemClickedFirst && this.customerClickedAfterItem) {
                 if (this.selectedScoop || this.selectedToppings.length > 0 || this.selectedSauce) {
                     this.type = DealerType.withIce;
                 } else {
                     this.type = DealerType.withoutIce;
                 }
             }
+        }
+
+        // Methode zum Zurücksetzen der Variablen nach einer Aktion (z.B. Bestellung abschließen)
+        public resetFlags(): void {
+            this.itemClickedFirst = false;
+            this.customerClickedAfterItem = false;
+            this.itemSelected = false;
+            this.customerClicked = false;
         }
     
         public draw():void{

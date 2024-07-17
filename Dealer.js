@@ -10,6 +10,8 @@ var EisDealer;
         selectedSauce = null;
         itemSelected = false; // Flag, um zu prüfen, ob ein Item ausgewählt wurde
         customerClicked = false; // Neue Eigenschaft
+        itemClickedFirst = false; // Flag, um zu prüfen, ob zuerst ein Item geklickt wurde
+        customerClickedAfterItem = false; // Flag, um zu prüfen, ob der Kunde nach dem Item geklickt wurde
         constructor(_position, _speed, _direction, _type, _emotion) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
@@ -21,21 +23,39 @@ var EisDealer;
         }
         handleClicked() {
         }
+        handleCustomerClick() {
+            this.customerClicked = true;
+            if (this.itemClickedFirst) {
+                this.customerClickedAfterItem = true;
+            }
+            else {
+                this.customerClickedAfterItem = false;
+            }
+            this.updateDealerType();
+        }
         setSelectedScoop(scoop) {
             this.selectedScoop = scoop;
             this.itemSelected = true;
+            this.itemClickedFirst = true;
+            this.updateDealerType();
+        }
+        handleItemClick() {
+            this.itemSelected = true;
+            this.itemClickedFirst = true;
             this.updateDealerType();
         }
         addSelectedTopping(topping) {
             if (!this.selectedToppings.includes(topping)) {
                 this.selectedToppings.push(topping);
                 this.itemSelected = true;
+                this.itemClickedFirst = true;
                 this.updateDealerType();
             }
         }
         setSelectedSauce(sauce) {
             this.selectedSauce = sauce;
             this.itemSelected = true;
+            this.itemClickedFirst = true;
             this.updateDealerType();
         }
         setTargetPosition(position) {
@@ -63,7 +83,7 @@ var EisDealer;
         }
         // Interne Methode zum Aktualisieren des Dealer-Typs
         updateDealerType() {
-            if (this.customerClicked && this.itemSelected) {
+            if (this.itemClickedFirst && this.customerClickedAfterItem) {
                 if (this.selectedScoop || this.selectedToppings.length > 0 || this.selectedSauce) {
                     this.type = EisDealer.DealerType.withIce;
                 }
@@ -71,6 +91,13 @@ var EisDealer;
                     this.type = EisDealer.DealerType.withoutIce;
                 }
             }
+        }
+        // Methode zum Zurücksetzen der Variablen nach einer Aktion (z.B. Bestellung abschließen)
+        resetFlags() {
+            this.itemClickedFirst = false;
+            this.customerClickedAfterItem = false;
+            this.itemSelected = false;
+            this.customerClicked = false;
         }
         draw() {
             //console.log("Dealer draw")

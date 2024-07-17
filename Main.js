@@ -87,7 +87,8 @@ var EisDealer;
                 console.log('Customer clicked!');
                 customerClicked = true;
                 customer.showOrder();
-                dealer.customerClicked = true; // Setze die Eigenschaft auf true
+                dealer.customerClicked = true;
+                dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
                 // Setze das Ziel des Dealers auf die Position des Kunden
                 // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                 const offsetAngle = Math.random() * 2 * Math.PI;
