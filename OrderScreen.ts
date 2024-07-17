@@ -13,6 +13,8 @@ namespace EisDealer{
             this.draw();
         }
 
+        
+
         public addItem(item: Scoop | Sauce | Topping): void {
             if (item instanceof Scoop) {
                 this.scoops.push(item);

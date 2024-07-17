@@ -181,6 +181,12 @@ var EisDealer;
             this.setType(EisDealer.CustomerType.Happy);
             const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)));
             EisDealer.allObjects.push(receipt);
+            setTimeout(() => {
+                const index = EisDealer.allObjects.indexOf(this);
+                if (index !== -1) {
+                    EisDealer.allObjects.splice(index, 1);
+                }
+            }, 2000);
         }
         changeToSad() {
             console.log("SAD");
@@ -342,7 +348,7 @@ var EisDealer;
             // Zeichne den Kopf
             EisDealer.crc2.beginPath();
             EisDealer.crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            EisDealer.crc2.fillStyle = "red";
+            EisDealer.crc2.fillStyle = "yellow";
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 2;

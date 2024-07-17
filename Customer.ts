@@ -208,6 +208,12 @@ namespace EisDealer {
             this.setType(CustomerType.Happy);
             const receipt = new Receipt(this.position.add(new Vector(0, -50)));
             allObjects.push(receipt);
+            setTimeout(() => {
+                const index = allObjects.indexOf(this);
+                if (index !== -1) {
+                    allObjects.splice(index, 1);
+                }
+            }, 2000);
         }
 
         public changeToSad(): void {
@@ -396,7 +402,7 @@ namespace EisDealer {
             // Zeichne den Kopf
             crc2.beginPath();
             crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            crc2.fillStyle = "red";
+            crc2.fillStyle = "yellow";
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 2;
@@ -449,7 +455,6 @@ namespace EisDealer {
             crc2.fill();
             crc2.closePath();
             crc2.restore();
-
         }
 
         private drawEat():void{

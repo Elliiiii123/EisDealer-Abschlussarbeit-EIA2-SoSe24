@@ -100,6 +100,20 @@ namespace EisDealer {
         let customerClicked = false;
         let itemSelected = false;
 
+            // Check if a receipt was clicked
+            for (let object of allObjects) {
+                if (object instanceof Receipt) {
+                    const receipt = object as Receipt;
+                    const dx = x - receipt.position.x;
+                    const dy = y - receipt.position.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 10) { // Assuming the click range for receipt
+                        receipt.handleClicked();
+                        return;
+                    }
+                }
+            }
+
             // Überprüfen, ob ein Kunde angeklickt wurde
             for (let customer of allCustomers) {
                 const dx = x - customer.position.x;
@@ -134,11 +148,7 @@ namespace EisDealer {
     
                         clearInterval(proximityInterval); // Clear the interval once conditions are met
                     }
-                }, 100);
-    
-                
-
-                    
+                }, 100);                
                     
                     // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                     const offsetAngle = Math.random() * 2 * Math.PI;

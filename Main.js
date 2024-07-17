@@ -80,6 +80,19 @@ var EisDealer;
         console.log(`Mouse clicked at (${x}, ${y})`);
         let customerClicked = false;
         let itemSelected = false;
+        // Check if a receipt was clicked
+        for (let object of EisDealer.allObjects) {
+            if (object instanceof EisDealer.Receipt) {
+                const receipt = object;
+                const dx = x - receipt.position.x;
+                const dy = y - receipt.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 10) { // Assuming the click range for receipt
+                    receipt.handleClicked();
+                    return;
+                }
+            }
+        }
         // Überprüfen, ob ein Kunde angeklickt wurde
         for (let customer of EisDealer.allCustomers) {
             const dx = x - customer.position.x;
