@@ -1,5 +1,13 @@
 namespace EisDealer {
 
+    //Tür öffnen
+    //rausgeh weg
+    // Rezept nur einmal
+    //abglecih korrekt
+    // schlechte laune bei warten
+    // offset bei warteschlange
+    // sad, happ und receipt designen
+
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
       //Definiton der crc2 Variable als den HTML Canvas
@@ -224,7 +232,6 @@ namespace EisDealer {
                     }
                 }
             }
-   
 
             // Überprüfen, ob der Trash-Behälter angeklickt wurde
             for (let object of allObjects) {
@@ -331,179 +338,179 @@ namespace EisDealer {
                 crc2.arc(rectX + rectWidth, y, radius, 0, 2 * Math.PI); // Pfähle an der rechten Kante
                 crc2.fill();
                 crc2.restore();
+                }
+             }
+                //Zeichne den Thekenbereich
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(0, 100);
+                crc2.lineTo(300,100);
+                crc2.lineTo(300,450);
+                crc2.lineTo(0,450);
+                crc2.fillStyle = "lightbrown";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(150, 100);
+                crc2.lineTo(300,100);
+                crc2.lineTo(300,450);
+                crc2.lineTo(150,450);
+                crc2.fillStyle = "brown";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                //Eisbehälterbereich
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(160, 110);
+                crc2.lineTo(290,110);
+                crc2.lineTo(290,300);
+                crc2.lineTo(160,300);
+                crc2.fillStyle = "grey";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                //Eisbehälter
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(170, 120);
+                crc2.lineTo(220,120);
+                crc2.lineTo(220,170);
+                crc2.lineTo(170,170);
+                crc2.lineTo(170,120);
+                crc2.fillStyle = "black";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(230, 120);
+                crc2.lineTo(280,120);
+                crc2.lineTo(280,170);
+                crc2.lineTo(230,170);
+                crc2.lineTo(230,120);
+                crc2.fillStyle = "black";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(230, 180);
+                crc2.lineTo(280,180);
+                crc2.lineTo(280,230);
+                crc2.lineTo(230,230);
+                crc2.lineTo(230,180);
+                crc2.fillStyle = "black";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(230, 240);
+                crc2.lineTo(280,240);
+                crc2.lineTo(280,290);
+                crc2.lineTo(230,290);
+                crc2.lineTo(230,240);
+                crc2.fillStyle = "black";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(170, 180);
+                crc2.lineTo(220,180);
+                crc2.lineTo(220,230);
+                crc2.lineTo(170,230);
+                crc2.lineTo(170,180);
+                crc2.fillStyle = "black";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.moveTo(170, 240);
+                crc2.lineTo(220,240);
+                crc2.lineTo(220,290);
+                crc2.lineTo(170,290);
+                crc2.lineTo(170,240);
+                crc2.fillStyle = "black";
+                crc2.stroke();
+                crc2.fill();
+                crc2.restore();
+
+                //Zeichne die Tische
+                crc2.save();
+                crc2.beginPath();
+                crc2.arc(440, 100, 45, 0, 2 * Math.PI);
+                crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
+                crc2.strokeStyle = "black";
+                crc2.fill();
+                crc2.stroke();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.arc(650, 120, 45, 0, 2 * Math.PI);
+                crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
+                crc2.strokeStyle = "black";
+                crc2.fill();
+                crc2.stroke();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.arc(450, 370, 45, 0, 2 * Math.PI);
+                crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
+                crc2.strokeStyle = "black";
+                crc2.fill();
+                crc2.stroke();
+                crc2.restore();
+
+                crc2.save();
+                crc2.beginPath();
+                crc2.arc(670, 470, 45, 0, 2 * Math.PI);
+                crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
+                crc2.strokeStyle = "black";
+                crc2.fill();
+                crc2.stroke();
+                crc2.restore();
+
+
+                crc2.save();
+                const x = 200;
+                const y = 370;
+
+                // Zeichne den äußeren rechteckigen Becher
+                crc2.beginPath();
+                crc2.rect(x - 45, y - 65, 50, 30); // Äußeres Rechteck
+                crc2.fillStyle = "#D2B48C"; // Beige Farbe für den Becher
+                crc2.fill();
+                crc2.strokeStyle = "black";
+                crc2.lineWidth = 2;
+                crc2.stroke();
+                crc2.closePath();
+
+                // Zeichne das innere Rechteck (Boden des Bechers)
+                crc2.beginPath();
+                crc2.rect(x - 40, y - 60, 40, 20); // Inneres Rechteck
+                crc2.fillStyle = "#ffffff"; // Weiß für den Boden
+                crc2.fill();
+                crc2.strokeStyle = "black";
+                crc2.lineWidth = 1;
+                crc2.stroke();
+                crc2.closePath();
+                crc2.restore();
             }
-        }
-        //Zeichne den Thekenbereich
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(0, 100);
-        crc2.lineTo(300,100);
-        crc2.lineTo(300,450);
-        crc2.lineTo(0,450);
-        crc2.fillStyle = "lightbrown";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(150, 100);
-        crc2.lineTo(300,100);
-        crc2.lineTo(300,450);
-        crc2.lineTo(150,450);
-        crc2.fillStyle = "brown";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        //Eisbehälterbereich
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(160, 110);
-        crc2.lineTo(290,110);
-        crc2.lineTo(290,300);
-        crc2.lineTo(160,300);
-        crc2.fillStyle = "grey";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        //Eisbehälter
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(170, 120);
-        crc2.lineTo(220,120);
-        crc2.lineTo(220,170);
-        crc2.lineTo(170,170);
-        crc2.lineTo(170,120);
-        crc2.fillStyle = "black";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(230, 120);
-        crc2.lineTo(280,120);
-        crc2.lineTo(280,170);
-        crc2.lineTo(230,170);
-        crc2.lineTo(230,120);
-        crc2.fillStyle = "black";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(230, 180);
-        crc2.lineTo(280,180);
-        crc2.lineTo(280,230);
-        crc2.lineTo(230,230);
-        crc2.lineTo(230,180);
-        crc2.fillStyle = "black";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(230, 240);
-        crc2.lineTo(280,240);
-        crc2.lineTo(280,290);
-        crc2.lineTo(230,290);
-        crc2.lineTo(230,240);
-        crc2.fillStyle = "black";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(170, 180);
-        crc2.lineTo(220,180);
-        crc2.lineTo(220,230);
-        crc2.lineTo(170,230);
-        crc2.lineTo(170,180);
-        crc2.fillStyle = "black";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.moveTo(170, 240);
-        crc2.lineTo(220,240);
-        crc2.lineTo(220,290);
-        crc2.lineTo(170,290);
-        crc2.lineTo(170,240);
-        crc2.fillStyle = "black";
-        crc2.stroke();
-        crc2.fill();
-        crc2.restore();
-
-        //Zeichne die Tische
-        crc2.save();
-        crc2.beginPath();
-        crc2.arc(440, 100, 45, 0, 2 * Math.PI);
-        crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
-        crc2.strokeStyle = "black";
-        crc2.fill();
-        crc2.stroke();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.arc(650, 120, 45, 0, 2 * Math.PI);
-        crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
-        crc2.strokeStyle = "black";
-        crc2.fill();
-        crc2.stroke();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.arc(450, 370, 45, 0, 2 * Math.PI);
-        crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
-        crc2.strokeStyle = "black";
-        crc2.fill();
-        crc2.stroke();
-        crc2.restore();
-
-        crc2.save();
-        crc2.beginPath();
-        crc2.arc(670, 470, 45, 0, 2 * Math.PI);
-        crc2.fillStyle = "#D2B48C"; // Hellbraune Farbe
-        crc2.strokeStyle = "black";
-        crc2.fill();
-        crc2.stroke();
-        crc2.restore();
-
-
-        crc2.save();
-        const x = 200;
-        const y = 370;
-
-        // Zeichne den äußeren rechteckigen Becher
-        crc2.beginPath();
-        crc2.rect(x - 45, y - 65, 50, 30); // Äußeres Rechteck
-        crc2.fillStyle = "#D2B48C"; // Beige Farbe für den Becher
-        crc2.fill();
-        crc2.strokeStyle = "black";
-        crc2.lineWidth = 2;
-        crc2.stroke();
-        crc2.closePath();
-
-        // Zeichne das innere Rechteck (Boden des Bechers)
-        crc2.beginPath();
-        crc2.rect(x - 40, y - 60, 40, 20); // Inneres Rechteck
-        crc2.fillStyle = "#ffffff"; // Weiß für den Boden
-        crc2.fill();
-        crc2.strokeStyle = "black";
-        crc2.lineWidth = 1;
-        crc2.stroke();
-        crc2.closePath();
-        crc2.restore();
-    }
 }
             
 

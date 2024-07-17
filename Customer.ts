@@ -10,6 +10,8 @@ namespace EisDealer {
         private order: { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } | null = null;
         public proximityIntervalSet: boolean = false; // Neue Eigenschaft
         private moneyScreen: Money;
+        private passingPoint = new Vector(800, 215);
+        private returnPoint = new Vector(1100, 215);
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string, _moneyScreen: Money){
             //console.log("Receipt Constructor")
@@ -21,6 +23,7 @@ namespace EisDealer {
             this.type = _type;
             this.findNextTargetPosition(); // Initial Target setzen
             this.moneyScreen = _moneyScreen;
+            
         }
 
         public setPosition(position: Vector): void {
@@ -38,11 +41,11 @@ namespace EisDealer {
         public move(): void {
             if (this.speed.x === 0 && this.speed.y === 0) return; // Wenn die Geschwindigkeit 0 ist, nicht weiter bewegen
 
-            const passingPoint = new Vector(800, 215); // Punkt, den der Customer passieren soll
+             // Punkt, den der Customer passieren soll
 
             if (!this.passingPointReached) {
-                this.moveToPoint(passingPoint);
-                if (this.position.equals(passingPoint)) {
+                this.moveToPoint(this.passingPoint);
+                if (this.position.equals(this.passingPoint)) {
                     //console.log("Customer passed the point at", this.position);
                     this.passingPointReached = true;
                 }
@@ -208,16 +211,33 @@ namespace EisDealer {
         public changeToHappy(): void {
             console.log("HAPPY")
             this.setType(CustomerType.Happy);
-            const receipt = new Receipt(this.position.add(new Vector(0, -50)),this.moneyScreen);
-            allObjects.push(receipt);
+                // Überprüfe, ob ein Beleg in der Nähe des Kunden existiert
+            if (!this.receiptExists()) {
+                const receipt = new Receipt(this.position.add(new Vector(0, -50)), this.moneyScreen);
+                allObjects.push(receipt);
+            }
             this.moveToOriginalPosition();
             
             setTimeout(() => {
                 const index = allObjects.indexOf(this);
                 if (index !== -1) {
                     allObjects.splice(index, 1);
+                    this.freeChair();
                 }
             }, 2000);
+        }
+
+        // Methode zur Überprüfung, ob ein Beleg in der Nähe des Kunden existiert
+        private receiptExists(): boolean {
+            for (let object of allObjects) {
+                if (object instanceof Receipt) {
+                    const receipt = object as Receipt;
+                    if (this.position.distanceTo(receipt.position) < 30) {
+                        return true; // Beleg existiert
+                    }
+                }
+            }
+            return false; // Kein Beleg in der Nähe gefunden
         }
 
         public changeToSad(): void {
@@ -228,12 +248,30 @@ namespace EisDealer {
                 const index = allObjects.indexOf(this);
                 if (index !== -1) {
                     allObjects.splice(index, 1);
+                    this.freeChair();
                 }
             }, 2000); // 2 Sekunden warten, bevor der Kunde entfernt wird
         }
 
+        private freeChair(): void {
+            const chair = this.findOccupiedChair();
+            if (chair) {
+                chair.free();
+            }
+        }
+
+        private findOccupiedChair(): Chair | undefined {
+            for (let obj of allObjects) {
+                if (obj instanceof Chair && obj.isOccupied()) {
+                    return obj;
+                }
+            }
+            return undefined;
+        }
+
         public moveToOriginalPosition(): void {
-            this.targetPosition = this.originalPosition;
+            this.targetPosition = this.passingPoint;
+            this.targetPosition = this.returnPoint;
             this.speed = new Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
             this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
         }
@@ -249,10 +287,6 @@ namespace EisDealer {
                 case CustomerType.Sad:
                     this.drawSad();
                     break;
-                // case CustomerType.Eat:
-                //     this.drawEat();
-                //     console.log("Kunde isst")
-                //     break;
                 default:
                     console.error("Unknown state");
                     break;
@@ -459,73 +493,6 @@ namespace EisDealer {
             crc2.fill();
             crc2.closePath();
             crc2.restore();
-        }
-
-        private drawEat():void{
-                        console.log("Customer drawEat")
-            
-                        const centerX = this.position.x;
-                        const centerY = this.position.y;
-                        const radius = 25;
-            
-                        crc2.save();
-                        // crc2.translate(this.position.x, this.position.y);
-                        // Zeichne den Kopf
-                        crc2.beginPath();
-                        crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-                        crc2.fillStyle = "red";
-                        crc2.fill();
-                        crc2.strokeStyle = "black";
-                        crc2.lineWidth = 2;
-                        crc2.stroke();
-                        crc2.closePath();
-            
-                        // Zeichne die Augen
-                        const eyeRadius = 5;
-                        const eyeOffsetX = 8;
-                        const eyeOffsetY = 10;
-            
-                        // Linkes Auge
-                        crc2.beginPath();
-                        crc2.arc(centerX - eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
-                        crc2.fillStyle = "black";
-                        crc2.fill();
-                        crc2.closePath();
-            
-                        // Rechtes Auge
-                        crc2.beginPath();
-                        crc2.arc(centerX + eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
-                        crc2.fillStyle = "black";
-                        crc2.fill();
-                        crc2.closePath();
-            
-                        // Zeichne den Mund
-                        crc2.beginPath();
-                        crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
-                        crc2.strokeStyle = "black";
-                        crc2.lineWidth = 2;
-                        crc2.stroke();
-                        crc2.closePath();
-            
-                        // Zeichne Wangenröte
-                        const blushRadius = 7;
-                        const blushOffsetX = 15;
-                        const blushOffsetY = 2;
-            
-                        // Linke Wange
-                        crc2.beginPath();
-                        crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-                        crc2.fillStyle = "blue";
-                        crc2.fill();
-                        crc2.closePath();
-            
-                        // Rechte Wange
-                        crc2.beginPath();
-                        crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-                        crc2.fillStyle = "pink";
-                        crc2.fill();
-                        crc2.closePath();
-                        crc2.restore();
         }
     }
 }

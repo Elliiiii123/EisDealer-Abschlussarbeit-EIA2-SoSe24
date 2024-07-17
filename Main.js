@@ -1,6 +1,13 @@
 "use strict";
 var EisDealer;
 (function (EisDealer) {
+    //Tür öffnen
+    //rausgeh weg
+    // Rezept nur einmal
+    //abglecih korrekt
+    // schlechte laune bei warten
+    // offset bei warteschlange
+    // sad, happ und receipt designen
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     EisDealer.allObjects = [];

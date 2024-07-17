@@ -11,6 +11,8 @@ var EisDealer;
         order = null;
         proximityIntervalSet = false; // Neue Eigenschaft
         moneyScreen;
+        passingPoint = new EisDealer.Vector(800, 215);
+        returnPoint = new EisDealer.Vector(1100, 215);
         constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
@@ -33,10 +35,10 @@ var EisDealer;
         move() {
             if (this.speed.x === 0 && this.speed.y === 0)
                 return; // Wenn die Geschwindigkeit 0 ist, nicht weiter bewegen
-            const passingPoint = new EisDealer.Vector(800, 215); // Punkt, den der Customer passieren soll
+            // Punkt, den der Customer passieren soll
             if (!this.passingPointReached) {
-                this.moveToPoint(passingPoint);
-                if (this.position.equals(passingPoint)) {
+                this.moveToPoint(this.passingPoint);
+                if (this.position.equals(this.passingPoint)) {
                     //console.log("Customer passed the point at", this.position);
                     this.passingPointReached = true;
                 }
@@ -181,15 +183,31 @@ var EisDealer;
         changeToHappy() {
             console.log("HAPPY");
             this.setType(EisDealer.CustomerType.Happy);
-            const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)), this.moneyScreen);
-            EisDealer.allObjects.push(receipt);
+            // Überprüfe, ob ein Beleg in der Nähe des Kunden existiert
+            if (!this.receiptExists()) {
+                const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)), this.moneyScreen);
+                EisDealer.allObjects.push(receipt);
+            }
             this.moveToOriginalPosition();
             setTimeout(() => {
                 const index = EisDealer.allObjects.indexOf(this);
                 if (index !== -1) {
                     EisDealer.allObjects.splice(index, 1);
+                    this.freeChair();
                 }
             }, 2000);
+        }
+        // Methode zur Überprüfung, ob ein Beleg in der Nähe des Kunden existiert
+        receiptExists() {
+            for (let object of EisDealer.allObjects) {
+                if (object instanceof EisDealer.Receipt) {
+                    const receipt = object;
+                    if (this.position.distanceTo(receipt.position) < 30) {
+                        return true; // Beleg existiert
+                    }
+                }
+            }
+            return false; // Kein Beleg in der Nähe gefunden
         }
         changeToSad() {
             console.log("SAD");
@@ -199,11 +217,27 @@ var EisDealer;
                 const index = EisDealer.allObjects.indexOf(this);
                 if (index !== -1) {
                     EisDealer.allObjects.splice(index, 1);
+                    this.freeChair();
                 }
             }, 2000); // 2 Sekunden warten, bevor der Kunde entfernt wird
         }
+        freeChair() {
+            const chair = this.findOccupiedChair();
+            if (chair) {
+                chair.free();
+            }
+        }
+        findOccupiedChair() {
+            for (let obj of EisDealer.allObjects) {
+                if (obj instanceof EisDealer.Chair && obj.isOccupied()) {
+                    return obj;
+                }
+            }
+            return undefined;
+        }
         moveToOriginalPosition() {
-            this.targetPosition = this.originalPosition;
+            this.targetPosition = this.passingPoint;
+            this.targetPosition = this.returnPoint;
             this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
             this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
         }
@@ -218,10 +252,6 @@ var EisDealer;
                 case EisDealer.CustomerType.Sad:
                     this.drawSad();
                     break;
-                // case CustomerType.Eat:
-                //     this.drawEat();
-                //     console.log("Kunde isst")
-                //     break;
                 default:
                     console.error("Unknown state");
                     break;
@@ -352,63 +382,6 @@ var EisDealer;
             EisDealer.crc2.beginPath();
             EisDealer.crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
             EisDealer.crc2.fillStyle = "yellow";
-            EisDealer.crc2.fill();
-            EisDealer.crc2.strokeStyle = "black";
-            EisDealer.crc2.lineWidth = 2;
-            EisDealer.crc2.stroke();
-            EisDealer.crc2.closePath();
-            // Zeichne die Augen
-            const eyeRadius = 5;
-            const eyeOffsetX = 8;
-            const eyeOffsetY = 10;
-            // Linkes Auge
-            EisDealer.crc2.beginPath();
-            EisDealer.crc2.arc(centerX - eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
-            EisDealer.crc2.fillStyle = "black";
-            EisDealer.crc2.fill();
-            EisDealer.crc2.closePath();
-            // Rechtes Auge
-            EisDealer.crc2.beginPath();
-            EisDealer.crc2.arc(centerX + eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
-            EisDealer.crc2.fillStyle = "black";
-            EisDealer.crc2.fill();
-            EisDealer.crc2.closePath();
-            // Zeichne den Mund
-            EisDealer.crc2.beginPath();
-            EisDealer.crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
-            EisDealer.crc2.strokeStyle = "black";
-            EisDealer.crc2.lineWidth = 2;
-            EisDealer.crc2.stroke();
-            EisDealer.crc2.closePath();
-            // Zeichne Wangenröte
-            const blushRadius = 7;
-            const blushOffsetX = 15;
-            const blushOffsetY = 2;
-            // Linke Wange
-            EisDealer.crc2.beginPath();
-            EisDealer.crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-            EisDealer.crc2.fillStyle = "blue";
-            EisDealer.crc2.fill();
-            EisDealer.crc2.closePath();
-            // Rechte Wange
-            EisDealer.crc2.beginPath();
-            EisDealer.crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-            EisDealer.crc2.fillStyle = "pink";
-            EisDealer.crc2.fill();
-            EisDealer.crc2.closePath();
-            EisDealer.crc2.restore();
-        }
-        drawEat() {
-            console.log("Customer drawEat");
-            const centerX = this.position.x;
-            const centerY = this.position.y;
-            const radius = 25;
-            EisDealer.crc2.save();
-            // crc2.translate(this.position.x, this.position.y);
-            // Zeichne den Kopf
-            EisDealer.crc2.beginPath();
-            EisDealer.crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            EisDealer.crc2.fillStyle = "red";
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 2;
