@@ -112,8 +112,6 @@ namespace EisDealer {
                     customer.showOrder();
                     dealer.customerClicked = true;
                     dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
-                    
-                    const customerOrderCorrect = customer.compareOrders(selectionScreen);
 
                 // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
                 const proximityInterval = setInterval(() => {
