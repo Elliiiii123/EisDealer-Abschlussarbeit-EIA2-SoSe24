@@ -6,7 +6,9 @@ var EisDealer;
     EisDealer.allObjects = [];
     EisDealer.allCustomers = [];
     let selectionScreen;
+    let moneyScreen;
     let dealer;
+    let customer;
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
         if (!canvas)
@@ -42,7 +44,8 @@ var EisDealer;
         // Initialisieren Sie die Auswahlbildschirm-Instanz
         selectionScreen = new EisDealer.SelectionScreen(new EisDealer.Vector(0, 0));
         EisDealer.orderScreen = new EisDealer.OrderScreen(new EisDealer.Vector(780, 0));
-        dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "Happy");
+        moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0));
+        dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "happy");
         console.log(dealer);
         EisDealer.allObjects.push(dealer);
         drawBackground();
@@ -59,6 +62,7 @@ var EisDealer;
         }
         selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
         EisDealer.orderScreen.draw();
+        moneyScreen.draw();
         requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
     }
     function createCustomer() {
@@ -89,10 +93,18 @@ var EisDealer;
                 customer.showOrder();
                 dealer.customerClicked = true;
                 dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
-                // Setze das Ziel des Dealers auf die Position des Kunden
+                const customerOrderCorrect = customer.compareOrders(selectionScreen);
+                if (customerOrderCorrect) {
+                    console.log("Customer's order matches dealer's selection!");
+                    // Weitere Logik für den Fall, dass die Bestellung übereinstimmt
+                }
+                else {
+                    console.log("Customer's order does not match dealer's selection.");
+                    // Weitere Logik für den Fall, dass die Bestellung nicht übereinstimmt
+                }
                 // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                 const offsetAngle = Math.random() * 2 * Math.PI;
-                const offsetDistance = 80; // Beispielhafte Verschiebung um 30 Pixel
+                const offsetDistance = 80; // Verschiebung um 80 Pixel
                 const targetPosition = new EisDealer.Vector(customer.position.x + offsetDistance * Math.cos(offsetAngle), customer.position.y + offsetDistance * Math.sin(offsetAngle));
                 dealer.updateDealerType();
                 dealer.setTargetPosition(targetPosition);

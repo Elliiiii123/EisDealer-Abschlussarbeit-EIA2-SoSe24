@@ -78,7 +78,14 @@ var EisDealer;
                 else {
                     this.position = this.targetPosition;
                     this.targetPosition = null; // Ziel erreicht
+                    this.checkStateChange();
                 }
+            }
+        }
+        checkStateChange() {
+            if (this.type === EisDealer.DealerType.withIce && this.customerClicked) {
+                this.type = EisDealer.DealerType.withoutIce;
+                this.resetFlags();
             }
         }
         // Interne Methode zum Aktualisieren des Dealer-Typs
@@ -98,6 +105,10 @@ var EisDealer;
             this.customerClickedAfterItem = false;
             this.itemSelected = false;
             this.customerClicked = false;
+            this.selectedScoop = null;
+            this.selectedToppings = [];
+            this.selectedSauce = null;
+            this.type = EisDealer.DealerType.withoutIce;
         }
         draw() {
             //console.log("Dealer draw")

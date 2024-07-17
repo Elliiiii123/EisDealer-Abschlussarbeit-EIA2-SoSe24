@@ -42,6 +42,9 @@ var EisDealer;
         equals(other) {
             return this.x === other.x && this.y === other.y;
         }
+        copy() {
+            return new Vector(this.x, this.y);
+        }
     }
     EisDealer.Vector = Vector;
 })(EisDealer || (EisDealer = {}));

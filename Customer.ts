@@ -1,26 +1,31 @@
 namespace EisDealer {
     export class Customer extends Moveable{
 
-        // private type: CustomerType;
-        // private emotion: string;
         private targetPosition: Vector | null = null;
         private passingPointReached: boolean = false;
         private static chairOffset = new Vector(25, 25);
         private orderPlaced: boolean = false;
+        private type: CustomerType = CustomerType.Normal;
+        private originalPosition: Vector;
+        private order: { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } | null = null;
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string){
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction)
             this.position = _position;
+            this.originalPosition = _position.copy();
             this.speed = _speed;
             this.direction = _direction;
-            // this.type = _type;
-            // this.emotion = _emotion;
+            this.type = _type;
             this.findNextTargetPosition(); // Initial Target setzen
         }
 
         public setPosition(position: Vector): void {
             this.position = position;
+        }
+
+        public setType(type: CustomerType): void {
+            this.type = type;
         }
         
         public handleClicked(): void {
@@ -35,13 +40,13 @@ namespace EisDealer {
             if (!this.passingPointReached) {
                 this.moveToPoint(passingPoint);
                 if (this.position.equals(passingPoint)) {
-                    console.log("Customer passed the point at", this.position);
+                    //console.log("Customer passed the point at", this.position);
                     this.passingPointReached = true;
                 }
             } else if (this.targetPosition) {
                 this.moveToPoint(this.targetPosition);
                 if (this.position.equals(this.targetPosition)) {
-                    console.log("Customer reached the target position at", this.position);
+                    //console.log("Customer reached the target position at", this.position);
                     this.speed = new Vector(0, 0); // Geschwindigkeit auf 0 setzen, damit der Kunde dort bleibt
                 }
             }
@@ -73,10 +78,9 @@ namespace EisDealer {
             const chosenChair = availableChairs[0];
             this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
 
-
             // Markiere die Zielposition als belegt
             availableChairs[0].occupy();
-            console.log("Customer assigned to target position at", this.targetPosition);
+            //console.log("Customer assigned to target position at", this.targetPosition);
         }
 
         private calculateOffset(rotation: number): Vector {
@@ -91,7 +95,7 @@ namespace EisDealer {
             return allObjects.filter(obj => obj instanceof Chair && !obj.isOccupied()) as Chair[];
         }
     
-        public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } {
+        public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null }  {
             const numberOfScoops = Math.floor(Math.random() * 3) + 1; // Zufällige Anzahl von Kugeln (1 bis 3)
             const selectedScoops = [];
 
@@ -107,8 +111,14 @@ namespace EisDealer {
             const selectedSauce = addSauce ? this.getRandomSauce() : null;
 
             console.log(selectedSauce, selectedScoops, selectedTopping);
-            return { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
+            this.order = { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
+            return this.order;
+
             
+        }
+
+        public moveToOriginalPosition(): void {
+            this.position = this.originalPosition.copy();
         }
 
         private getRandomScoop(): Scoop {
@@ -151,19 +161,78 @@ namespace EisDealer {
 
                 this.orderPlaced = true;  // Markiere die Bestellung als aufgegeben
             } else if (this.orderPlaced) {
-                console.log("This customer has already placed an order.");
+                //console.log("This customer has already placed an order.");
             } else {
-                console.log("Customer is not seated yet.");
+                //console.log("Customer is not seated yet.");
             }
         }
     
-        public draw():void{
-            //console.log("Customer draw")
-            this.drawNormal();
-            this.drawHappy();
-            this.drawSad();
-            this.drawEat();
+        public draw(): void {
+            switch (this.type) {
+                case CustomerType.Normal:
+                    this.drawNormal();
+                    break;
+                case CustomerType.Happy:
+                    this.drawHappy();
+                    break;
+                case CustomerType.Sad:
+                    this.drawSad();
+                    break;
+                case CustomerType.Eat:
+                    this.drawEat();
+                    console.log("Kunde isst")
+                    break;
+                default:
+                    console.error("Unknown state");
+                    break;
+            }
         }
+
+        public compareOrders(selectionScreen: SelectionScreen): boolean {
+            if (!this.order) {
+                console.warn("Customer order has not been generated yet.");
+                return false;
+            }
+
+            const selectedOrder = selectionScreen.getSelection();
+
+            // Vergleiche die Bestellung des Kunden mit der Auswahl auf dem Bildschirm
+            const scoopsMatch = this.compareScoops(this.order.scoops, selectedOrder.scoops);
+            const toppingMatch = this.compareTopping(this.order.topping, selectedOrder.topping);
+            const sauceMatch = this.compareSauce(this.order.sauce, selectedOrder.sauce);
+
+            return scoopsMatch && toppingMatch && sauceMatch;
+        }
+
+        private compareScoops(scoops1: Scoop[], scoops2: Scoop[]): boolean {
+            if (scoops1.length !== scoops2.length) return false;
+
+            for (let i = 0; i < scoops1.length; i++) {
+                if (!this.compareScoop(scoops1[i], scoops2[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private compareScoop(scoop1: Scoop, scoop2: Scoop): boolean {
+            return scoop1.name === scoop2.name && scoop1.color === scoop2.color;
+        }
+
+        private compareTopping(topping1: Topping | null, topping2: Topping | null): boolean {
+            if (topping1 === null && topping2 === null) return true;
+            if (topping1 === null || topping2 === null) return false;
+
+            return topping1.name === topping2.name && topping1.color === topping2.color;
+        }
+
+        private compareSauce(sauce1: Sauce | null, sauce2: Sauce | null): boolean {
+            if (sauce1 === null && sauce2 === null) return true;
+            if (sauce1 === null || sauce2 === null) return false;
+
+            return sauce1.name === sauce2.name && sauce1.color === sauce2.color;
+        }
+
 
         private drawNormal():void{
             //console.log("Customer draw")
@@ -241,7 +310,70 @@ namespace EisDealer {
         }
 
         private drawEat():void{
+                        console.log("Customer drawEat")
             
+                        const centerX = this.position.x;
+                        const centerY = this.position.y;
+                        const radius = 25;
+            
+                        crc2.save();
+                        // crc2.translate(this.position.x, this.position.y);
+                        // Zeichne den Kopf
+                        crc2.beginPath();
+                        crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                        crc2.fillStyle = "red";
+                        crc2.fill();
+                        crc2.strokeStyle = "black";
+                        crc2.lineWidth = 2;
+                        crc2.stroke();
+                        crc2.closePath();
+            
+                        // Zeichne die Augen
+                        const eyeRadius = 5;
+                        const eyeOffsetX = 8;
+                        const eyeOffsetY = 10;
+            
+                        // Linkes Auge
+                        crc2.beginPath();
+                        crc2.arc(centerX - eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+                        crc2.fillStyle = "black";
+                        crc2.fill();
+                        crc2.closePath();
+            
+                        // Rechtes Auge
+                        crc2.beginPath();
+                        crc2.arc(centerX + eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+                        crc2.fillStyle = "black";
+                        crc2.fill();
+                        crc2.closePath();
+            
+                        // Zeichne den Mund
+                        crc2.beginPath();
+                        crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
+                        crc2.strokeStyle = "black";
+                        crc2.lineWidth = 2;
+                        crc2.stroke();
+                        crc2.closePath();
+            
+                        // Zeichne Wangenröte
+                        const blushRadius = 7;
+                        const blushOffsetX = 15;
+                        const blushOffsetY = 2;
+            
+                        // Linke Wange
+                        crc2.beginPath();
+                        crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+                        crc2.fillStyle = "blue";
+                        crc2.fill();
+                        crc2.closePath();
+            
+                        // Rechte Wange
+                        crc2.beginPath();
+                        crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+                        crc2.fillStyle = "pink";
+                        crc2.fill();
+                        crc2.closePath();
+                        crc2.restore();
         }
     }
 }

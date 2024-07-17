@@ -2,24 +2,28 @@
 var EisDealer;
 (function (EisDealer) {
     class Customer extends EisDealer.Moveable {
-        // private type: CustomerType;
-        // private emotion: string;
         targetPosition = null;
         passingPointReached = false;
         static chairOffset = new EisDealer.Vector(25, 25);
         orderPlaced = false;
+        type = EisDealer.CustomerType.Normal;
+        originalPosition;
+        order = null;
         constructor(_position, _speed, _direction, _type, _emotion) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
             this.position = _position;
+            this.originalPosition = _position.copy();
             this.speed = _speed;
             this.direction = _direction;
-            // this.type = _type;
-            // this.emotion = _emotion;
+            this.type = _type;
             this.findNextTargetPosition(); // Initial Target setzen
         }
         setPosition(position) {
             this.position = position;
+        }
+        setType(type) {
+            this.type = type;
         }
         handleClicked() {
         }
@@ -30,14 +34,14 @@ var EisDealer;
             if (!this.passingPointReached) {
                 this.moveToPoint(passingPoint);
                 if (this.position.equals(passingPoint)) {
-                    console.log("Customer passed the point at", this.position);
+                    //console.log("Customer passed the point at", this.position);
                     this.passingPointReached = true;
                 }
             }
             else if (this.targetPosition) {
                 this.moveToPoint(this.targetPosition);
                 if (this.position.equals(this.targetPosition)) {
-                    console.log("Customer reached the target position at", this.position);
+                    //console.log("Customer reached the target position at", this.position);
                     this.speed = new EisDealer.Vector(0, 0); // Geschwindigkeit auf 0 setzen, damit der Kunde dort bleibt
                 }
             }
@@ -67,7 +71,7 @@ var EisDealer;
             this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
             // Markiere die Zielposition als belegt
             availableChairs[0].occupy();
-            console.log("Customer assigned to target position at", this.targetPosition);
+            //console.log("Customer assigned to target position at", this.targetPosition);
         }
         calculateOffset(rotation) {
             const radians = rotation * Math.PI / 180;
@@ -91,7 +95,11 @@ var EisDealer;
             const addSauce = Math.random() < 0.5; // 50% Wahrscheinlichkeit für eine Sauce
             const selectedSauce = addSauce ? this.getRandomSauce() : null;
             console.log(selectedSauce, selectedScoops, selectedTopping);
-            return { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
+            this.order = { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
+            return this.order;
+        }
+        moveToOriginalPosition() {
+            this.position = this.originalPosition.copy();
         }
         getRandomScoop() {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Ice.length);
@@ -130,18 +138,70 @@ var EisDealer;
                 this.orderPlaced = true; // Markiere die Bestellung als aufgegeben
             }
             else if (this.orderPlaced) {
-                console.log("This customer has already placed an order.");
+                //console.log("This customer has already placed an order.");
             }
             else {
-                console.log("Customer is not seated yet.");
+                //console.log("Customer is not seated yet.");
             }
         }
         draw() {
-            //console.log("Customer draw")
-            this.drawNormal();
-            this.drawHappy();
-            this.drawSad();
-            this.drawEat();
+            switch (this.type) {
+                case EisDealer.CustomerType.Normal:
+                    this.drawNormal();
+                    break;
+                case EisDealer.CustomerType.Happy:
+                    this.drawHappy();
+                    break;
+                case EisDealer.CustomerType.Sad:
+                    this.drawSad();
+                    break;
+                case EisDealer.CustomerType.Eat:
+                    this.drawEat();
+                    console.log("Kunde isst");
+                    break;
+                default:
+                    console.error("Unknown state");
+                    break;
+            }
+        }
+        compareOrders(selectionScreen) {
+            if (!this.order) {
+                console.warn("Customer order has not been generated yet.");
+                return false;
+            }
+            const selectedOrder = selectionScreen.getSelection();
+            // Vergleiche die Bestellung des Kunden mit der Auswahl auf dem Bildschirm
+            const scoopsMatch = this.compareScoops(this.order.scoops, selectedOrder.scoops);
+            const toppingMatch = this.compareTopping(this.order.topping, selectedOrder.topping);
+            const sauceMatch = this.compareSauce(this.order.sauce, selectedOrder.sauce);
+            return scoopsMatch && toppingMatch && sauceMatch;
+        }
+        compareScoops(scoops1, scoops2) {
+            if (scoops1.length !== scoops2.length)
+                return false;
+            for (let i = 0; i < scoops1.length; i++) {
+                if (!this.compareScoop(scoops1[i], scoops2[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        compareScoop(scoop1, scoop2) {
+            return scoop1.name === scoop2.name && scoop1.color === scoop2.color;
+        }
+        compareTopping(topping1, topping2) {
+            if (topping1 === null && topping2 === null)
+                return true;
+            if (topping1 === null || topping2 === null)
+                return false;
+            return topping1.name === topping2.name && topping1.color === topping2.color;
+        }
+        compareSauce(sauce1, sauce2) {
+            if (sauce1 === null && sauce2 === null)
+                return true;
+            if (sauce1 === null || sauce2 === null)
+                return false;
+            return sauce1.name === sauce2.name && sauce1.color === sauce2.color;
         }
         drawNormal() {
             //console.log("Customer draw")
@@ -205,6 +265,61 @@ var EisDealer;
         drawHappy() {
         }
         drawEat() {
+            console.log("Customer drawEat");
+            const centerX = this.position.x;
+            const centerY = this.position.y;
+            const radius = 25;
+            EisDealer.crc2.save();
+            // crc2.translate(this.position.x, this.position.y);
+            // Zeichne den Kopf
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "red";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 2;
+            EisDealer.crc2.stroke();
+            EisDealer.crc2.closePath();
+            // Zeichne die Augen
+            const eyeRadius = 5;
+            const eyeOffsetX = 8;
+            const eyeOffsetY = 10;
+            // Linkes Auge
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX - eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Rechtes Auge
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX + eyeOffsetX, centerY - eyeOffsetY, eyeRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Zeichne den Mund
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 2;
+            EisDealer.crc2.stroke();
+            EisDealer.crc2.closePath();
+            // Zeichne Wangenröte
+            const blushRadius = 7;
+            const blushOffsetX = 15;
+            const blushOffsetY = 2;
+            // Linke Wange
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "blue";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            // Rechte Wange
+            EisDealer.crc2.beginPath();
+            EisDealer.crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
+            EisDealer.crc2.fillStyle = "pink";
+            EisDealer.crc2.fill();
+            EisDealer.crc2.closePath();
+            EisDealer.crc2.restore();
         }
     }
     EisDealer.Customer = Customer;

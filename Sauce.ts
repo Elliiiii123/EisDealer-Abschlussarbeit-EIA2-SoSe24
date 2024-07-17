@@ -2,7 +2,7 @@ namespace EisDealer {
     export class Sauce extends Drawable{
         public name: string;
         public price: number;
-        private color: string;
+        public color: string;
         //private isClicked: boolean;
 
         constructor (_position: Vector, _name: string, _price: number, _color: string){

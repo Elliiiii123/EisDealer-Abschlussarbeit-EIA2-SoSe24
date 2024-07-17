@@ -1,14 +1,14 @@
 namespace EisDealer{
     export class SelectionScreen extends Drawable{
         private selectedSauce: Sauce | null;
-        private selectedToppings: Topping[];
+        private selectedTopping: Topping | null;
         private scoops: Scoop[];
 
 
         constructor(_position: Vector) {
             super(_position);
             this.selectedSauce = null;
-            this.selectedToppings = [];
+            this.selectedTopping = null;
             this.scoops = [];
             this.draw();
         }
@@ -19,10 +19,7 @@ namespace EisDealer{
             } else if (item instanceof Sauce) {
                 this.selectedSauce = item;
             } else if (item instanceof Topping) {
-                // Check if the topping is already selected
-                if (!this.selectedToppings.includes(item)) {
-                    this.selectedToppings.push(item);
-                }
+                this.selectedTopping = item;
             }    
             this.draw();
         }
@@ -30,8 +27,16 @@ namespace EisDealer{
         public clearItems(): void {
             this.scoops = [];
             this.selectedSauce = null;
-            this.selectedToppings = [];
+            this.selectedTopping = null;
             this.draw();
+        }
+
+        public getSelection(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } {
+            return {
+                scoops: this.scoops,
+                topping: this.selectedTopping,
+                sauce: this.selectedSauce
+            };
         }
 
         public draw(): void {
@@ -112,9 +117,9 @@ namespace EisDealer{
                 }
 
                 // Draw toppings on the scoop if toppings are selected
-                this.selectedToppings.forEach(topping => {
-                    topping.drawSymbol(position);
-                });
+                if (this.selectedTopping) {
+                    this.selectedTopping.drawSymbol(position);
+                }
             });
             crc2.restore();
         }

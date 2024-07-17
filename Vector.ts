@@ -52,6 +52,10 @@ namespace EisDealer {
             return this.x === other.x && this.y === other.y;
         }
 
+        public copy(): Vector {
+            return new Vector(this.x, this.y);
+        }
+
         // public distanceTo(vector: Vector): number {
         //     let dx = this.x - vector.x;
         //     let dy = this.y - vector.y;

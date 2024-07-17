@@ -2,7 +2,7 @@ namespace EisDealer {
     export class Scoop extends Drawable{
         public price: number;
         public name: string;
-        private color: string;
+        public color: string;
         //private isClicked: boolean;
 
         constructor (_position: Vector,  _name: string, _price: number, _color: string){

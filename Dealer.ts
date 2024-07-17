@@ -34,6 +34,7 @@ namespace EisDealer {
                 this.customerClickedAfterItem = false;
             }
             this.updateDealerType();
+            
         }
 
         public setSelectedScoop(scoop: Scoop): void {
@@ -73,7 +74,7 @@ namespace EisDealer {
             this.targetPosition = new Vector(this.originalPosition.x, this.originalPosition.y);
         }
 
-        protected move(): void {
+        public move(): void {
 
             if (this.targetPosition) {
                 const dx = this.targetPosition.x - this.position.x;
@@ -87,7 +88,15 @@ namespace EisDealer {
                 } else {
                     this.position = this.targetPosition;
                     this.targetPosition = null; // Ziel erreicht
+                    this.checkStateChange();
                 }
+            }
+        }
+
+        private checkStateChange(): void {
+            if (this.type === DealerType.withIce && this.customerClicked) {
+                this.type = DealerType.withoutIce;
+                this.resetFlags();
             }
         }
 
@@ -108,6 +117,10 @@ namespace EisDealer {
             this.customerClickedAfterItem = false;
             this.itemSelected = false;
             this.customerClicked = false;
+            this.selectedScoop = null;
+            this.selectedToppings = [];
+            this.selectedSauce = null;
+            this.type = DealerType.withoutIce;
         }
     
         public draw():void{

@@ -8,7 +8,9 @@ namespace EisDealer {
     export let allCustomers: Customer[] = [];
     let selectionScreen: SelectionScreen;
     export let orderScreen: OrderScreen;
+    let moneyScreen: Money;
     let dealer: Dealer;  
+    let customer: Customer;  
 
 
     function handleLoad(_event: Event): void {
@@ -52,9 +54,9 @@ namespace EisDealer {
     
         selectionScreen = new SelectionScreen(new Vector(0,0));
         orderScreen = new OrderScreen(new Vector(780,0));
+        moneyScreen = new Money(new Vector(180,0))
         
-
-        dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce,"Happy");
+        dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce,"happy");
         console.log(dealer);
         allObjects.push(dealer);
 
@@ -62,8 +64,7 @@ namespace EisDealer {
         // setInterval(animate, 40);
         createCustomer();
         setInterval(createCustomer, 30000);
-        animate();
-        
+        animate(); 
     }
 
     function animate(): void {
@@ -75,6 +76,8 @@ namespace EisDealer {
         }
         selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
         orderScreen.draw();
+        moneyScreen.draw();
+
 
         requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
     }
@@ -111,11 +114,20 @@ namespace EisDealer {
                     customer.showOrder();
                     dealer.customerClicked = true;
                     dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
-                    // Setze das Ziel des Dealers auf die Position des Kunden
+                    
+                    const customerOrderCorrect = customer.compareOrders(selectionScreen);
+
+                    if (customerOrderCorrect) {
+                        console.log("Customer's order matches dealer's selection!");
+                        // Weitere Logik für den Fall, dass die Bestellung übereinstimmt
+                    } else {
+                        console.log("Customer's order does not match dealer's selection.");
+                        // Weitere Logik für den Fall, dass die Bestellung nicht übereinstimmt
+                    }
                     
                     // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                     const offsetAngle = Math.random() * 2 * Math.PI;
-                    const offsetDistance = 80; // Beispielhafte Verschiebung um 30 Pixel
+                    const offsetDistance = 80; // Verschiebung um 80 Pixel
                     const targetPosition = new Vector(
                     customer.position.x + offsetDistance * Math.cos(offsetAngle),
                     customer.position.y + offsetDistance * Math.sin(offsetAngle)
@@ -123,11 +135,11 @@ namespace EisDealer {
 
                     dealer.updateDealerType();
                     dealer.setTargetPosition(targetPosition);
+
                     return;
                     }
                 }
             //console.log('No customer clicked.');
-
 
             // Überprüfen, ob ein Scoop angeklickt wurde
             for (let object of allObjects) {
@@ -198,7 +210,7 @@ namespace EisDealer {
                     }
                 }
             }         
-        }
+        }  
 
     function drawBackground(): void {
         crc2.save();

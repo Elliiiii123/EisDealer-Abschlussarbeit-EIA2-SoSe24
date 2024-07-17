@@ -3,12 +3,12 @@ var EisDealer;
 (function (EisDealer) {
     class SelectionScreen extends EisDealer.Drawable {
         selectedSauce;
-        selectedToppings;
+        selectedTopping;
         scoops;
         constructor(_position) {
             super(_position);
             this.selectedSauce = null;
-            this.selectedToppings = [];
+            this.selectedTopping = null;
             this.scoops = [];
             this.draw();
         }
@@ -20,18 +20,22 @@ var EisDealer;
                 this.selectedSauce = item;
             }
             else if (item instanceof EisDealer.Topping) {
-                // Check if the topping is already selected
-                if (!this.selectedToppings.includes(item)) {
-                    this.selectedToppings.push(item);
-                }
+                this.selectedTopping = item;
             }
             this.draw();
         }
         clearItems() {
             this.scoops = [];
             this.selectedSauce = null;
-            this.selectedToppings = [];
+            this.selectedTopping = null;
             this.draw();
+        }
+        getSelection() {
+            return {
+                scoops: this.scoops,
+                topping: this.selectedTopping,
+                sauce: this.selectedSauce
+            };
         }
         draw() {
             const x = this.position.x;
@@ -99,9 +103,9 @@ var EisDealer;
                     this.selectedSauce.drawSymbol(position);
                 }
                 // Draw toppings on the scoop if toppings are selected
-                this.selectedToppings.forEach(topping => {
-                    topping.drawSymbol(position);
-                });
+                if (this.selectedTopping) {
+                    this.selectedTopping.drawSymbol(position);
+                }
             });
             EisDealer.crc2.restore();
         }
