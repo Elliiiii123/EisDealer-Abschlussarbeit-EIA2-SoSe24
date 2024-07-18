@@ -104,7 +104,7 @@ namespace EisDealer {
                 console.warn("No available chairs found for customer.");
                 this.targetPosition = new Vector(800,215);
                 this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
-                this.speed = new Vector(0, 0); // Langsame Bewegung, falls nötig
+                this.speed = new Vector(1, 1); // Langsame Bewegung, falls nötig
                 return;
             }
 
