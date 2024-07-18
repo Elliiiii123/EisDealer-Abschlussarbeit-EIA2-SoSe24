@@ -41,11 +41,14 @@ var EisDealer;
             // Überprüfe den Wartezeit-Status
             if (this.waitStartTime !== null) {
                 const elapsedTime = Date.now() - this.waitStartTime;
-                console.log(`Customer waiting. Elapsed time: ${elapsedTime} ms`);
+                //console.log(`Customer waiting. Elapsed time: ${elapsedTime} ms`);
                 if (elapsedTime >= Customer.WAIT_TIME_MS) { // 40 Sekunden
                     this.changeToSad();
                     this.waitStartTime = null; // Verhindert mehrfaches Wechseln zu `Sad`
-                    console.log("Customer has changed to Sad state.");
+                    //console.log("Customer has changed to Sad state.");
+                }
+                if (this.targetPosition) {
+                    this.moveToPoint(this.targetPosition); // Bewege den Kunden zur Warteposition, wenn nötig
                 }
                 return; // Verhindere weitere Bewegungen, während der Kunde wartet
             }
