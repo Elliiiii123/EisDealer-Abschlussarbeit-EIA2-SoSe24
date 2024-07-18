@@ -1,10 +1,9 @@
 "use strict";
 var EisDealer;
 (function (EisDealer) {
-    //Tür öffnen
-    //rausgeh weg
-    // Rezept nur einmal
-    //abglecih korrekt
+    // rausgeh weg
+    // handle click zwei mal?
+    // abgleich korrekt
     // schlechte laune bei warten
     // offset bei warteschlange
     // sad, happ und receipt designen
@@ -22,9 +21,6 @@ var EisDealer;
         EisDealer.crc2 = canvas.getContext("2d");
         canvas.addEventListener("click", handleClick);
         EisDealer.generateContent(EisDealer.data);
-        let door = new EisDealer.Door(new EisDealer.Vector(795, 195), new EisDealer.Vector(0, 0), new EisDealer.Vector(0, 0));
-        console.log(door);
-        EisDealer.allObjects.push(door);
         const chairs = [
             { position: new EisDealer.Vector(425, 420), rotation: 0 },
             { position: new EisDealer.Vector(400, 340), rotation: 120 },
@@ -104,7 +100,7 @@ var EisDealer;
                     const dealerDistanceX = dealer.position.x - customer.position.x;
                     const dealerDistanceY = dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 150) {
+                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100) {
                         const customerOrderCorrect = customer.compareOrders(selectionScreen);
                         if (customerOrderCorrect) {
                             console.log("Customer's order matches dealer's selection!");
@@ -118,7 +114,7 @@ var EisDealer;
                         }
                         clearInterval(proximityInterval); // Clear the interval once conditions are met
                     }
-                }, 100);
+                }, 200);
                 // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                 const offsetAngle = Math.random() * 2 * Math.PI;
                 const offsetDistance = 80; // Verschiebung um 80 Pixel

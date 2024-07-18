@@ -13,6 +13,9 @@ var EisDealer;
         moneyScreen;
         passingPoint = new EisDealer.Vector(800, 215);
         returnPoint = new EisDealer.Vector(1100, 215);
+        receiptCreated = false;
+        waitStartTime = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
+        static WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
         constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
@@ -35,20 +38,42 @@ var EisDealer;
         move() {
             if (this.speed.x === 0 && this.speed.y === 0)
                 return; // Wenn die Geschwindigkeit 0 ist, nicht weiter bewegen
-            // Punkt, den der Customer passieren soll
+            // Überprüfe den Wartezeit-Status
+            if (this.waitStartTime !== null) {
+                const elapsedTime = Date.now() - this.waitStartTime;
+                console.log(`Customer waiting. Elapsed time: ${elapsedTime} ms`);
+                if (elapsedTime >= Customer.WAIT_TIME_MS) { // 40 Sekunden
+                    this.changeToSad();
+                    this.waitStartTime = null; // Verhindert mehrfaches Wechseln zu `Sad`
+                    console.log("Customer has changed to Sad state.");
+                }
+                return; // Verhindere weitere Bewegungen, während der Kunde wartet
+            }
             if (!this.passingPointReached) {
                 this.moveToPoint(this.passingPoint);
                 if (this.position.equals(this.passingPoint)) {
-                    //console.log("Customer passed the point at", this.position);
                     this.passingPointReached = true;
                 }
             }
             else if (this.targetPosition) {
                 this.moveToPoint(this.targetPosition);
                 if (this.position.equals(this.targetPosition)) {
-                    //console.log("Customer reached the target position at", this.position);
-                    this.speed = new EisDealer.Vector(0, 0); // Geschwindigkeit auf 0 setzen, damit der Kunde dort bleibt
+                    if (this.type === EisDealer.CustomerType.Happy || this.type === EisDealer.CustomerType.Sad) {
+                        // Nur wenn der Kunde happy oder sad ist, soll er weiter gehen
+                        this.targetPosition = this.returnPoint;
+                        this.passingPointReached = false; // Zurück zum Passing Point
+                        this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zurücksetzen
+                    }
+                    else {
+                        this.speed = new EisDealer.Vector(0, 0); // Geschwindigkeit stoppen, wenn der Kunde am Ziel ist
+                    }
                 }
+            }
+            else if (this.position.equals(this.returnPoint)) {
+                // Kunden löschen, wenn der Kunde am Return Point angekommen ist
+                setTimeout(() => {
+                    this.removeCustomer();
+                }, 2000); // 2 Sekunden warten, bevor der Kunde entfernt wird
             }
         }
         moveToPoint(point) {
@@ -70,6 +95,9 @@ var EisDealer;
             // Wenn keine freie Position gefunden wurde
             if (availableChairs.length === 0) {
                 console.warn("No available chairs found for customer.");
+                this.targetPosition = new EisDealer.Vector(800, 215);
+                this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
+                this.speed = new EisDealer.Vector(0, 0); // Langsame Bewegung, falls nötig
                 return;
             }
             const chosenChair = availableChairs[0];
@@ -77,6 +105,7 @@ var EisDealer;
             // Markiere die Zielposition als belegt
             availableChairs[0].occupy();
             //console.log("Customer assigned to target position at", this.targetPosition);
+            this.waitStartTime = null;
         }
         calculateOffset(rotation) {
             const radians = rotation * Math.PI / 180;
@@ -181,21 +210,18 @@ var EisDealer;
             return sauce1.name === sauce2.name && sauce1.color === sauce2.color;
         }
         changeToHappy() {
-            console.log("HAPPY");
+            //console.log("HAPPY");
             this.setType(EisDealer.CustomerType.Happy);
-            // Überprüfe, ob ein Beleg in der Nähe des Kunden existiert
-            if (!this.receiptExists()) {
-                const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)), this.moneyScreen);
-                EisDealer.allObjects.push(receipt);
-            }
-            this.moveToOriginalPosition();
-            setTimeout(() => {
-                const index = EisDealer.allObjects.indexOf(this);
-                if (index !== -1) {
-                    EisDealer.allObjects.splice(index, 1);
-                    this.freeChair();
+            if (!this.receiptCreated) {
+                if (!this.receiptExists()) {
+                    const receipt = new EisDealer.Receipt(this.position.add(new EisDealer.Vector(0, -50)), this.moneyScreen);
+                    EisDealer.allObjects.push(receipt);
                 }
-            }, 2000);
+                this.receiptCreated = true;
+            }
+            this.targetPosition = this.passingPoint;
+            this.passingPointReached = false;
+            this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zurücksetzen
         }
         // Methode zur Überprüfung, ob ein Beleg in der Nähe des Kunden existiert
         receiptExists() {
@@ -210,21 +236,23 @@ var EisDealer;
             return false; // Kein Beleg in der Nähe gefunden
         }
         changeToSad() {
-            console.log("SAD");
+            //console.log("SAD")
             this.setType(EisDealer.CustomerType.Sad);
-            this.moveToOriginalPosition();
-            setTimeout(() => {
-                const index = EisDealer.allObjects.indexOf(this);
-                if (index !== -1) {
-                    EisDealer.allObjects.splice(index, 1);
-                    this.freeChair();
-                }
-            }, 2000); // 2 Sekunden warten, bevor der Kunde entfernt wird
+            this.targetPosition = this.passingPoint;
+            this.passingPointReached = false;
+            this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zurücksetzen
         }
         freeChair() {
             const chair = this.findOccupiedChair();
             if (chair) {
                 chair.free();
+            }
+        }
+        removeCustomer() {
+            const index = EisDealer.allObjects.indexOf(this);
+            if (index !== -1) {
+                EisDealer.allObjects.splice(index, 1);
+                this.freeChair();
             }
         }
         findOccupiedChair() {
@@ -236,10 +264,11 @@ var EisDealer;
             return undefined;
         }
         moveToOriginalPosition() {
+            console.log("Kunde geht");
             this.targetPosition = this.passingPoint;
-            this.targetPosition = this.returnPoint;
             this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
             this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
+            this.targetPosition = this.returnPoint;
         }
         draw() {
             switch (this.type) {
@@ -372,7 +401,7 @@ var EisDealer;
             EisDealer.crc2.restore();
         }
         drawHappy() {
-            console.log("Customer drawHappy");
+            //console.log("Customer drawHappy")
             const centerX = this.position.x;
             const centerY = this.position.y;
             const radius = 25;

@@ -76,7 +76,6 @@ var EisDealer;
             this.drawFloralPattern(x + 110, patternY);
             EisDealer.crc2.restore();
             // Zeichne die Kugeln in einer Pyramidenform
-            // Draw the ice cream scoops in a pyramid form
             const centerX = x + 80; // Center X of the bowl
             const baseY = y + 120; // Base Y of the bowl (where it ends horizontally)
             const radius = 20;
