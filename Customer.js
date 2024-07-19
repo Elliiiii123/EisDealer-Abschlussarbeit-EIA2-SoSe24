@@ -43,23 +43,25 @@ var EisDealer;
                 this.handleWaiting();
                 return; // Verhindere weitere Bewegungen, während der Kunde wartet
             }
-            if (!this.passingPointReached) {
-                this.moveToPoint(this.passingPoint);
-                if (this.position.equals(this.passingPoint)) {
-                    this.passingPointReached = true;
-                }
-            }
-            else if (this.targetPosition) {
-                this.moveToPoint(this.targetPosition);
-                if (this.position.equals(this.targetPosition)) {
-                    if (this.type === EisDealer.CustomerType.Happy || this.type === EisDealer.CustomerType.Sad) {
-                        this.targetPosition = this.returnPoint;
+            if (this.targetPosition) {
+                if (!this.passingPointReached) {
+                    this.moveToPoint(this.passingPoint);
+                    if (this.position.equals(this.passingPoint)) {
                         this.passingPointReached = true;
-                        this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zurücksetzen
-                        setTimeout(() => this.removeCustomer(), 5000); // 2 Sekunden warten, bevor der Kunde entfernt wird
                     }
-                    else {
-                        this.speed = new EisDealer.Vector(0, 0); // Geschwindigkeit stoppen, wenn der Kunde am Ziel ist
+                }
+                else {
+                    this.moveToPoint(this.targetPosition);
+                    if (this.position.equals(this.targetPosition)) {
+                        if (this.type === EisDealer.CustomerType.Happy || this.type === EisDealer.CustomerType.Sad) {
+                            this.targetPosition = this.returnPoint;
+                            this.passingPointReached = true;
+                            this.speed = new EisDealer.Vector(5, 5); // Geschwindigkeit zurücksetzen
+                            setTimeout(() => this.removeCustomer(), 5000); // 5 Sekunden warten, bevor der Kunde entfernt wird
+                        }
+                        else {
+                            this.speed = new EisDealer.Vector(0, 0); // Geschwindigkeit stoppen, wenn der Kunde am Ziel ist
+                        }
                     }
                 }
             }

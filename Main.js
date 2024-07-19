@@ -3,7 +3,7 @@ var EisDealer;
 (function (EisDealer) {
     // rausgeh weg
     // handle click zwei mal?
-    // offset bei warteschlange
+    // nachrücken bei warteschlange
     // freien stuhl nach warteschlange finden
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
