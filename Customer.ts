@@ -16,7 +16,7 @@ namespace EisDealer {
         private waitStartTime: number | null = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         private static readonly WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
         private static waitingCustomers: Customer[] = []; // Warteschlange für Kunden
-        private static waitingStartPosition = new Vector(800, 215); // Startposition für wartende Kunden
+        private static waitingStartPosition = new Vector(860, 215); // Startposition für wartende Kunden
         private static waitingSpacing = 50; // Abstand zwischen wartenden Kunden
     
         

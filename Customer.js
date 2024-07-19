@@ -17,7 +17,7 @@ var EisDealer;
         waitStartTime = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         static WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
         static waitingCustomers = []; // Warteschlange für Kunden
-        static waitingStartPosition = new EisDealer.Vector(800, 215); // Startposition für wartende Kunden
+        static waitingStartPosition = new EisDealer.Vector(860, 215); // Startposition für wartende Kunden
         static waitingSpacing = 50; // Abstand zwischen wartenden Kunden
         constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
             //console.log("Receipt Constructor")
