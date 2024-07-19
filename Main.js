@@ -3,10 +3,8 @@ var EisDealer;
 (function (EisDealer) {
     // rausgeh weg
     // handle click zwei mal?
-    // abgleich korrekt
-    // schlechte laune bei warten
     // offset bei warteschlange
-    // sad, happ und receipt designen
+    // sad, happy und receipt designen
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     EisDealer.allObjects = [];
@@ -100,7 +98,7 @@ var EisDealer;
                     const dealerDistanceX = dealer.position.x - customer.position.x;
                     const dealerDistanceY = dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100) {
+                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 150) {
                         const customerOrderCorrect = customer.compareOrders(selectionScreen);
                         if (customerOrderCorrect) {
                             console.log("Customer's order matches dealer's selection!");

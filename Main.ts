@@ -2,10 +2,8 @@ namespace EisDealer {
 
     // rausgeh weg
     // handle click zwei mal?
-    // abgleich korrekt
-    // schlechte laune bei warten
     // offset bei warteschlange
-    // sad, happ und receipt designen
+    // sad, happy und receipt designen
 
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
@@ -123,7 +121,7 @@ namespace EisDealer {
                     const dealerDistanceY = dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
     
-                    if (dealer.type === DealerType.withIce && dealerDistance < 100) {
+                    if (dealer.type === DealerType.withIce && dealerDistance < 150) {
                         const customerOrderCorrect = customer.compareOrders(selectionScreen);
     
                         if (customerOrderCorrect) {

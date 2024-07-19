@@ -16,6 +16,9 @@ var EisDealer;
         receiptCreated = false;
         waitStartTime = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         static WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
+        static waitingCustomers = []; // Warteschlange für Kunden
+        static waitingStartPosition = new EisDealer.Vector(800, 215); // Startposition für wartende Kunden
+        static waitingSpacing = 50; // Abstand zwischen wartenden Kunden
         constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
@@ -96,11 +99,9 @@ var EisDealer;
         findNextTargetPosition() {
             const availableChairs = this.getAvailableChairs();
             // Wenn keine freie Position gefunden wurde
+            // Wenn keine freie Position gefunden wurde
             if (availableChairs.length === 0) {
-                console.warn("No available chairs found for customer.");
-                this.targetPosition = new EisDealer.Vector(800, 215);
-                this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
-                this.speed = new EisDealer.Vector(1, 1); // Langsame Bewegung, falls nötig
+                this.joinWaitingQueue();
                 return;
             }
             const chosenChair = availableChairs[0];
@@ -119,6 +120,14 @@ var EisDealer;
         getAvailableChairs() {
             // Filtere alle Objekte und erhalte nur die verfügbaren Stühle
             return EisDealer.allObjects.filter(obj => obj instanceof EisDealer.Chair && !obj.isOccupied());
+        }
+        joinWaitingQueue() {
+            const queueLength = Customer.waitingCustomers.length;
+            const newPosition = Customer.waitingStartPosition.copy().add(new EisDealer.Vector(60, queueLength * Customer.waitingSpacing));
+            this.targetPosition = newPosition;
+            Customer.waitingCustomers.push(this);
+            this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
+            this.speed = new EisDealer.Vector(1, 1); // Langsame Bewegung, falls nötig
         }
         generateRandomOrder() {
             const numberOfScoops = Math.floor(Math.random() * 3) + 1; // Zufällige Anzahl von Kugeln (1 bis 3)

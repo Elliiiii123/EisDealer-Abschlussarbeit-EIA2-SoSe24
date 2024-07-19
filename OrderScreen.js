@@ -92,20 +92,18 @@ var EisDealer;
                     new EisDealer.Vector(centerX + radius * 2, baseY + radius)
                 ]
             ];
-            let scoopIndex = 0;
-            this.scoops.forEach((scoop) => {
-                if (scoopIndex < positions.length) {
-                    const row = positions[scoopIndex];
-                    row.forEach(position => {
-                        scoop.drawSymbol(position);
-                        if (this.selectedSauce) {
-                            this.selectedSauce.drawSymbol(position);
-                        }
-                        if (this.selectedTopping) {
-                            this.selectedTopping.drawSymbol(position);
-                        }
-                    });
-                    scoopIndex++;
+            this.scoops.forEach((scoop, index) => {
+                const row = Math.floor((-1 + Math.sqrt(1 + 8 * index)) / 2);
+                const col = index - row * (row + 1) / 2;
+                const position = positions[row][col];
+                scoop.drawSymbol(position);
+                // Draw sauce on the scoop if a sauce is selected
+                if (this.selectedSauce) {
+                    this.selectedSauce.drawSymbol(position);
+                }
+                // Draw toppings on the scoop if toppings are selected
+                if (this.selectedTopping) {
+                    this.selectedTopping.drawSymbol(position);
                 }
             });
             EisDealer.crc2.restore();

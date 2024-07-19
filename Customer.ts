@@ -15,6 +15,9 @@ namespace EisDealer {
         public receiptCreated: boolean = false;
         private waitStartTime: number | null = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         private static readonly WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
+        private static waitingCustomers: Customer[] = []; // Warteschlange für Kunden
+        private static waitingStartPosition = new Vector(800, 215); // Startposition für wartende Kunden
+        private static waitingSpacing = 50; // Abstand zwischen wartenden Kunden
     
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string, _moneyScreen: Money){
@@ -104,13 +107,11 @@ namespace EisDealer {
             const availableChairs = this.getAvailableChairs();
 
             // Wenn keine freie Position gefunden wurde
-            if (availableChairs.length === 0) {
-                console.warn("No available chairs found for customer.");
-                this.targetPosition = new Vector(800,215);
-                this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
-                this.speed = new Vector(1, 1); // Langsame Bewegung, falls nötig
-                return;
-            }
+           // Wenn keine freie Position gefunden wurde
+           if (availableChairs.length === 0) {
+            this.joinWaitingQueue();
+            return;
+        }
 
             const chosenChair = availableChairs[0];
             this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
@@ -131,6 +132,15 @@ namespace EisDealer {
         private getAvailableChairs(): Chair[] {
             // Filtere alle Objekte und erhalte nur die verfügbaren Stühle
             return allObjects.filter(obj => obj instanceof Chair && !obj.isOccupied()) as Chair[];
+        }
+
+        private joinWaitingQueue(): void {
+            const queueLength = Customer.waitingCustomers.length;
+            const newPosition = Customer.waitingStartPosition.copy().add(new Vector(60, queueLength * Customer.waitingSpacing));
+            this.targetPosition = newPosition;
+            Customer.waitingCustomers.push(this);
+            this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
+            this.speed = new Vector(1, 1); // Langsame Bewegung, falls nötig
         }
     
         public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null }  {
@@ -196,7 +206,6 @@ namespace EisDealer {
                 //console.log("Customer is not seated yet.");
             }
         }
-    
 
         public compareOrders(selectionScreen: SelectionScreen): boolean {
             if (!this.order) {
