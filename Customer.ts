@@ -1,30 +1,31 @@
 namespace EisDealer {
     export class Customer extends Moveable{
 
+        private static readonly WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
+        private static chairOffset = new Vector(25, 25);
+        private static waitingStartPosition = new Vector(810, 215); // Startposition für wartende Kunden
+        private static waitingSpacing = 60; // Abstand zwischen wartenden Kunden
+
+        private static waitingCustomers: Customer[] = []; // Warteschlange für Kunden
+        private static freeChair: Chair | null = null; // Referenz für den freigewordenen Stuhl
+
         private targetPosition: Vector | null = null;
         private passingPointReached: boolean = false;
-        private static chairOffset = new Vector(25, 25);
         private orderPlaced: boolean = false;
         private type: CustomerType = CustomerType.Normal;
-        private originalPosition: Vector;
         private order: { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } | null = null;
-        public proximityIntervalSet: boolean = false; // Neue Eigenschaft
+        //public proximityIntervalSet: boolean = false; // Neue Eigenschaft
         private moneyScreen: Money;
         private passingPoint = new Vector(800, 215);
         private returnPoint = new Vector(1100, 215);
         public receiptCreated: boolean = false;
         private waitStartTime: number | null = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
-        private static readonly WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
-        private static waitingCustomers: Customer[] = []; // Warteschlange für Kunden
-        private static waitingStartPosition = new Vector(860, 215); // Startposition für wartende Kunden
-        private static waitingSpacing = 50; // Abstand zwischen wartenden Kunden
-    
+        private isSeated: boolean = false; // Status, ob der Kunde auf einem Stuhl sitzt oder in der Warteschlange ist
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string, _moneyScreen: Money){
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction)
             this.position = _position;
-            this.originalPosition = _position.copy();
             this.speed = _speed;
             this.direction = _direction;
             this.type = _type;
@@ -39,27 +40,12 @@ namespace EisDealer {
         public setType(type: CustomerType): void {
             this.type = type;
         }
-        
-        public handleClicked(): void {
-
-        }
 
         public move(): void {
-            if (this.speed.x === 0 && this.speed.y === 0) return; // Wenn die Geschwindigkeit 0 ist, nicht weiter bewegen
+            if (this.speed.x === 0 && this.speed.y === 0) return; // Keine Bewegung, wenn Geschwindigkeit 0
 
-            // Überprüfe den Wartezeit-Status
             if (this.waitStartTime !== null) {
-                const elapsedTime = Date.now() - this.waitStartTime;
-                //console.log(`Customer waiting. Elapsed time: ${elapsedTime} ms`);
-                if (elapsedTime >= Customer.WAIT_TIME_MS) { // 40 Sekunden
-                
-                    this.changeToSad();
-                    this.waitStartTime = null; // Verhindert mehrfaches Wechseln zu `Sad`
-                    //console.log("Customer has changed to Sad state.");
-                }
-                if (this.targetPosition) {
-                    this.moveToPoint(this.targetPosition); // Bewege den Kunden zur Warteposition, wenn nötig
-                }
+                this.handleWaiting();
                 return; // Verhindere weitere Bewegungen, während der Kunde wartet
             }
 
@@ -72,20 +58,26 @@ namespace EisDealer {
                 this.moveToPoint(this.targetPosition);
                 if (this.position.equals(this.targetPosition)) {
                     if (this.type === CustomerType.Happy || this.type === CustomerType.Sad) {
-                        // Nur wenn der Kunde happy oder sad ist, soll er weiter gehen
                         this.targetPosition = this.returnPoint;
-                        this.passingPointReached = false; // Zurück zum Passing Point
+                        this.passingPointReached = true;
                         this.speed = new Vector(5, 5); // Geschwindigkeit zurücksetzen
+                        setTimeout(() => this.removeCustomer(), 5000); // 2 Sekunden warten, bevor der Kunde entfernt wird
                     } else {
                         this.speed = new Vector(0, 0); // Geschwindigkeit stoppen, wenn der Kunde am Ziel ist
                     }
                 }
-
-            } else if (this.position.equals(this.returnPoint)) {
-                // Kunden löschen, wenn der Kunde am Return Point angekommen ist
-                setTimeout(() => {
-                    this.removeCustomer();
-                }, 2000); // 2 Sekunden warten, bevor der Kunde entfernt wird
+            }
+        }    
+        private handleWaiting(): void {
+            if (this.waitStartTime !== null) {
+                const elapsedTime = Date.now() - this.waitStartTime;
+                if (elapsedTime >= Customer.WAIT_TIME_MS) {
+                    this.changeToSad();
+                    this.waitStartTime = null;
+                }
+                if (this.targetPosition) {
+                    this.moveToPoint(this.targetPosition);
+                }
             }
         }
 
@@ -104,22 +96,30 @@ namespace EisDealer {
         }
 
         private findNextTargetPosition(): void {
-            const availableChairs = this.getAvailableChairs();
+            if (Customer.freeChair) {
+                // Falls ein freigewordener Stuhl vorhanden ist
+                this.targetPosition = Customer.freeChair.position.add(this.calculateOffset(Customer.freeChair.rotation));
+                Customer.freeChair.occupy(); // Stuhl als belegt markieren
+                Customer.freeChair = null; // Freigegebene Stuhl-Referenz zurücksetzen
+                this.isSeated = true;
+                this.waitStartTime = null;
+            } else {
+                const availableChairs = this.getAvailableChairs();
 
-            // Wenn keine freie Position gefunden wurde
-           // Wenn keine freie Position gefunden wurde
-           if (availableChairs.length === 0) {
-            this.joinWaitingQueue();
-            return;
-        }
+                // Wenn keine freie Position gefunden wurde
+                if (availableChairs.length === 0) {
+                    this.joinWaitingQueue();
+                    return;
+                }
 
-            const chosenChair = availableChairs[0];
-            this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
+                const chosenChair = availableChairs[0];
+                this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
 
-            // Markiere die Zielposition als belegt
-            availableChairs[0].occupy();
-            //console.log("Customer assigned to target position at", this.targetPosition);
-            this.waitStartTime = null;
+                // Markiere die Zielposition als belegt
+                chosenChair.occupy();
+                //this.isSeated = true;
+                this.waitStartTime = null;
+            }
         }
 
         private calculateOffset(rotation: number): Vector {
@@ -136,12 +136,78 @@ namespace EisDealer {
 
         private joinWaitingQueue(): void {
             const queueLength = Customer.waitingCustomers.length;
-            const newPosition = Customer.waitingStartPosition.copy().add(new Vector(60, queueLength * Customer.waitingSpacing));
+            const newPosition = Customer.waitingStartPosition.copy().add(new Vector(0, queueLength * Customer.waitingSpacing));
             this.targetPosition = newPosition;
             Customer.waitingCustomers.push(this);
             this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
             this.speed = new Vector(1, 1); // Langsame Bewegung, falls nötig
         }
+
+        private freeChair(): void {
+            console.log("chair is free")
+            const chair = this.findOccupiedChair();
+            if (chair) {
+                Customer.freeChair = chair;
+                chair.free();
+                this.assignWaitingCustomerToChair();
+            }
+        }
+
+        private assignWaitingCustomerToChair(): void {
+            if (Customer.waitingCustomers.length > 0) {
+                this.updateWaitingQueue();
+                const nextCustomer = Customer.waitingCustomers.shift(); // Hole den ersten wartenden Kunden
+                if (nextCustomer) {
+                    if (Customer.freeChair) {
+                        nextCustomer.targetPosition = Customer.freeChair.position.add(this.calculateOffset(Customer.freeChair.rotation));
+                        Customer.freeChair.occupy(); // Stuhl als belegt markieren
+                        Customer.freeChair = null; // Freigegebene Stuhl-Referenz zurücksetzen
+                        //nextCustomer.isSeated = true; //bestimmt wann order aufgegeben werden können
+                        nextCustomer.waitStartTime = null;
+                        nextCustomer.speed = new Vector(1, 1); // Geschwindigkeit zurücksetzen
+                    } else {
+                        console.log("No free chair available.");
+                    }
+                }
+            }
+        }
+
+        private updateWaitingQueue(): void {
+            for (let i = 0; i < Customer.waitingCustomers.length; i++) {
+                const customer = Customer.waitingCustomers[i];
+                const newPosition = Customer.waitingStartPosition.copy().add(new Vector(1, i * Customer.waitingSpacing));
+                customer.targetPosition = newPosition;
+            }
+        }
+
+        private removeCustomer(): void {
+            const index = allObjects.indexOf(this);
+            if (index !== -1) {
+                allObjects.splice(index, 1);
+                this.freeChair();
+            }
+        }
+
+        private findOccupiedChair(): Chair | undefined {
+            for (let obj of allObjects) {
+                if (obj instanceof Chair && obj.isOccupied()) {
+                    console.log("Found an occupied chair.");
+                    return obj;
+                }
+            }
+            return undefined;
+        }
+
+        public moveToOriginalPosition(): void {
+            console.log("Kunde geht")
+            this.targetPosition = this.passingPoint;
+            
+            this.speed = new Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
+            this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
+            
+            this.targetPosition = this.returnPoint;
+        }
+
     
         public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null }  {
             const numberOfScoops = Math.floor(Math.random() * 3) + 1; // Zufällige Anzahl von Kugeln (1 bis 3)
@@ -204,6 +270,16 @@ namespace EisDealer {
                 //console.log("This customer has already placed an order.");
             } else {
                 //console.log("Customer is not seated yet.");
+            }
+        }
+
+        public placeOrder(order: { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null }): void {
+            if (this.isSeated) {
+                this.order = order;
+                this.orderPlaced = true;
+                console.log("Order placed:", order);
+            } else {
+                console.log("Cannot place order while waiting.");
             }
         }
 
@@ -287,40 +363,6 @@ namespace EisDealer {
             this.targetPosition = this.passingPoint;
             this.passingPointReached = false;
             this.speed = new Vector(5, 5); // Geschwindigkeit zurücksetzen
-        }
-
-        private freeChair(): void {
-            const chair = this.findOccupiedChair();
-            if (chair) {
-                chair.free();
-            }
-        }
-
-        private removeCustomer(): void {
-            const index = allObjects.indexOf(this);
-            if (index !== -1) {
-                allObjects.splice(index, 1);
-                this.freeChair();
-            }
-        }
-
-        private findOccupiedChair(): Chair | undefined {
-            for (let obj of allObjects) {
-                if (obj instanceof Chair && obj.isOccupied()) {
-                    return obj;
-                }
-            }
-            return undefined;
-        }
-
-        public moveToOriginalPosition(): void {
-            console.log("Kunde geht")
-            this.targetPosition = this.passingPoint;
-            
-            this.speed = new Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
-            this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
-            
-            this.targetPosition = this.returnPoint;
         }
 
         public draw(): void {
@@ -420,7 +462,7 @@ namespace EisDealer {
             // Zeichne den Kopf
             crc2.beginPath();
             crc2.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            crc2.fillStyle = "blue";
+            crc2.fillStyle = "yellow";
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 2;
@@ -446,14 +488,39 @@ namespace EisDealer {
             crc2.fill();
             crc2.closePath();
 
-            // Zeichne den Mund
+            // Zeichne die Augenbrauen
+            const eyebrowWidth = 12;
+            const eyebrowHeight = 4;
+            const eyebrowOffsetY = 4; // Abstand nach oben von den Augen
+
+            // Linke Augenbraue
             crc2.beginPath();
-            crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
+            crc2.moveTo(centerX - eyeOffsetX - eyebrowWidth / 2, centerY - eyeOffsetY - eyebrowOffsetY);
+            crc2.lineTo(centerX - eyeOffsetX + eyebrowWidth / 2, centerY - eyeOffsetY - eyebrowOffsetY);
+            crc2.lineWidth = 4;
             crc2.strokeStyle = "black";
-            crc2.lineWidth = 2;
             crc2.stroke();
             crc2.closePath();
 
+            // Rechte Augenbraue
+            crc2.beginPath();
+            crc2.moveTo(centerX + eyeOffsetX - eyebrowWidth / 2, centerY - eyeOffsetY - eyebrowOffsetY);
+            crc2.lineTo(centerX + eyeOffsetX + eyebrowWidth / 2, centerY - eyeOffsetY - eyebrowOffsetY);
+            crc2.lineWidth = 4;
+            crc2.strokeStyle = "black";
+            crc2.stroke();
+            crc2.closePath();
+
+            // Zeichne den wütenden Mund
+            crc2.beginPath();
+            crc2.arc(centerX, centerY + 7, 7, Math.PI, 0, false); // Unterer Bogen des Mundes
+            crc2.lineTo(centerX + 7, centerY + 7); // Schließt den Mund
+            crc2.lineTo(centerX - 7, centerY + 7); // Schließt den Mund
+            crc2.closePath();
+            crc2.strokeStyle = "black";
+            crc2.lineWidth = 2;
+            crc2.stroke();
+            
             // Zeichne Wangenröte
             const blushRadius = 7;
             const blushOffsetX = 15;
@@ -462,17 +529,43 @@ namespace EisDealer {
             // Linke Wange
             crc2.beginPath();
             crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-            crc2.fillStyle = "blue";
+            crc2.fillStyle = "red";
             crc2.fill();
             crc2.closePath();
 
             // Rechte Wange
             crc2.beginPath();
             crc2.arc(centerX + blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-            crc2.fillStyle = "pink";
+            crc2.fillStyle = "red";
             crc2.fill();
             crc2.closePath();
             crc2.restore();
+
+            // Zeichne die Flügel
+            const wingWidth = 20;
+            const wingHeight = 20;
+            const wingOffset = 0; // Abstand vom Körper
+
+            crc2.beginPath();
+            crc2.moveTo(centerX - radius - wingOffset, centerY - 5); // Ausgangspunkt des Flügels
+            crc2.lineTo(centerX - radius - wingOffset - wingWidth, centerY - wingHeight);
+            crc2.lineTo(centerX - radius - wingOffset - wingWidth / 2, centerY - wingHeight / 2);
+            crc2.closePath();
+            crc2.fillStyle = "white";
+            crc2.fill();
+            crc2.strokeStyle = "black";
+            crc2.stroke();
+            
+            // Rechter Flügel
+            crc2.beginPath();
+            crc2.moveTo(centerX + radius + wingOffset, centerY - 5); // Ausgangspunkt des Flügels
+            crc2.lineTo(centerX + radius + wingOffset + wingWidth, centerY - wingHeight);
+            crc2.lineTo(centerX + radius + wingOffset + wingWidth / 2, centerY - wingHeight / 2);
+            crc2.closePath();
+            crc2.fillStyle = "white";
+            crc2.fill();
+            crc2.strokeStyle = "black";
+            crc2.stroke();
         }
 
         private drawHappy():void{
@@ -515,11 +608,19 @@ namespace EisDealer {
 
             // Zeichne den Mund
             crc2.beginPath();
-            crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false);
+            crc2.arc(centerX, centerY + 7, 7, 0, Math.PI, false); // Offenes Lächeln
             crc2.strokeStyle = "black";
             crc2.lineWidth = 2;
             crc2.stroke();
             crc2.closePath();
+
+            // Oberer Teil des Mundes (Schlusslinie)
+            crc2.beginPath();
+            crc2.moveTo(centerX - 7, centerY + 7); // Links vom Mund
+            crc2.lineTo(centerX + 7, centerY + 7); // Rechts vom Mund
+            crc2.strokeStyle = "black";
+            crc2.lineWidth = 2;
+            crc2.stroke();
 
             // Zeichne Wangenröte
             const blushRadius = 7;
@@ -529,7 +630,7 @@ namespace EisDealer {
             // Linke Wange
             crc2.beginPath();
             crc2.arc(centerX - blushOffsetX, centerY + blushOffsetY, blushRadius, 0, 2 * Math.PI);
-            crc2.fillStyle = "blue";
+            crc2.fillStyle = "pink";
             crc2.fill();
             crc2.closePath();
 
@@ -540,6 +641,33 @@ namespace EisDealer {
             crc2.fill();
             crc2.closePath();
             crc2.restore();
+
+            // Zeichne die Flügel
+            const wingWidth = 30;
+            const wingHeight = 20;
+            const wingOffset = 0; // Abstand vom Körper
+
+            crc2.beginPath();
+            crc2.moveTo(centerX - radius - wingOffset, centerY - 5); // Ausgangspunkt des Flügels
+            crc2.lineTo(centerX - radius - wingOffset - wingWidth, centerY - wingHeight);
+            crc2.lineTo(centerX - radius - wingOffset - wingWidth / 2, centerY - wingHeight / 2);
+            crc2.closePath();
+            crc2.fillStyle = "white";
+            crc2.fill();
+            crc2.strokeStyle = "black";
+            crc2.stroke();
+            
+            // Rechter Flügel
+            crc2.beginPath();
+            crc2.moveTo(centerX + radius + wingOffset, centerY - 5); // Ausgangspunkt des Flügels
+            crc2.lineTo(centerX + radius + wingOffset + wingWidth, centerY - wingHeight);
+            crc2.lineTo(centerX + radius + wingOffset + wingWidth / 2, centerY - wingHeight / 2);
+            crc2.closePath();
+            crc2.fillStyle = "white";
+            crc2.fill();
+            crc2.strokeStyle = "black";
+            crc2.stroke();
+
         }
     }
 }

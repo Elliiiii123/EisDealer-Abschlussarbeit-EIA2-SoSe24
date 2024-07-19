@@ -3,7 +3,7 @@ namespace EisDealer {
     // rausgeh weg
     // handle click zwei mal?
     // offset bei warteschlange
-    // sad, happy und receipt designen
+    // freien stuhl nach warteschlange finden
 
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
@@ -53,7 +53,7 @@ namespace EisDealer {
     
         selectionScreen = new SelectionScreen(new Vector(0,0));
         orderScreen = new OrderScreen(new Vector(780,0));
-        moneyScreen = new Money(new Vector(180,0))
+        moneyScreen = new Money(new Vector(180,0),orderScreen)
         
         dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce,"happy");
         console.log(dealer);

@@ -20,8 +20,6 @@ var EisDealer;
         free() {
             this.occupied = false;
         }
-        handleClicked() {
-        }
         draw() {
             //console.log("Chair draw")
             EisDealer.crc2.save();

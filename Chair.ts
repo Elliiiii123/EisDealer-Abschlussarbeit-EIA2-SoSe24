@@ -22,10 +22,6 @@ namespace EisDealer {
         public free():void{
             this.occupied = false;
         }
-
-        public handleClicked():void{
-
-        }
     
         public draw():void{
             //console.log("Chair draw")

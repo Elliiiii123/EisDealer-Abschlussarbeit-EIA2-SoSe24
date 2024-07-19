@@ -57,10 +57,41 @@ var EisDealer;
         }
         draw() {
             //console.log("Receipt draw")
+            EisDealer.crc2.save();
+            // Kassenbon Hintergrund
             EisDealer.crc2.fillStyle = "white";
-            EisDealer.crc2.fillRect(this.position.x, this.position.y, 20, 10);
-            EisDealer.crc2.fillStyle = "white";
-            EisDealer.crc2.fillText("Receipt", this.position.x, this.position.y + 10);
+            EisDealer.crc2.fillRect(this.position.x, this.position.y, 50, 60); // Kleineres Rechteck für den Bon
+            // Kassenbon Rahmen
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 1;
+            EisDealer.crc2.strokeRect(this.position.x, this.position.y, 50, 60);
+            // Simulierte Schriftlinien
+            EisDealer.crc2.strokeStyle = "black";
+            EisDealer.crc2.lineWidth = 1;
+            // Linien für den "Text" auf dem Kassenbon
+            // const lineSpacing = 10;
+            // for (let i = 1; i <= 5; i++) {
+            //     crc2.beginPath();
+            //     crc2.moveTo(this.position.x + 5, this.position.y + i * lineSpacing);
+            //     crc2.lineTo(this.position.x + 45, this.position.y + i * lineSpacing);
+            //     crc2.stroke();
+            // }
+            // Optional: Beschriftung des Kassenbons
+            EisDealer.crc2.fillStyle = "black";
+            EisDealer.crc2.font = "8px Arial";
+            EisDealer.crc2.fillText("Receipt", this.position.x + 5, this.position.y + 10);
+            // Zeige Bestellungen an
+            const order = EisDealer.orderScreen.getOrder();
+            const items = [...order.scoops, order.topping, order.sauce].filter(item => item !== null);
+            EisDealer.crc2.font = "10px Arial";
+            let yOffset = 30; // Startposition für die ersten Textzeilen
+            items.forEach((item) => {
+                const name = item.name;
+                const price = item.price.toFixed(2);
+                EisDealer.crc2.fillText(`${name}: $${price}`, this.position.x + 10, this.position.y + yOffset);
+                yOffset += 15; // Abstand zwischen den Zeilen
+            });
+            EisDealer.crc2.restore();
         }
     }
     EisDealer.Receipt = Receipt;

@@ -4,7 +4,7 @@ var EisDealer;
     // rausgeh weg
     // handle click zwei mal?
     // offset bei warteschlange
-    // sad, happy und receipt designen
+    // freien stuhl nach warteschlange finden
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     EisDealer.allObjects = [];
@@ -44,7 +44,7 @@ var EisDealer;
         // Initialisieren Sie die Auswahlbildschirm-Instanz
         selectionScreen = new EisDealer.SelectionScreen(new EisDealer.Vector(0, 0));
         EisDealer.orderScreen = new EisDealer.OrderScreen(new EisDealer.Vector(780, 0));
-        moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0));
+        moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0), EisDealer.orderScreen);
         dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "happy");
         console.log(dealer);
         EisDealer.allObjects.push(dealer);
