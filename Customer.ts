@@ -29,8 +29,8 @@ namespace EisDealer {
             this.speed = _speed;
             this.direction = _direction;
             this.type = _type;
-            this.findNextTargetPosition(); // Initial Target setzen
             this.moneyScreen = _moneyScreen;
+            this.findNextTargetPosition(); 
         }
 
         public setPosition(position: Vector): void {
@@ -60,7 +60,6 @@ namespace EisDealer {
                     if (this.position.equals(this.targetPosition)) {
                         if (this.type === CustomerType.Happy || this.type === CustomerType.Sad) {
                             this.targetPosition = this.returnPoint;
-                            this.passingPointReached = true;
                             this.speed = new Vector(5, 5); // Geschwindigkeit zurücksetzen
                             setTimeout(() => this.removeCustomer(), 5000); // 5 Sekunden warten, bevor der Kunde entfernt wird
                         } else {
@@ -71,15 +70,13 @@ namespace EisDealer {
             }
         }    
         private handleWaiting(): void {
-            if (this.waitStartTime !== null) {
-                const elapsedTime = Date.now() - this.waitStartTime;
-                if (elapsedTime >= Customer.WAIT_TIME_MS) {
-                    this.changeToSad();
-                    this.waitStartTime = null;
-                }
-                if (this.targetPosition) {
-                    this.moveToPoint(this.targetPosition);
-                }
+            const elapsedTime = Date.now() - (this.waitStartTime ?? 0);
+            if (elapsedTime >= Customer.WAIT_TIME_MS) {
+                this.changeToSad();
+                this.waitStartTime = null;
+            }
+            if (this.targetPosition) {
+                this.moveToPoint(this.targetPosition);
             }
         }
 
@@ -151,42 +148,44 @@ namespace EisDealer {
             if (chair) {
                 Customer.freeChair = chair;
                 chair.free();
-                this.assignWaitingCustomerToChair();
+                this.findNextTargetPosition();
             }
         }
 
-        private assignWaitingCustomerToChair(): void {
-            if (Customer.waitingCustomers.length > 0) {
-                this.updateWaitingQueue();
-                const nextCustomer = Customer.waitingCustomers.shift(); // Hole den ersten wartenden Kunden
-                if (nextCustomer) {
-                    if (Customer.freeChair) {
-                        nextCustomer.targetPosition = Customer.freeChair.position.add(this.calculateOffset(Customer.freeChair.rotation));
-                        Customer.freeChair.occupy(); // Stuhl als belegt markieren
-                        Customer.freeChair = null; // Freigegebene Stuhl-Referenz zurücksetzen
-                        //nextCustomer.isSeated = true; //bestimmt wann order aufgegeben werden können
-                        nextCustomer.waitStartTime = null;
-                        nextCustomer.speed = new Vector(1, 1); // Geschwindigkeit zurücksetzen
-                    } else {
-                        console.log("No free chair available.");
-                    }
-                }
-            }
-        }
+        // private assignWaitingCustomerToChair(): void {
+        //     if (Customer.waitingCustomers.length > 0) {
+        //         this.updateWaitingQueue();
+        //         const nextCustomer = Customer.waitingCustomers.shift(); // Hole den ersten wartenden Kunden
+        //         if (nextCustomer) {
+        //             if (Customer.freeChair) {
+        //                 nextCustomer.targetPosition = Customer.freeChair.position.add(this.calculateOffset(Customer.freeChair.rotation));
+        //                 Customer.freeChair.occupy(); // Stuhl als belegt markieren
+        //                 Customer.freeChair = null; // Freigegebene Stuhl-Referenz zurücksetzen
+        //                 //nextCustomer.isSeated = true; //bestimmt wann order aufgegeben werden können
+        //                 nextCustomer.waitStartTime = null;
+        //                 nextCustomer.speed = new Vector(1, 1); // Geschwindigkeit zurücksetzen
+        //                 nextCustomer.findNextTargetPosition();
+        //             } else {
+        //                 console.log("No free chair available.");
+        //             }
+        //         }
+        //     }
+        // }
 
-        private updateWaitingQueue(): void {
-            for (let i = 0; i < Customer.waitingCustomers.length; i++) {
-                const customer = Customer.waitingCustomers[i];
-                const newPosition = Customer.waitingStartPosition.copy().add(new Vector(1, i * Customer.waitingSpacing));
-                customer.targetPosition = newPosition;
-            }
-        }
+        // private updateWaitingQueue(): void {
+        //     for (let i = 0; i < Customer.waitingCustomers.length; i++) {
+        //         const customer = Customer.waitingCustomers[i];
+        //         const newPosition = Customer.waitingStartPosition.copy().add(new Vector(1, i * Customer.waitingSpacing));
+        //         customer.targetPosition = newPosition;
+        //     }
+        // }
 
         private removeCustomer(): void {
             const index = allObjects.indexOf(this);
             if (index !== -1) {
                 allObjects.splice(index, 1);
                 this.freeChair();
+                this.findNextTargetPosition();
             }
         }
 
@@ -202,14 +201,10 @@ namespace EisDealer {
 
         public moveToOriginalPosition(): void {
             console.log("Kunde geht")
-            this.targetPosition = this.passingPoint;
-            
-            this.speed = new Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen
-            this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
-            
             this.targetPosition = this.returnPoint;
+            this.speed = new Vector(5, 5); // Geschwindigkeit zum Zurückgehen setzen    
+            this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
         }
-
     
         public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null }  {
             const numberOfScoops = Math.floor(Math.random() * 3) + 1; // Zufällige Anzahl von Kugeln (1 bis 3)
@@ -342,8 +337,6 @@ namespace EisDealer {
             this.targetPosition = this.passingPoint;
             this.passingPointReached = false;
             this.speed = new Vector(5, 5); // Geschwindigkeit zurücksetzen
-            
-
         }
 
         // Methode zur Überprüfung, ob ein Beleg in der Nähe des Kunden existiert
@@ -492,7 +485,6 @@ namespace EisDealer {
 
             // Zeichne die Augenbrauen
             const eyebrowWidth = 12;
-            const eyebrowHeight = 4;
             const eyebrowOffsetY = 4; // Abstand nach oben von den Augen
 
             // Linke Augenbraue

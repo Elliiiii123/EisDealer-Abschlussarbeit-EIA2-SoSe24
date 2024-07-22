@@ -11,17 +11,6 @@ var EisDealer;
             this.direction = _direction;
             this.speed = _speed;
         }
-        move() {
-            let newPosition = this.position.add(this.speed);
-            // Check for canvas boundaries
-            if (newPosition.x < 0 || newPosition.x > EisDealer.crc2.canvas.width) {
-                this.speed.x *= -1;
-            }
-            if (newPosition.y < 0 || newPosition.y > EisDealer.crc2.canvas.height) {
-                this.speed.y *= -1;
-            }
-            this.position = this.position.add(this.speed);
-        }
         update() {
             this.draw();
             this.move();
