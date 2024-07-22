@@ -1,9 +1,9 @@
 namespace EisDealer {
 
-    // rausgeh weg
     // handle click zwei mal?
     // nachrücken bei warteschlange
     // freien stuhl nach warteschlange finden
+    // kein order in schlange
 
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
