@@ -2,7 +2,7 @@ namespace EisDealer {
     export enum CustomerType{
         Normal,
         Sad,
-        Eat,
+        Marked,
         Happy,
     }
 }

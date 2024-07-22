@@ -58,11 +58,11 @@ var EisDealer;
             EisDealer.crc2.save();
             // Kassenbon Hintergrund
             EisDealer.crc2.fillStyle = "white";
-            EisDealer.crc2.fillRect(this.position.x, this.position.y, 50, 60); // Kleineres Rechteck für den Bon
+            EisDealer.crc2.fillRect(this.position.x, this.position.y, 100, 80); // Kleineres Rechteck für den Bon
             // Kassenbon Rahmen
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;
-            EisDealer.crc2.strokeRect(this.position.x, this.position.y, 50, 60);
+            EisDealer.crc2.strokeRect(this.position.x, this.position.y, 100, 80);
             // Simulierte Schriftlinien
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;

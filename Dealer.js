@@ -8,7 +8,6 @@ var EisDealer;
         selectedScoop = null;
         selectedToppings = [];
         selectedSauce = null;
-        itemSelected = false; // Flag, um zu prüfen, ob ein Item ausgewählt wurde
         customerClicked = false; // Neue Eigenschaft
         itemClickedFirst = false; // Flag, um zu prüfen, ob zuerst ein Item geklickt wurde
         customerClickedAfterItem = false; // Flag, um zu prüfen, ob der Kunde nach dem Item geklickt wurde
@@ -30,26 +29,22 @@ var EisDealer;
         }
         setSelectedScoop(scoop) {
             this.selectedScoop = scoop;
-            this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
         handleItemClick() {
-            this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
         addSelectedTopping(topping) {
             if (!this.selectedToppings.includes(topping)) {
                 this.selectedToppings.push(topping);
-                this.itemSelected = true;
                 this.itemClickedFirst = true;
                 this.updateDealerType();
             }
         }
         setSelectedSauce(sauce) {
             this.selectedSauce = sauce;
-            this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
@@ -101,7 +96,6 @@ var EisDealer;
         resetFlags() {
             this.itemClickedFirst = false;
             this.customerClickedAfterItem = false;
-            this.itemSelected = false;
             this.customerClicked = false;
             this.selectedScoop = null;
             this.selectedToppings = [];

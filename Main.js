@@ -203,7 +203,7 @@ var EisDealer;
                 const dx = x - receipt.position.x;
                 const dy = y - receipt.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 50) {
+                if (distance < 100) {
                     receipt.handleClicked();
                     return;
                 }

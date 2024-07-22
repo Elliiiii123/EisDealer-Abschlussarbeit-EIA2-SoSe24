@@ -64,12 +64,12 @@ namespace EisDealer {
 
             // Kassenbon Hintergrund
             crc2.fillStyle = "white";
-            crc2.fillRect(this.position.x, this.position.y, 50, 60); // Kleineres Rechteck für den Bon
+            crc2.fillRect(this.position.x, this.position.y, 100, 80); // Kleineres Rechteck für den Bon
         
             // Kassenbon Rahmen
             crc2.strokeStyle = "black";
             crc2.lineWidth = 1;
-            crc2.strokeRect(this.position.x, this.position.y, 50, 60);
+            crc2.strokeRect(this.position.x, this.position.y, 100, 80);
         
             // Simulierte Schriftlinien
             crc2.strokeStyle = "black";
