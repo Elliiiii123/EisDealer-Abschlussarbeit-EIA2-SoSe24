@@ -12,36 +12,30 @@ namespace EisDealer {
 
         public handleClicked():void{
 
-            // Calculate total price
-            let totalPrice = 0;
-
-            // Iterate over all objects in orderScreen
-            for (let object of allObjects) {
-                if (object instanceof Scoop) {
-                    totalPrice += object.price;
-                    console.log(object.price)
-                } else if (object instanceof Topping) {
-                    totalPrice += object.price;
-                } else if (object instanceof Sauce) {
-                    totalPrice += object.price;
-                }
-            }
-
-            // Füge den Gesamtpreis zu moneyScreen hinzu
+            const totalPrice = this.calculateTotalPrice();
             if (this.moneyScreen) {
-                this.moneyScreen.addToTotal(totalPrice); // Hier wird addToTotal auf moneyScreen aufgerufen
+                this.moneyScreen.addToTotal(totalPrice);
             } else {
                 console.error("moneyScreen is not defined in Receipt.");
             }
 
-            // Find associated customer and change to happy state
             const customer = this.findAssociatedCustomer();
             if (customer) {
                 customer.changeToHappy();
             }
 
-            // Remove the receipt
             this.remove();
+        }
+
+        private calculateTotalPrice(): number {
+            let totalPrice = 0;
+            const order = orderScreen.getOrder();
+
+            order.scoops.forEach(scoop => totalPrice += scoop.price);
+            if (order.sauce) totalPrice += order.sauce.price;
+            if (order.topping) totalPrice += order.topping.price;
+
+            return totalPrice;
         }
 
         private findAssociatedCustomer(): Customer | undefined {

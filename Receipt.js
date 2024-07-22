@@ -10,35 +10,28 @@ var EisDealer;
             this.moneyScreen = _moneyScreen;
         }
         handleClicked() {
-            // Calculate total price
-            let totalPrice = 0;
-            // Iterate over all objects in orderScreen
-            for (let object of EisDealer.allObjects) {
-                if (object instanceof EisDealer.Scoop) {
-                    totalPrice += object.price;
-                    console.log(object.price);
-                }
-                else if (object instanceof EisDealer.Topping) {
-                    totalPrice += object.price;
-                }
-                else if (object instanceof EisDealer.Sauce) {
-                    totalPrice += object.price;
-                }
-            }
-            // Füge den Gesamtpreis zu moneyScreen hinzu
+            const totalPrice = this.calculateTotalPrice();
             if (this.moneyScreen) {
-                this.moneyScreen.addToTotal(totalPrice); // Hier wird addToTotal auf moneyScreen aufgerufen
+                this.moneyScreen.addToTotal(totalPrice);
             }
             else {
                 console.error("moneyScreen is not defined in Receipt.");
             }
-            // Find associated customer and change to happy state
             const customer = this.findAssociatedCustomer();
             if (customer) {
                 customer.changeToHappy();
             }
-            // Remove the receipt
             this.remove();
+        }
+        calculateTotalPrice() {
+            let totalPrice = 0;
+            const order = EisDealer.orderScreen.getOrder();
+            order.scoops.forEach(scoop => totalPrice += scoop.price);
+            if (order.sauce)
+                totalPrice += order.sauce.price;
+            if (order.topping)
+                totalPrice += order.topping.price;
+            return totalPrice;
         }
         findAssociatedCustomer() {
             for (let customer of EisDealer.allCustomers) {

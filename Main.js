@@ -2,23 +2,26 @@
 var EisDealer;
 (function (EisDealer) {
     // handle click zwei mal?
-    // nachrücken bei warteschlange
     // freien stuhl nach warteschlange finden
-    // kein order in schlange
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
+    //Array mit allen Objekten
     EisDealer.allObjects = [];
+    // (globale) relevante Variablen
     EisDealer.allCustomers = [];
     let selectionScreen;
     let moneyScreen;
     let dealer;
+    //Funktion die nach der geladenen seite ausgeführt wird
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
         if (!canvas)
             return;
         EisDealer.crc2 = canvas.getContext("2d");
         canvas.addEventListener("click", handleClick);
+        //content aus data wird generiert
         EisDealer.generateContent(EisDealer.data);
+        //Die Positionen der Stühle
         const chairs = [
             { position: new EisDealer.Vector(425, 420), rotation: 0 },
             { position: new EisDealer.Vector(400, 340), rotation: 120 },
@@ -33,52 +36,66 @@ var EisDealer;
             { position: new EisDealer.Vector(600, 100), rotation: 90 },
             { position: new EisDealer.Vector(700, 90), rotation: 220 }
         ];
+        //neuer stuhl wird erstellt
         chairs.forEach(data => {
             let chair = new EisDealer.Chair(data.position, data.rotation);
             //console.log(chair);
             EisDealer.allObjects.push(chair);
         });
+        //Müll Objekt wird erstellt
         let trash = new EisDealer.Trash(new EisDealer.Vector(115, 410));
         console.log(trash);
         EisDealer.allObjects.push(trash);
-        // Initialisieren Sie die Auswahlbildschirm-Instanz
+        // Auswahl-, Bestellungs- und Geldbildschrim werden erstellt
         selectionScreen = new EisDealer.SelectionScreen(new EisDealer.Vector(0, 0));
         EisDealer.orderScreen = new EisDealer.OrderScreen(new EisDealer.Vector(780, 0));
-        moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0), EisDealer.orderScreen);
+        moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0));
+        // Dealer-Objekt wird erstellt
         dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "happy");
         console.log(dealer);
         EisDealer.allObjects.push(dealer);
+        //Funktion zum nHintergrund zeichnen wird aufgerufen
         drawBackground();
-        // setInterval(animate, 40);
+        // Funktion zur speziellen erstellung des customers wird aufgerufen
         createCustomer();
+        //Alle 10 Sekunden wird ein neuer customer erstellt
         setInterval(createCustomer, 10000);
         animate();
     }
+    //Funktion zu Animation
     function animate() {
         console.log("animate");
+        //Hintergund wird erneut gezeichnet
         drawBackground();
+        //zustand aller Objekte wird aktualisiert
         for (let object of EisDealer.allObjects) {
             object.update();
         }
-        selectionScreen.draw(); // Den Auswahlbildschirm in jedem Frame neu zeichnen
+        //Alle Bildschirme werden neu gezeichnet
+        selectionScreen.draw();
         EisDealer.orderScreen.draw();
         moneyScreen.draw();
-        requestAnimationFrame(animate); // Fortlaufende Animation mit requestAnimationFrame
+        // Fortlaufende Animation mit requestAnimationFrame
+        requestAnimationFrame(animate);
     }
+    // Funktion zur Erstellung eines neuen Kunden
     function createCustomer() {
         // Zufällige Richtung und Geschwindigkeit
         let direction = new EisDealer.Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
-        // Erstelle einen neuen Kunden an der gewählten Zielkoordinate
+        // Erstelle einen neuen Kunden an der gewählten Kooridnate
         let customer = new EisDealer.Customer(new EisDealer.Vector(1070, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy", moneyScreen);
-        EisDealer.allObjects.push(customer); // Füge den Kunden der Liste hinzu
-        EisDealer.allCustomers.push(customer); // Füge den Kunden der Liste aller Kunden hinzu
+        // Füge den Kunden der Liste hinzu
+        EisDealer.allObjects.push(customer);
+        // Füge den Kunden der Liste aller Kunden hinzu
+        EisDealer.allCustomers.push(customer);
     }
     EisDealer.createCustomer = createCustomer;
+    // Event-Handler für Klicks auf das Canvas
     function handleClick(_event) {
         //console.log("canvas is clicked");
         const x = _event.clientX;
         const y = _event.clientY;
-        console.log(`Mouse clicked at (${x}, ${y})`);
+        //console.log(`Mouse clicked at (${x}, ${y})`);
         let customerClicked = false;
         let itemSelected = false;
         // Überprüfen, ob ein Kunde angeklickt wurde
@@ -87,12 +104,13 @@ var EisDealer;
             const dy = y - customer.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             //console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
-            if (distance < 25) { // Annahme: Radius des Kunden ist 25
+            if (distance < 25) {
                 console.log('Customer clicked!');
                 customerClicked = true;
                 customer.showOrder();
+                // Zeige die Bestellung des Kunden an
                 dealer.customerClicked = true;
-                dealer.handleCustomerClick(); // Setze die Eigenschaft auf true
+                dealer.handleCustomerClick();
                 // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
                 const proximityInterval = setInterval(() => {
                     const dealerDistanceX = dealer.position.x - customer.position.x;
@@ -101,21 +119,21 @@ var EisDealer;
                     if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 150) {
                         const customerOrderCorrect = customer.compareOrders(selectionScreen);
                         if (customerOrderCorrect) {
+                            //customer wird glücklich wenn bestllung richtig ist
                             console.log("Customer's order matches dealer's selection!");
                             customer.changeToHappy();
-                            // Additional logic for correct order
                         }
                         else {
                             console.log("Customer's order does not match dealer's selection.");
+                            //customer wird traurig wenn bestllung falsch ist
                             customer.changeToSad();
-                            // Additional logic for incorrect order
                         }
-                        clearInterval(proximityInterval); // Clear the interval once conditions are met
+                        clearInterval(proximityInterval);
                     }
                 }, 200);
                 // Setze das Ziel des Dealers auf eine Position neben dem Kunden
                 const offsetAngle = Math.random() * 2 * Math.PI;
-                const offsetDistance = 80; // Verschiebung um 80 Pixel
+                const offsetDistance = 80;
                 const targetPosition = new EisDealer.Vector(customer.position.x + offsetDistance * Math.cos(offsetAngle), customer.position.y + offsetDistance * Math.sin(offsetAngle));
                 dealer.updateDealerType();
                 dealer.setTargetPosition(targetPosition);
@@ -176,7 +194,7 @@ var EisDealer;
         if (customerClicked || itemSelected) {
             dealer.updateDealerType();
         }
-        // Check if a receipt was clicked
+        // Überprüfe ob eine Rechnung geklickt wurde
         for (let object of EisDealer.allObjects) {
             if (object instanceof EisDealer.Receipt) {
                 console.log('receipt clicked!');
@@ -184,25 +202,25 @@ var EisDealer;
                 const dx = x - receipt.position.x;
                 const dy = y - receipt.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 50) { // Assuming the click range for receipt
+                if (distance < 50) {
                     receipt.handleClicked();
                     return;
                 }
             }
         }
-        // Überprüfen, ob der Trash-Behälter angeklickt wurde
+        // Überprüfen, ob der Mülleimer angeklickt wurde und falls ja sollen items gelöscht werden
         for (let object of EisDealer.allObjects) {
             if (object instanceof EisDealer.Trash) {
                 const trash = object;
                 if (x >= trash.position.x - 20 && x <= trash.position.x + 20 &&
                     y >= trash.position.y - 20 && y <= trash.position.y + 20) {
-                    // Clear all items from the selection screen
                     selectionScreen.clearItems();
                     return;
                 }
             }
         }
     }
+    //Hintergrund wird gezeichnet    
     function drawBackground() {
         EisDealer.crc2.save();
         EisDealer.crc2.fillStyle = "green";
@@ -253,7 +271,7 @@ var EisDealer;
         const abstand = 30; // 3cm (bei 10px pro cm)
         // Zeichne die Pfähle als Kreise
         const radius = 5; // Radius der Kreise (Pfähle)
-        EisDealer.crc2.fillStyle = '#D2B48C'; // Helle Farbe für die Pfähle
+        EisDealer.crc2.fillStyle = '#D2B48C';
         // Pfähle an der oberen und unteren Kante zeichnen
         for (let x = rectX + abstand; x < rectX + rectWidth; x += abstand) {
             EisDealer.crc2.save();
@@ -429,8 +447,8 @@ var EisDealer;
         EisDealer.crc2.closePath();
         // Zeichne das innere Rechteck (Boden des Bechers)
         EisDealer.crc2.beginPath();
-        EisDealer.crc2.rect(x - 40, y - 60, 40, 20); // Inneres Rechteck
-        EisDealer.crc2.fillStyle = "#ffffff"; // Weiß für den Boden
+        EisDealer.crc2.rect(x - 40, y - 60, 40, 20);
+        EisDealer.crc2.fillStyle = "#ffffff";
         EisDealer.crc2.fill();
         EisDealer.crc2.strokeStyle = "black";
         EisDealer.crc2.lineWidth = 1;

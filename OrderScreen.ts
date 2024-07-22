@@ -4,7 +4,6 @@ namespace EisDealer{
         private selectedTopping: Topping | null;
         private scoops: Scoop[];
 
-
         constructor(_position: Vector) {
             super(_position);
             this.selectedSauce = null;
@@ -12,8 +11,6 @@ namespace EisDealer{
             this.scoops = [];
             this.draw();
         }
-
-        
 
         public addItem(item: Scoop | Sauce | Topping): void {
             if (item instanceof Scoop) {

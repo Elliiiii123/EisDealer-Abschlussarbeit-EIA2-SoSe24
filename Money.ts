@@ -1,12 +1,9 @@
 namespace EisDealer {
     export class Money extends Drawable{
         private totalPrice: number = 0;
-        private orderScreen: OrderScreen;
 
-        constructor(_position: Vector, orderScreen: OrderScreen){
+        constructor(_position: Vector){
             super(_position);
-            this.orderScreen = orderScreen;
-            this.updateTotalPrice(); // Initiales Setzen des Gesamtpreises
         }
 
         public draw():void {
@@ -17,9 +14,8 @@ namespace EisDealer {
             crc2.fillStyle = "beige";
             crc2.fillRect(x, y, 160, 50); // Draw a beige 200x200 area for the screen
 
-            this.updateTotalPrice();
 
-            // Draw text "Your selection:"
+            // Zeige den aktuellen Gesamtpreis
             crc2.fillStyle = "black";
             crc2.font = "20px Arial";
             crc2.fillText("Money: $"+ this.totalPrice.toFixed(2), x + 10, y + 30);
@@ -29,6 +25,7 @@ namespace EisDealer {
 
         public addToTotal(price: number): void {
             this.totalPrice += price;
+            this.draw();
         }
 
         public getTotalPrice(): number {
@@ -37,31 +34,7 @@ namespace EisDealer {
 
         public resetTotal(): void {
             this.totalPrice = 0;
-        }
-
-        private updateTotalPrice(): void {
-            // Berechne den Gesamtpreis auf Basis der aktuellen Bestellung
-            this.totalPrice = this.calculateTotalPriceFromOrder();
-        }
-
-        private calculateTotalPriceFromOrder(): number {
-            let totalPrice = 0;
-            const order = this.orderScreen.getOrder();
-
-            // Addiere die Preise der Scoops
-            order.scoops.forEach(scoop => totalPrice += scoop.price);
-
-            // Addiere den Preis der Sauce, falls vorhanden
-            if (order.sauce) {
-                totalPrice += order.sauce.price;
-            }
-
-            // Addiere den Preis des Toppings, falls vorhanden
-            if (order.topping) {
-                totalPrice += order.topping.price;
-            }
-
-            return totalPrice;
+            this.draw();
         }
     }
 }
