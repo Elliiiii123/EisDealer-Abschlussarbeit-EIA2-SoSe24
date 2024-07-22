@@ -1,8 +1,6 @@
 namespace EisDealer {
     export class Receipt extends Drawable{
-
         private moneyScreen: Money;
-        //private isClicked: boolean;
 
         constructor (_position: Vector, _moneyScreen: Money){
             //console.log("Receipt Constructor")
@@ -10,15 +8,17 @@ namespace EisDealer {
             this.moneyScreen = _moneyScreen;
         }
 
+        // handler Funktion für wenn der Kassenbong geklickt wird
         public handleClicked():void{
-
             const totalPrice = this.calculateTotalPrice();
+            //total preis für den money screen wird aktualisiert
             if (this.moneyScreen) {
                 this.moneyScreen.addToTotal(totalPrice);
             } else {
                 console.error("moneyScreen is not defined in Receipt.");
             }
 
+            //Customer wird glücklich
             const customer = this.findAssociatedCustomer();
             if (customer) {
                 customer.changeToHappy();
@@ -27,6 +27,7 @@ namespace EisDealer {
             this.remove();
         }
 
+        //Der gesamte preis der Bestllung wird berechnet
         private calculateTotalPrice(): number {
             let totalPrice = 0;
             const order = orderScreen.getOrder();
@@ -38,9 +39,9 @@ namespace EisDealer {
             return totalPrice;
         }
 
+        //Rechnung wird in der nähe des zugehörigen Kunden erstellt
         private findAssociatedCustomer(): Customer | undefined {
             for (let customer of allCustomers) {
-                // Assuming the receipt is near the customer's position
                 if (this.position.distanceTo(customer.position) < 30) {
                     return customer;
                 }
@@ -48,6 +49,7 @@ namespace EisDealer {
             return undefined;
         }
 
+        //Rechnung wird bei klick entfernt
         private remove(): void {
             const index = allObjects.indexOf(this);
             if (index !== -1) {
@@ -55,9 +57,9 @@ namespace EisDealer {
             }
         }
     
+        //Funktion zum zeichnen der Rechnung
         public draw():void{
             //console.log("Receipt draw")
-
             crc2.save();
 
             // Kassenbon Hintergrund
@@ -73,16 +75,7 @@ namespace EisDealer {
             crc2.strokeStyle = "black";
             crc2.lineWidth = 1;
         
-            // Linien für den "Text" auf dem Kassenbon
-            // const lineSpacing = 10;
-            // for (let i = 1; i <= 5; i++) {
-            //     crc2.beginPath();
-            //     crc2.moveTo(this.position.x + 5, this.position.y + i * lineSpacing);
-            //     crc2.lineTo(this.position.x + 45, this.position.y + i * lineSpacing);
-            //     crc2.stroke();
-            // }
-        
-            // Optional: Beschriftung des Kassenbons
+            // Beschriftung des Kassenbons mit Bestellung
             crc2.fillStyle = "black";
             crc2.font = "8px Arial";
             crc2.fillText("Receipt", this.position.x + 5, this.position.y + 10);
