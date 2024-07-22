@@ -13,12 +13,10 @@ var EisDealer;
         orderPlaced = false;
         type = EisDealer.CustomerType.Normal;
         order = null;
-        //public proximityIntervalSet: boolean = false; // Neue Eigenschaft
         moneyScreen;
         passingPoint = new EisDealer.Vector(800, 215);
         returnPoint = new EisDealer.Vector(1100, 215);
         receiptCreated = false;
-        status = "waiting";
         waitStartTime = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         isSeated = false; // Status, ob der Kunde auf einem Stuhl sitzt oder in der Warteschlange ist
         constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
@@ -101,27 +99,6 @@ var EisDealer;
             chosenChair.occupy();
             this.isSeated = true;
             this.waitStartTime = null;
-            // if (Customer.freeChair) {
-            //     // Falls ein freigewordener Stuhl vorhanden ist
-            //     this.targetPosition = Customer.freeChair.position.add(this.calculateOffset(Customer.freeChair.rotation));
-            //     Customer.freeChair.occupy(); // Stuhl als belegt markieren
-            //     Customer.freeChair = null; // Freigegebene Stuhl-Referenz zurücksetzen
-            //     this.isSeated = true;
-            //     this.waitStartTime = null;
-            // } else {
-            //     const availableChairs = this.getAvailableChairs();
-            //     // Wenn keine freie Position gefunden wurde
-            //     if (availableChairs.length === 0) {
-            //         this.joinWaitingQueue();
-            //         return;
-            //     }
-            //     const chosenChair = availableChairs[0];
-            //     this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
-            //     // Markiere die Zielposition als belegt
-            //     chosenChair.occupy();
-            //     //this.isSeated = true;
-            //     this.waitStartTime = null;
-            // }
         }
         calculateOffset(rotation) {
             const radians = rotation * Math.PI / 180;
@@ -151,23 +128,6 @@ var EisDealer;
             }
         }
         assignWaitingCustomerToChair() {
-            // if (Customer.waitingCustomers.length > 0) {
-            //     this.updateWaitingQueue();
-            //     const nextCustomer = Customer.waitingCustomers.shift(); // Hole den ersten wartenden Kunden
-            //     if (nextCustomer) {
-            //         if (Customer.freeChair) {
-            //             nextCustomer.targetPosition = Customer.freeChair.position.add(this.calculateOffset(Customer.freeChair.rotation));
-            //             Customer.freeChair.occupy(); // Stuhl als belegt markieren
-            //             Customer.freeChair = null; // Freigegebene Stuhl-Referenz zurücksetzen
-            //             //nextCustomer.isSeated = true; //bestimmt wann order aufgegeben werden können
-            //             nextCustomer.waitStartTime = null;
-            //             nextCustomer.speed = new Vector(1, 1); // Geschwindigkeit zurücksetzen
-            //             nextCustomer.findNextTargetPosition();
-            //         } else {
-            //             console.log("No free chair available.");
-            //         }
-            //     }
-            // }
             if (Customer.waitingCustomers.length > 0) {
                 const nextCustomer = Customer.waitingCustomers.shift();
                 if (nextCustomer) {
