@@ -17,7 +17,7 @@ namespace EisDealer {
     let dealer: Dealer;  
 
     //Funktion die nach der geladenen seite ausgeführt wird
-    function handleLoad(_event: Event): void {
+    export function handleLoad(_event: Event): void {
         let canvas: HTMLCanvasElement | null = document.querySelector("canvas");
         if (!canvas) return;
         crc2 = <CanvasRenderingContext2D>canvas.getContext("2d");
@@ -28,23 +28,23 @@ namespace EisDealer {
 
         //Die Positionen der Stühle
         const chairs = [
-            { position: new Vector(425, 420), rotation: 0 },
-            { position: new Vector(400, 340), rotation: 120 },
-            { position: new Vector(520, 380), rotation: 240 },
-            { position: new Vector(415, 155), rotation: 0 },
-            { position: new Vector(410, 50), rotation: 120 },
-            { position: new Vector(500, 100), rotation: 240 },
-            { position: new Vector(705, 520), rotation: 300 },
-            { position: new Vector(620, 450), rotation: 90 },
-            { position: new Vector(710, 430), rotation: 200 },
-            { position: new Vector(655, 180), rotation: 330 },
-            { position: new Vector(600, 100), rotation: 90 },
-            { position: new Vector(700, 90), rotation: 220 }
+            { position: new Vector(425, 420), rotation: 0 ,id:1},
+            { position: new Vector(400, 340), rotation: 120, id:2 },
+            { position: new Vector(520, 380), rotation: 240,id:3 },
+            { position: new Vector(415, 155), rotation: 0 , id:4},
+            { position: new Vector(410, 50), rotation: 120,id:5},
+            { position: new Vector(500, 100), rotation: 240,id:6 },
+            { position: new Vector(705, 520), rotation: 300,id:7 },
+            { position: new Vector(620, 450), rotation: 90,id:8 },
+            { position: new Vector(710, 430), rotation: 200,id:9 },
+            { position: new Vector(655, 180), rotation: 330,id:10 },
+            { position: new Vector(600, 100), rotation: 90,id:11 },
+            { position: new Vector(700, 90), rotation: 220, id:12 }
         ];
         
         //neuer stuhl wird erstellt
         chairs.forEach(data => {
-            let chair = new Chair(data.position, data.rotation);
+            let chair = new Chair(data.position, data.rotation, data.id);
             //console.log(chair);
             allObjects.push(chair);
         });
@@ -58,7 +58,6 @@ namespace EisDealer {
         selectionScreen = new SelectionScreen(new Vector(0,0));
         orderScreen = new OrderScreen(new Vector(780,0));
         moneyScreen = new Money(new Vector(180,0))
-        
         // Dealer-Objekt wird erstellt
         dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce,"happy");
         console.log(dealer);
@@ -69,13 +68,13 @@ namespace EisDealer {
         // Funktion zur speziellen erstellung des customers wird aufgerufen
         createCustomer();
         //Alle 10 Sekunden wird ein neuer customer erstellt
-        setInterval(createCustomer, 10000);
+        setInterval(createCustomer, 5000);
         animate(); 
     }
 
     //Funktion zu Animation
     function animate(): void {
-        console.log("animate");
+        //console.log("animate");
         //Hintergund wird erneut gezeichnet
         drawBackground();
 

@@ -1,14 +1,14 @@
 namespace EisDealer {
     export class Chair extends Drawable{
         rotation: number;
-        //private isClicked: boolean;
-        public occupied: boolean;
+        public occupied: boolean = false;
+        public id: number;
 
-        constructor (_position: Vector, _rotation: number,_occupied: boolean = false){
+        constructor (_position: Vector, _rotation: number,_id: number){
             //console.log("Chair Constructor")
             super(_position)
             this.rotation = _rotation;
-            this.occupied = _occupied;
+            this.id = _id;
         }
 
         public isOccupied(): boolean {

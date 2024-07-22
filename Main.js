@@ -23,22 +23,22 @@ var EisDealer;
         EisDealer.generateContent(EisDealer.data);
         //Die Positionen der Stühle
         const chairs = [
-            { position: new EisDealer.Vector(425, 420), rotation: 0 },
-            { position: new EisDealer.Vector(400, 340), rotation: 120 },
-            { position: new EisDealer.Vector(520, 380), rotation: 240 },
-            { position: new EisDealer.Vector(415, 155), rotation: 0 },
-            { position: new EisDealer.Vector(410, 50), rotation: 120 },
-            { position: new EisDealer.Vector(500, 100), rotation: 240 },
-            { position: new EisDealer.Vector(705, 520), rotation: 300 },
-            { position: new EisDealer.Vector(620, 450), rotation: 90 },
-            { position: new EisDealer.Vector(710, 430), rotation: 200 },
-            { position: new EisDealer.Vector(655, 180), rotation: 330 },
-            { position: new EisDealer.Vector(600, 100), rotation: 90 },
-            { position: new EisDealer.Vector(700, 90), rotation: 220 }
+            { position: new EisDealer.Vector(425, 420), rotation: 0, id: 1 },
+            { position: new EisDealer.Vector(400, 340), rotation: 120, id: 2 },
+            { position: new EisDealer.Vector(520, 380), rotation: 240, id: 3 },
+            { position: new EisDealer.Vector(415, 155), rotation: 0, id: 4 },
+            { position: new EisDealer.Vector(410, 50), rotation: 120, id: 5 },
+            { position: new EisDealer.Vector(500, 100), rotation: 240, id: 6 },
+            { position: new EisDealer.Vector(705, 520), rotation: 300, id: 7 },
+            { position: new EisDealer.Vector(620, 450), rotation: 90, id: 8 },
+            { position: new EisDealer.Vector(710, 430), rotation: 200, id: 9 },
+            { position: new EisDealer.Vector(655, 180), rotation: 330, id: 10 },
+            { position: new EisDealer.Vector(600, 100), rotation: 90, id: 11 },
+            { position: new EisDealer.Vector(700, 90), rotation: 220, id: 12 }
         ];
         //neuer stuhl wird erstellt
         chairs.forEach(data => {
-            let chair = new EisDealer.Chair(data.position, data.rotation);
+            let chair = new EisDealer.Chair(data.position, data.rotation, data.id);
             //console.log(chair);
             EisDealer.allObjects.push(chair);
         });
@@ -59,12 +59,13 @@ var EisDealer;
         // Funktion zur speziellen erstellung des customers wird aufgerufen
         createCustomer();
         //Alle 10 Sekunden wird ein neuer customer erstellt
-        setInterval(createCustomer, 10000);
+        setInterval(createCustomer, 5000);
         animate();
     }
+    EisDealer.handleLoad = handleLoad;
     //Funktion zu Animation
     function animate() {
-        console.log("animate");
+        //console.log("animate");
         //Hintergund wird erneut gezeichnet
         drawBackground();
         //zustand aller Objekte wird aktualisiert

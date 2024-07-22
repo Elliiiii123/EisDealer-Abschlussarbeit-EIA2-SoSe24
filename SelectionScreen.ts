@@ -82,8 +82,6 @@ namespace EisDealer{
             this.drawFloralPattern(x + 80, patternY);
             this.drawFloralPattern(x + 110, patternY);
 
-            crc2.restore();
-
             // Zeichne die Kugeln in einer Pyramidenform
             const centerX = x + 80; 
             const baseY = y + 120; 
@@ -130,6 +128,7 @@ namespace EisDealer{
             crc2.lineTo(x + 20, y);
             crc2.lineTo(x + 10, y + 10);
             crc2.closePath();
+            crc2.fillStyle = "#ffb6c1"; 
             crc2.fill();
         }
     }

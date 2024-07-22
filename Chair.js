@@ -3,13 +3,13 @@ var EisDealer;
 (function (EisDealer) {
     class Chair extends EisDealer.Drawable {
         rotation;
-        //private isClicked: boolean;
-        occupied;
-        constructor(_position, _rotation, _occupied = false) {
+        occupied = false;
+        id;
+        constructor(_position, _rotation, _id) {
             //console.log("Chair Constructor")
             super(_position);
             this.rotation = _rotation;
-            this.occupied = _occupied;
+            this.id = _id;
         }
         isOccupied() {
             return this.occupied;

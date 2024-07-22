@@ -1,14 +1,14 @@
 namespace EisDealer {
     export class Customer extends Moveable{
 
-        private static readonly WAIT_TIME_MS = 40000; // 40 Sekunden in Millisekunden
+        private static readonly WAIT_TIME_MS = 20000; // 40 Sekunden in Millisekunden
         private static chairOffset = new Vector(25, 25);
         private static waitingStartPosition = new Vector(810, 215); // Startposition für wartende Kunden
         private static waitingSpacing = 60; // Abstand zwischen wartenden Kunden
 
-        private static waitingCustomers: Customer[] = []; // Warteschlange für Kunden
-        private static freeChair: Chair | null = null; // Referenz für den freigewordenen Stuhl
+        private waitingCustomer: boolean; // Warteschlange für Kunden
 
+        private chairId: number;
         private targetPosition: Vector | null = null;
         private passingPointReached: boolean = false;
         private orderPlaced: boolean = false;
@@ -73,6 +73,9 @@ namespace EisDealer {
             if (elapsedTime >= Customer.WAIT_TIME_MS) {
                 this.changeToSad();
                 this.waitStartTime = null;
+                this.waitingCustomer = false;
+                this.updateWaitingQueue();
+
             }
             if (this.targetPosition) {
                 this.moveToPoint(this.targetPosition);
@@ -103,6 +106,8 @@ namespace EisDealer {
 
             const chosenChair = availableChairs[0];
             this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
+            this.chairId = chosenChair.id;
+            this.waitingCustomer = false;
             chosenChair.occupy();
             this.isSeated = true;
             this.waitStartTime = null;
@@ -121,37 +126,38 @@ namespace EisDealer {
         }
 
         private joinWaitingQueue(): void {
-            const queueLength = Customer.waitingCustomers.length;
+            const waitingCustomers = allCustomers.filter(customer=>customer.waitingCustomer=== true);
+            const queueLength = waitingCustomers.length;
             const newPosition = Customer.waitingStartPosition.copy().add(new Vector(0, queueLength * Customer.waitingSpacing));
             this.targetPosition = newPosition;
-            Customer.waitingCustomers.push(this);
+            this.waitingCustomer = true;
             this.waitStartTime = Date.now(); // Setze den Startzeitpunkt für das Warten
             this.speed = new Vector(1, 1); // Langsame Bewegung, falls nötig
         }
 
         private freeChair(): void {
-            console.log("chair is free")
-            const chair = this.findOccupiedChair();
-            if (chair) {
-                Customer.freeChair = chair;
-                chair.free();
-                this.assignWaitingCustomerToChair();
-            }
+            console.log("trigger free chair")
+            const chairToFree: Chair = allObjects.find(obj => obj instanceof Chair && obj.id === this.chairId) as Chair
+            chairToFree.free()
+            this.assignWaitingCustomerToChair();
         }
 
         private assignWaitingCustomerToChair(): void {
-            if (Customer.waitingCustomers.length > 0) {
-                const nextCustomer = Customer.waitingCustomers.shift();
+            const waitingCustomers = allCustomers.filter(customer=>customer.waitingCustomer=== true);
+            if (waitingCustomers.length > 0) {
+                const nextCustomer = waitingCustomers.shift();
                 if (nextCustomer) {
                     nextCustomer.findNextTargetPosition();
                     this.updateWaitingQueue();
                 }
-            }
+            }   
         }
 
+        //Customer position wird geupdated
         private updateWaitingQueue(): void {
-            for (let i = 0; i < Customer.waitingCustomers.length; i++) {
-                const customer = Customer.waitingCustomers[i];
+            const waitingCustomers = allCustomers.filter(customer=>customer.waitingCustomer=== true);
+            for (let i = 0; i < waitingCustomers.length; i++) {
+                const customer = waitingCustomers[i];
                 const newPosition = Customer.waitingStartPosition.copy().add(new Vector(1, i * Customer.waitingSpacing));
                 customer.targetPosition = newPosition;
             }
@@ -161,20 +167,9 @@ namespace EisDealer {
             const index = allObjects.indexOf(this);
             if (index !== -1) {
                 allObjects.splice(index, 1);
-                this.freeChair();
-                
+                if (this.isSeated === true){
+                this.freeChair()};
             }
-        }
-
-        private findOccupiedChair(): Chair | undefined {
-            return allObjects.find(obj => obj instanceof Chair && obj.isOccupied()) as Chair | undefined;
-            // for (let obj of allObjects) {
-            //     if (obj instanceof Chair && obj.isOccupied()) {
-            //         console.log("Found an occupied chair.");
-            //         return obj;
-            //     }
-            // }
-            // return undefined;
         }
 
         public moveToOriginalPosition(): void {
@@ -202,7 +197,6 @@ namespace EisDealer {
             console.log(selectedSauce, selectedScoops, selectedTopping);
             this.order = { scoops: selectedScoops, topping: selectedTopping, sauce: selectedSauce };
             return this.order;
-
         }
 
         private getRandomScoop(): Scoop {

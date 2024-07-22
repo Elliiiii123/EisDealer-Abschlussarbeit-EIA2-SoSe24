@@ -74,7 +74,6 @@ var EisDealer;
             this.drawFloralPattern(x + 50, patternY);
             this.drawFloralPattern(x + 80, patternY);
             this.drawFloralPattern(x + 110, patternY);
-            EisDealer.crc2.restore();
             // Zeichne die Kugeln in einer Pyramidenform
             const centerX = x + 80;
             const baseY = y + 120;
@@ -116,6 +115,7 @@ var EisDealer;
             EisDealer.crc2.lineTo(x + 20, y);
             EisDealer.crc2.lineTo(x + 10, y + 10);
             EisDealer.crc2.closePath();
+            EisDealer.crc2.fillStyle = "#ffb6c1";
             EisDealer.crc2.fill();
         }
     }
