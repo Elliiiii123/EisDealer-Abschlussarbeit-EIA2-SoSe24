@@ -6,8 +6,7 @@ namespace EisDealer {
             this.position = _position
         }
 
-        public abstract draw() :void 
-           
+        public abstract draw() :void   
     
         public update(): void {
             this.draw();

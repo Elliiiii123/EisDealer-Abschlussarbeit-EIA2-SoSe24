@@ -5,7 +5,7 @@ namespace EisDealer {
             super(_position);
         }
 
-        //Zeichne die Geldanzeige
+        //Zeichne den Kontostand
         public draw():void {
             const x = this.position.x;
             const y = this.position.y;
@@ -13,6 +13,7 @@ namespace EisDealer {
             crc2.save();
             crc2.fillStyle = "beige";
             crc2.fillRect(x, y, 160, 50); 
+
 
             // Zeige den aktuellen Gesamtpreis
             crc2.fillStyle = "black";
@@ -22,7 +23,7 @@ namespace EisDealer {
             crc2.restore();
         }
 
-        //Methode zum addieren der Preise
+        //addiere die preise
         public addToTotal(price: number): void {
             this.totalPrice += price;
             this.draw();

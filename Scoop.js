@@ -5,7 +5,6 @@ var EisDealer;
         price;
         name;
         color;
-        //private isClicked: boolean;
         constructor(_position, _name, _price, _color) {
             //console.log("Scoop Constructor")
             super(_position);

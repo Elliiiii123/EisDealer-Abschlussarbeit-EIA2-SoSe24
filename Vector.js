@@ -16,13 +16,6 @@ var EisDealer;
         subtract(vector) {
             return new Vector(this.x - vector.x, this.y - vector.y);
         }
-        clone() {
-            return new Vector(this.x, this.y);
-        }
-        // Method to multiply vector by scalar
-        // multiply(scalar: number): Vector {
-        //     return new Vector(this.x * scalar, this.y * scalar);
-        // }
         // Method to get the magnitude of the vector
         magnitude() {
             return Math.sqrt(this.x * this.x + this.y * this.y);

@@ -4,6 +4,7 @@ namespace EisDealer{
         private selectedTopping: Topping | null;
         private scoops: Scoop[];
 
+
         constructor(_position: Vector) {
             super(_position);
             this.selectedSauce = null;

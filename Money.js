@@ -6,7 +6,7 @@ var EisDealer;
         constructor(_position) {
             super(_position);
         }
-        //Zeichne die Geldanzeige
+        //Zeichne den Kontostand
         draw() {
             const x = this.position.x;
             const y = this.position.y;
@@ -19,7 +19,7 @@ var EisDealer;
             EisDealer.crc2.fillText("Money: $" + this.totalPrice.toFixed(2), x + 10, y + 30);
             EisDealer.crc2.restore();
         }
-        //Methode zum addieren der Preise
+        //addiere die preise
         addToTotal(price) {
             this.totalPrice += price;
             this.draw();

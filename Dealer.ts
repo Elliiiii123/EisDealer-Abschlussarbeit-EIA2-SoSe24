@@ -7,12 +7,12 @@ namespace EisDealer {
         public selectedScoop: Scoop | null = null;
         public selectedToppings: Topping[] = [];
         public selectedSauce: Sauce | null = null;
-
+        private itemSelected: boolean = false; // Flag, um zu prüfen, ob ein Item ausgewählt wurde
         public customerClicked: boolean = false;  // Neue Eigenschaft
         private itemClickedFirst: boolean = false; // Flag, um zu prüfen, ob zuerst ein Item geklickt wurde
         private customerClickedAfterItem: boolean = false; // Flag, um zu prüfen, ob der Kunde nach dem Item geklickt wurde
 
-        constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: DealerType, _emotion: string){
+        constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: DealerType){
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction)
             this.position = _position;
@@ -34,11 +34,13 @@ namespace EisDealer {
 
         public setSelectedScoop(scoop: Scoop): void {
             this.selectedScoop = scoop;
+            this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
 
         public handleItemClick(): void {
+            this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
@@ -46,6 +48,7 @@ namespace EisDealer {
         public addSelectedTopping(topping: Topping): void {
             if (!this.selectedToppings.includes(topping)) {
                 this.selectedToppings.push(topping);
+                this.itemSelected = true;
                 this.itemClickedFirst = true;
                 this.updateDealerType();
             }
@@ -53,6 +56,7 @@ namespace EisDealer {
 
         public setSelectedSauce(sauce: Sauce): void {
             this.selectedSauce = sauce;
+            this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
@@ -109,6 +113,7 @@ namespace EisDealer {
         public resetFlags(): void {
             this.itemClickedFirst = false;
             this.customerClickedAfterItem = false;
+            this.itemSelected = false;
             this.customerClicked = false;
             this.selectedScoop = null;
             this.selectedToppings = [];

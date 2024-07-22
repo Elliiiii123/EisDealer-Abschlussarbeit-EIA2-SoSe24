@@ -51,6 +51,7 @@ namespace EisDealer {
 
         //Rechnung wird bei klick entfernt
         private remove(): void {
+            console.log("?")
             const index = allObjects.indexOf(this);
             if (index !== -1) {
                 allObjects.splice(index, 1);

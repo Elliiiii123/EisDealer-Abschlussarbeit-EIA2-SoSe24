@@ -47,6 +47,7 @@ var EisDealer;
         }
         //Rechnung wird bei klick entfernt
         remove() {
+            console.log("?");
             const index = EisDealer.allObjects.indexOf(this);
             if (index !== -1) {
                 EisDealer.allObjects.splice(index, 1);

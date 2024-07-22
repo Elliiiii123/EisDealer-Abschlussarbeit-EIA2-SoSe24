@@ -21,7 +21,7 @@ namespace EisDealer {
         private waitStartTime: number | null = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         private isSeated: boolean = false; // Status, ob der Kunde auf einem Stuhl sitzt oder in der Warteschlange ist
         
-        constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _emotion: string, _moneyScreen: Money){
+        constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _moneyScreen: Money){
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction)
             this.position = _position;
@@ -75,7 +75,7 @@ namespace EisDealer {
                 this.waitStartTime = null;
                 this.waitingCustomer = false;
                 this.updateWaitingQueue();
-
+                
             }
             if (this.targetPosition) {
                 this.moveToPoint(this.targetPosition);

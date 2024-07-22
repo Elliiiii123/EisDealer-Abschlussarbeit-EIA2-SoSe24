@@ -59,7 +59,7 @@ namespace EisDealer {
         orderScreen = new OrderScreen(new Vector(780,0));
         moneyScreen = new Money(new Vector(180,0))
         // Dealer-Objekt wird erstellt
-        dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce,"happy");
+        dealer = new Dealer(new Vector(100, 250), new Vector(2, 2),new Vector(0, 0),EisDealer.DealerType.withoutIce);
         console.log(dealer);
         allObjects.push(dealer);
 
@@ -68,7 +68,7 @@ namespace EisDealer {
         // Funktion zur speziellen erstellung des customers wird aufgerufen
         createCustomer();
         //Alle 10 Sekunden wird ein neuer customer erstellt
-        setInterval(createCustomer, 5000);
+        setInterval(createCustomer, 10000);
         animate(); 
     }
 
@@ -98,7 +98,7 @@ namespace EisDealer {
         let direction: Vector = new Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
 
         // Erstelle einen neuen Kunden an der gewählten Kooridnate
-        let customer: Customer = new Customer(new Vector(1070, 200), new Vector(1, 1), direction, CustomerType.Normal, "Happy",moneyScreen);
+        let customer: Customer = new Customer(new Vector(1070, 200), new Vector(1, 1), direction, CustomerType.Normal, moneyScreen);
 
         // Füge den Kunden der Liste hinzu
         allObjects.push(customer); 
@@ -230,12 +230,12 @@ namespace EisDealer {
             // Überprüfe ob eine Rechnung geklickt wurde
             for (let object of allObjects) {
                 if (object instanceof Receipt) {
-                    console.log('receipt clicked!');
+                    //console.log('receipt clicked!');
                     const receipt = object as Receipt;
                     const dx = x - receipt.position.x;
                     const dy = y - receipt.position.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 100) { 
+                    if (distance < 50) { 
                         receipt.handleClicked();
                         return;
                     }

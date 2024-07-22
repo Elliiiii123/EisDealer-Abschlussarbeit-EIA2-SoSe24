@@ -51,7 +51,7 @@ var EisDealer;
         EisDealer.orderScreen = new EisDealer.OrderScreen(new EisDealer.Vector(780, 0));
         moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0));
         // Dealer-Objekt wird erstellt
-        dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce, "happy");
+        dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce);
         console.log(dealer);
         EisDealer.allObjects.push(dealer);
         //Funktion zum nHintergrund zeichnen wird aufgerufen
@@ -59,7 +59,7 @@ var EisDealer;
         // Funktion zur speziellen erstellung des customers wird aufgerufen
         createCustomer();
         //Alle 10 Sekunden wird ein neuer customer erstellt
-        setInterval(createCustomer, 5000);
+        setInterval(createCustomer, 10000);
         animate();
     }
     EisDealer.handleLoad = handleLoad;
@@ -84,7 +84,7 @@ var EisDealer;
         // Zufällige Richtung und Geschwindigkeit
         let direction = new EisDealer.Vector(Math.random() * 2 - 1, Math.random() * 2 - 1).normalize().scale(2);
         // Erstelle einen neuen Kunden an der gewählten Kooridnate
-        let customer = new EisDealer.Customer(new EisDealer.Vector(1070, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, "Happy", moneyScreen);
+        let customer = new EisDealer.Customer(new EisDealer.Vector(1070, 200), new EisDealer.Vector(1, 1), direction, EisDealer.CustomerType.Normal, moneyScreen);
         // Füge den Kunden der Liste hinzu
         EisDealer.allObjects.push(customer);
         // Füge den Kunden der Liste aller Kunden hinzu
@@ -198,12 +198,12 @@ var EisDealer;
         // Überprüfe ob eine Rechnung geklickt wurde
         for (let object of EisDealer.allObjects) {
             if (object instanceof EisDealer.Receipt) {
-                console.log('receipt clicked!');
+                //console.log('receipt clicked!');
                 const receipt = object;
                 const dx = x - receipt.position.x;
                 const dy = y - receipt.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 100) {
+                if (distance < 50) {
                     receipt.handleClicked();
                     return;
                 }

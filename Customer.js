@@ -19,7 +19,7 @@ var EisDealer;
         receiptCreated = false;
         waitStartTime = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         isSeated = false; // Status, ob der Kunde auf einem Stuhl sitzt oder in der Warteschlange ist
-        constructor(_position, _speed, _direction, _type, _emotion, _moneyScreen) {
+        constructor(_position, _speed, _direction, _type, _moneyScreen) {
             //console.log("Receipt Constructor")
             super(_position, _speed, _direction);
             this.position = _position;

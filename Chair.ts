@@ -1,6 +1,6 @@
 namespace EisDealer {
     export class Chair extends Drawable{
-        rotation: number;
+        public rotation: number;
         public occupied: boolean = false;
         public id: number;
 
