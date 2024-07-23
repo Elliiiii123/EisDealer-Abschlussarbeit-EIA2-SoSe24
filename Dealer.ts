@@ -89,7 +89,7 @@ namespace EisDealer {
             }
         }
 
-        //Wenn Customer ein eis vergeben hat soll er in seinen vorherigen zustand zurück
+        //Wenn Dealer ein eis vergeben hat soll er in seinen vorherigen zustand zurück
         private checkStateChange(): void {
             if (this.type === DealerType.withIce) {
                 this.type = DealerType.withoutIce;

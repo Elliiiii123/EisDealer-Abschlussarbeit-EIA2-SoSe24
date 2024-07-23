@@ -80,7 +80,7 @@ var EisDealer;
                 }
             }
         }
-        //Wenn Customer ein eis vergeben hat soll er in seinen vorherigen zustand zurück
+        //Wenn Dealer ein eis vergeben hat soll er in seinen vorherigen zustand zurück
         checkStateChange() {
             if (this.type === EisDealer.DealerType.withIce) {
                 this.type = EisDealer.DealerType.withoutIce;
