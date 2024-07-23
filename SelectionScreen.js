@@ -27,6 +27,7 @@ var EisDealer;
         }
         //Methode um screen wieder zu leeren
         clearItems() {
+            EisDealer.dealer.type = EisDealer.DealerType.withoutIce;
             this.scoops = [];
             this.selectedSauce = null;
             this.selectedTopping = null;

@@ -4,8 +4,6 @@ var EisDealer;
     function generateContent(_data) {
         console.log(_data);
         for (let category in _data) {
-            //let products: Product[] = _data[category];
-            //let group: HTMLElement | null = null;
             switch (category) {
                 case "Ice":
                     EisDealer.data.Ice.forEach((product, index) => {
@@ -34,9 +32,6 @@ var EisDealer;
                 default:
                     console.log("Unknown category: " + category);
             }
-            // let fieldset: HTMLFieldSetElement | null = document. querySelector ("fieldset#" + category);
-            // if (fieldset && group)
-            // fieldset.appendChild(group);
         }
     }
     EisDealer.generateContent = generateContent;

@@ -13,23 +13,24 @@ namespace EisDealer {
             this.color = _color;
         }
         
+        //Topping zu selection screen hinzufügen
         public handleClicked(selectionScreen: SelectionScreen):void{
             selectionScreen.addItem(this);
         }
 
+        //Topping im Screen zeichnen
         public drawSymbol(_position: Vector): void {
-            const centerX = _position.x; // Center of the scoop
+            const centerX = _position.x; 
             const centerY = _position.y;
             let random = this.pseudoRandom(100);
 
             crc2.save();
             crc2.beginPath();
 
-            // Draw sprinkles on the scoop
-            for (let i = 0; i < 50; i++) { // Reduce the number of sprinkles for a looser distribution
-                // Randomize the position within a larger range and ensure offsetY is negative
-                const offsetX = random() * 30 - 15; // Randomize the position within a larger range
-                const offsetY = -(random() * 14); // Ensure offsetY is negative for upper half
+            for (let i = 0; i < 50; i++) { 
+               
+                const offsetX = random() * 30 - 15; 
+                const offsetY = -(random() * 14); 
                 const sprinkleAngle = random() * 2 * Math.PI;
 
                 crc2.save();
@@ -37,8 +38,8 @@ namespace EisDealer {
                 crc2.rotate(sprinkleAngle);
 
                 crc2.beginPath();
-                crc2.rect(1, -2, 2, 4); // Small rectangles for sprinkles
-                crc2.fillStyle = this.color; // Chocolate color
+                crc2.rect(1, -2, 2, 4); 
+                crc2.fillStyle = this.color;
                 crc2.fill();
                 crc2.closePath();
 
@@ -48,6 +49,7 @@ namespace EisDealer {
             crc2.restore();
         }
     
+        //Zeichne Toppings in Theke
         public draw():void{
             //console.log("Toppings draw")
             const x = this.position.x;
@@ -66,8 +68,8 @@ namespace EisDealer {
             crc2.closePath();
             crc2.restore();
 
-            // Zeichne Cookie-Stückchen im Behälter
-            for (let i = 0; i < 30; i++) { // Weniger Stückchen als bei den Schokostreuseln
+            // Zeichne Topping-Stückchen im Behälter
+            for (let i = 0; i < 30; i++) { 
                 const cookieX = x - 15 + random() * 25;
                 const cookieY = y - 15 + random() * 25;
                 const cookieSize = 3 + random() * 4;
@@ -76,8 +78,8 @@ namespace EisDealer {
                 crc2.translate(cookieX, cookieY);
 
                 crc2.beginPath();
-                crc2.rect(0, 0, cookieSize, cookieSize); // Quadrate für Cookie-Stückchen
-                crc2.fillStyle = this.color; // Cookie Farbe (dunkelbraun)
+                crc2.rect(0, 0, cookieSize, cookieSize); 
+                crc2.fillStyle = this.color; 
                 crc2.fill();
                 crc2.closePath();
 

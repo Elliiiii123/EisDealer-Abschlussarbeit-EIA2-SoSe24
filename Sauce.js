@@ -13,13 +13,13 @@ var EisDealer;
             this.price = _price;
             this.color = _color;
         }
+        //Sauce wird nach clickhinzugefügt
         handleClicked(selectionScreen) {
-            //selectionScreen.addItem(this);
             selectionScreen.addItem(this);
         }
+        //Zeichne Soße auf Tisch
         draw() {
             //console.log("Sauce draw")
-            //console.log("Sauce choclate")
             const centerX = this.position.x;
             const centerY = this.position.y;
             // Zeichne den Körper der Flasche
@@ -28,7 +28,7 @@ var EisDealer;
             EisDealer.crc2.beginPath();
             EisDealer.crc2.arc(0, 0, 15, 0, Math.PI * 2); // Runder Flaschenkörper
             EisDealer.crc2.closePath();
-            EisDealer.crc2.fillStyle = this.color; // Schokoladenfarbe für den Flaschenkörper
+            EisDealer.crc2.fillStyle = this.color; // Individuelle Farbe
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 2;
@@ -36,7 +36,7 @@ var EisDealer;
             EisDealer.crc2.beginPath();
             EisDealer.crc2.arc(0, -7, 15, 0, Math.PI * 2); // Runder Flaschenkörper
             EisDealer.crc2.closePath();
-            EisDealer.crc2.fillStyle = this.color; // Schokoladenfarbe für den Flaschenkörper
+            EisDealer.crc2.fillStyle = this.color; //  Individuelle Farbe
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 2;
@@ -52,6 +52,7 @@ var EisDealer;
             EisDealer.crc2.stroke();
             EisDealer.crc2.restore(); // Zurücksetzen der Transformation
         }
+        //Zeichne soße im screen
         drawSymbol(_position) {
             const radius = 20; // Der Radius der Kugel
             const waveHeight = 5; // Die Höhe der Wellen an der unteren Kante

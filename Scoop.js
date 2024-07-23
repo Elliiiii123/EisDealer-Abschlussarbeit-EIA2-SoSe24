@@ -13,9 +13,11 @@ var EisDealer;
             //this.color = this.getColor(_flavor);
             this.color = _color;
         }
+        //Scoop nach Klick im Selection screen anzeigen
         handleClicked(selectionScreen) {
             selectionScreen.addItem(this);
         }
+        //Zeichen Scoop im Screen
         drawSymbol(position) {
             EisDealer.crc2.save();
             EisDealer.crc2.fillStyle = this.color;
@@ -24,14 +26,14 @@ var EisDealer;
             EisDealer.crc2.fill();
             EisDealer.crc2.restore();
         }
+        //Zeichne Eis an Theke
         draw() {
             const x = this.position.x;
             const y = this.position.y;
-            // Draw the square ice cream (chocolate)
             EisDealer.crc2.save();
             EisDealer.crc2.beginPath();
-            EisDealer.crc2.rect(x, y, 50, 50); // Square shape
-            EisDealer.crc2.fillStyle = this.color; // Chocolate color
+            EisDealer.crc2.rect(x, y, 50, 50);
+            EisDealer.crc2.fillStyle = this.color;
             EisDealer.crc2.fill();
             EisDealer.crc2.strokeStyle = "black";
             EisDealer.crc2.lineWidth = 1;

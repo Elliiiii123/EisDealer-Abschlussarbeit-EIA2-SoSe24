@@ -21,24 +21,26 @@ var EisDealer;
             this.originalPosition = new EisDealer.Vector(_position.x, _position.y);
             this.type = _type;
         }
-        handleClicked() {
-        }
+        //Konsequenzen des customer klicks
         handleCustomerClick() {
-            this.customerClicked = true;
+            //this.customerClicked = true;
             this.customerClickedAfterItem = this.itemClickedFirst;
             this.updateDealerType();
         }
+        //Eiskugel wird ausgewählt
         setSelectedScoop(scoop) {
             this.selectedScoop = scoop;
             this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
+        //Konsequenz des Klicks auf jegliches Item
         handleItemClick() {
             this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
+        //Überprüfung ob Topping oder sauce ausgewählt sind
         addSelectedTopping(topping) {
             if (!this.selectedToppings.includes(topping)) {
                 this.selectedToppings.push(topping);
@@ -59,6 +61,7 @@ var EisDealer;
         moveToOriginalPosition() {
             this.targetPosition = new EisDealer.Vector(this.originalPosition.x, this.originalPosition.y);
         }
+        //Bewegungslogig des Customers
         move() {
             if (this.targetPosition) {
                 const dx = this.targetPosition.x - this.position.x;
@@ -77,12 +80,14 @@ var EisDealer;
                 }
             }
         }
+        //Wenn Customer ein eis vergeben hat soll er in seinen vorherigen zustand zurück
         checkStateChange() {
-            if (this.type === EisDealer.DealerType.withIce && this.customerClicked) {
+            if (this.type === EisDealer.DealerType.withIce) {
                 this.type = EisDealer.DealerType.withoutIce;
                 this.resetFlags();
             }
         }
+        //Dealer Typ wird geupdated
         updateDealerType() {
             if (this.itemClickedFirst && this.customerClickedAfterItem) {
                 if (this.selectedScoop || this.selectedToppings.length > 0 || this.selectedSauce) {
@@ -108,6 +113,7 @@ var EisDealer;
             this.selectedSauce = null;
             this.type = EisDealer.DealerType.withoutIce;
         }
+        //Dealer mit und ohne Eis malen
         draw() {
             //console.log("Dealer draw")
             switch (this.type) {

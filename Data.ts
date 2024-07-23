@@ -2,7 +2,7 @@ namespace EisDealer {
     export interface Product {
         name: string;
         price: number;
-        color: string; // Farbe des Produkts hinzufügen
+        color: string;
     }
 
     export interface Data {
@@ -11,6 +11,7 @@ namespace EisDealer {
         Sauce: Product[];
     }
 
+    //Dynamische Daten der Produkte
     export let data: Data = {
         Ice: [
             {name: "Chocolate", price: 1.50, color: "#8B4513"},

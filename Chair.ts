@@ -11,6 +11,7 @@ namespace EisDealer {
             this.id = _id;
         }
 
+        //Prüfen ob der Stuhl besetzt ist
         public isOccupied(): boolean {
             return this.occupied;
         }
@@ -23,6 +24,7 @@ namespace EisDealer {
             this.occupied = false;
         }
     
+        //Zeichne den Stuhl
         public draw():void{
             //console.log("Chair draw")
             crc2.save();

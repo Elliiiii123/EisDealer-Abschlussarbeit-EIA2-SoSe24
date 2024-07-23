@@ -29,11 +29,11 @@ var EisDealer;
         calculateTotalPrice() {
             let totalPrice = 0;
             const order = EisDealer.orderScreen.getOrder();
-            order.scoops.forEach(scoop => totalPrice += scoop.price);
-            if (order.sauce)
-                totalPrice += order.sauce.price;
-            if (order.topping)
-                totalPrice += order.topping.price;
+            order._scoops.forEach(scoop => totalPrice += scoop.price);
+            if (order._sauce)
+                totalPrice += order._sauce.price;
+            if (order._topping)
+                totalPrice += order._topping.price;
             return totalPrice;
         }
         //Rechnung wird in der nähe des zugehörigen Kunden erstellt
@@ -47,7 +47,6 @@ var EisDealer;
         }
         //Rechnung wird bei klick entfernt
         remove() {
-            console.log("?");
             const index = EisDealer.allObjects.indexOf(this);
             if (index !== -1) {
                 EisDealer.allObjects.splice(index, 1);
@@ -73,7 +72,7 @@ var EisDealer;
             EisDealer.crc2.fillText("Receipt", this.position.x + 5, this.position.y + 10);
             // Zeige Bestellungen an
             const order = EisDealer.orderScreen.getOrder();
-            const items = [...order.scoops, order.topping, order.sauce].filter(item => item !== null);
+            const items = [...order._scoops, order._topping, order._sauce].filter(item => item !== null);
             EisDealer.crc2.font = "10px Arial";
             let yOffset = 30; // Startposition für die ersten Textzeilen
             items.forEach((item) => {

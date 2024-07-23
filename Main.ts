@@ -1,8 +1,5 @@
 namespace EisDealer {
 
-    // handle click zwei mal?
-    // freien stuhl nach warteschlange finden
-
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     //Definiton der crc2 Variable als den HTML Canvas
@@ -12,9 +9,10 @@ namespace EisDealer {
     // (globale) relevante Variablen
     export let allCustomers: Customer[] = [];
     export let orderScreen: OrderScreen;
-    let selectionScreen: SelectionScreen;
+    export let selectionScreen: SelectionScreen;
     let moneyScreen: Money;
-    let dealer: Dealer;  
+    export let dealer: Dealer;  
+    export let customerClicked = false;
 
     //Funktion die nach der geladenen seite ausgeführt wird
     export function handleLoad(_event: Event): void {
@@ -113,7 +111,7 @@ namespace EisDealer {
         const y = _event.clientY;
         //console.log(`Mouse clicked at (${x}, ${y})`);
 
-        let customerClicked = false;
+
         let itemSelected = false;
 
 
@@ -122,32 +120,35 @@ namespace EisDealer {
                 const dx = x - customer.position.x;
                 const dy = y - customer.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
+                dealer.updateDealerType();
                 //console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
                 if (distance < 25) { 
                     console.log('Customer clicked!');
                     customerClicked = true;
                     customer.showOrder();
+                    customer.currentlySelected = true;
+                    dealer.handleCustomerClick();
                     // Zeige die Bestellung des Kunden an
-                    dealer.customerClicked = true;
-                    dealer.handleCustomerClick(); 
-
-                // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
-                const proximityInterval = setInterval(() => {
+    
+                    // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
+                    const proximityInterval = setInterval(() => {
                     const dealerDistanceX = dealer.position.x - customer.position.x;
                     const dealerDistanceY = dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-    
-                    if (dealer.type === DealerType.withIce && dealerDistance < 150) {
+
+                    if (dealer.type === DealerType.withIce && dealerDistance < 100 && customer.currentlySelected === true) {
                         const customerOrderCorrect = customer.compareOrders(selectionScreen);
-    
+                        
                         if (customerOrderCorrect) {
                             //customer wird glücklich wenn bestllung richtig ist
                             console.log("Customer's order matches dealer's selection!");
                             customer.changeToHappy();
+                            
                         } else {
                             console.log("Customer's order does not match dealer's selection.");
                             //customer wird traurig wenn bestllung falsch ist
                             customer.changeToSad();
+                            
                         }
     
                         clearInterval(proximityInterval);
@@ -162,10 +163,12 @@ namespace EisDealer {
                     customer.position.y + offsetDistance * Math.sin(offsetAngle)
                     );
 
+                    //dealer.updateDealerType();
                     dealer.updateDealerType();
                     dealer.setTargetPosition(targetPosition);
-
                     break;
+                    } else{
+                        customer.currentlySelected= false;
                     }
                 }
             //console.log('No customer clicked.');
@@ -222,9 +225,9 @@ namespace EisDealer {
                 }
             }
             // Nur wenn ein Kunde angeklickt wurde und mindestens ein Item ausgewählt wurde, den Typ ändern
-            if (customerClicked || itemSelected) {
-                dealer.updateDealerType();
-            }
+            // if (customerClicked || itemSelected) {
+            //     dealer.updateDealerType();
+            // }
 
 
             // Überprüfe ob eine Rechnung geklickt wurde
@@ -235,7 +238,7 @@ namespace EisDealer {
                     const dx = x - receipt.position.x;
                     const dy = y - receipt.position.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 50) { 
+                    if (distance < 100) { 
                         receipt.handleClicked();
                         return;
                     }
@@ -246,8 +249,8 @@ namespace EisDealer {
             for (let object of allObjects) {
                 if (object instanceof Trash) {
                     const trash = object as Trash;
-                    if (x >= trash.position.x - 20 && x <= trash.position.x + 20 &&
-                        y >= trash.position.y - 20 && y <= trash.position.y + 20) {
+                    if (x >= trash.position.x - 20 && x <= trash.position.x + 40 &&
+                        y >= trash.position.y - 20 && y <= trash.position.y + 40) {
                         selectionScreen.clearItems();
                         return;
                     }

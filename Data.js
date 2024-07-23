@@ -1,6 +1,7 @@
 "use strict";
 var EisDealer;
 (function (EisDealer) {
+    //Dynamische Daten der Produkte
     EisDealer.data = {
         Ice: [
             { name: "Chocolate", price: 1.50, color: "#8B4513" },

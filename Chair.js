@@ -11,6 +11,7 @@ var EisDealer;
             this.rotation = _rotation;
             this.id = _id;
         }
+        //Prüfen ob der Stuhl besetzt ist
         isOccupied() {
             return this.occupied;
         }
@@ -20,6 +21,7 @@ var EisDealer;
         free() {
             this.occupied = false;
         }
+        //Zeichne den Stuhl
         draw() {
             //console.log("Chair draw")
             EisDealer.crc2.save();

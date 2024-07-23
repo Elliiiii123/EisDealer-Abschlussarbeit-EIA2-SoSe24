@@ -26,10 +26,12 @@ namespace EisDealer{
 
         //Methode um screen wieder zu leeren
         public clearItems(): void {
+            dealer.type = DealerType.withoutIce;
             this.scoops = [];
             this.selectedSauce = null;
             this.selectedTopping = null;
             this.draw();
+            
         }
 
         // die erhaltenen Items werden gesettet

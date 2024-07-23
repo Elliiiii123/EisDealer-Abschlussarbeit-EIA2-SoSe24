@@ -22,16 +22,14 @@ namespace EisDealer {
             this.type = _type;
         }
         
-        public handleClicked():void{
-
-        }
-
+        //Konsequenzen des customer klicks
         public handleCustomerClick(): void {
-            this.customerClicked = true;
+            //this.customerClicked = true;
             this.customerClickedAfterItem = this.itemClickedFirst;
             this.updateDealerType();
         }
 
+        //Eiskugel wird ausgewählt
         public setSelectedScoop(scoop: Scoop): void {
             this.selectedScoop = scoop;
             this.itemSelected = true;
@@ -39,12 +37,14 @@ namespace EisDealer {
             this.updateDealerType();
         }
 
+        //Konsequenz des Klicks auf jegliches Item
         public handleItemClick(): void {
             this.itemSelected = true;
             this.itemClickedFirst = true;
             this.updateDealerType();
         }
 
+        //Überprüfung ob Topping oder sauce ausgewählt sind
         public addSelectedTopping(topping: Topping): void {
             if (!this.selectedToppings.includes(topping)) {
                 this.selectedToppings.push(topping);
@@ -69,6 +69,7 @@ namespace EisDealer {
             this.targetPosition = new Vector(this.originalPosition.x, this.originalPosition.y);
         }
 
+        //Bewegungslogig des Customers
         public move(): void {
 
             if (this.targetPosition) {
@@ -88,13 +89,15 @@ namespace EisDealer {
             }
         }
 
+        //Wenn Customer ein eis vergeben hat soll er in seinen vorherigen zustand zurück
         private checkStateChange(): void {
-            if (this.type === DealerType.withIce && this.customerClicked) {
+            if (this.type === DealerType.withIce) {
                 this.type = DealerType.withoutIce;
                 this.resetFlags();
             }
         }
 
+        //Dealer Typ wird geupdated
         public updateDealerType(): void {
             if (this.itemClickedFirst && this.customerClickedAfterItem) {
                 if (this.selectedScoop || this.selectedToppings.length > 0 || this.selectedSauce) {
@@ -121,6 +124,7 @@ namespace EisDealer {
             this.type = DealerType.withoutIce;
         }
     
+        //Dealer mit und ohne Eis malen
         public draw():void{
             //console.log("Dealer draw")
             switch (this.type) {

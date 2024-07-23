@@ -1,17 +1,14 @@
 "use strict";
 var EisDealer;
 (function (EisDealer) {
-    // handle click zwei mal?
-    // freien stuhl nach warteschlange finden
     //Eventlistener für handleLoad Funktion
     window.addEventListener("load", handleLoad);
     //Array mit allen Objekten
     EisDealer.allObjects = [];
     // (globale) relevante Variablen
     EisDealer.allCustomers = [];
-    let selectionScreen;
     let moneyScreen;
-    let dealer;
+    EisDealer.customerClicked = false;
     //Funktion die nach der geladenen seite ausgeführt wird
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
@@ -47,13 +44,13 @@ var EisDealer;
         console.log(trash);
         EisDealer.allObjects.push(trash);
         // Auswahl-, Bestellungs- und Geldbildschrim werden erstellt
-        selectionScreen = new EisDealer.SelectionScreen(new EisDealer.Vector(0, 0));
+        EisDealer.selectionScreen = new EisDealer.SelectionScreen(new EisDealer.Vector(0, 0));
         EisDealer.orderScreen = new EisDealer.OrderScreen(new EisDealer.Vector(780, 0));
         moneyScreen = new EisDealer.Money(new EisDealer.Vector(180, 0));
         // Dealer-Objekt wird erstellt
-        dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce);
-        console.log(dealer);
-        EisDealer.allObjects.push(dealer);
+        EisDealer.dealer = new EisDealer.Dealer(new EisDealer.Vector(100, 250), new EisDealer.Vector(2, 2), new EisDealer.Vector(0, 0), EisDealer.DealerType.withoutIce);
+        console.log(EisDealer.dealer);
+        EisDealer.allObjects.push(EisDealer.dealer);
         //Funktion zum nHintergrund zeichnen wird aufgerufen
         drawBackground();
         // Funktion zur speziellen erstellung des customers wird aufgerufen
@@ -73,7 +70,7 @@ var EisDealer;
             object.update();
         }
         //Alle Bildschirme werden neu gezeichnet
-        selectionScreen.draw();
+        EisDealer.selectionScreen.draw();
         EisDealer.orderScreen.draw();
         moneyScreen.draw();
         // Fortlaufende Animation mit requestAnimationFrame
@@ -97,28 +94,28 @@ var EisDealer;
         const x = _event.clientX;
         const y = _event.clientY;
         //console.log(`Mouse clicked at (${x}, ${y})`);
-        let customerClicked = false;
         let itemSelected = false;
         // Überprüfen, ob ein Kunde angeklickt wurde
         for (let customer of EisDealer.allCustomers) {
             const dx = x - customer.position.x;
             const dy = y - customer.position.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
+            EisDealer.dealer.updateDealerType();
             //console.log(`Distance to customer at (${customer.position.x}, ${customer.position.y}): ${distance}`);
             if (distance < 25) {
                 console.log('Customer clicked!');
-                customerClicked = true;
+                EisDealer.customerClicked = true;
                 customer.showOrder();
+                customer.currentlySelected = true;
+                EisDealer.dealer.handleCustomerClick();
                 // Zeige die Bestellung des Kunden an
-                dealer.customerClicked = true;
-                dealer.handleCustomerClick();
                 // Überprüfen, ob der Dealer im `withIce` Zustand ist und den Kunden erreicht hat
                 const proximityInterval = setInterval(() => {
-                    const dealerDistanceX = dealer.position.x - customer.position.x;
-                    const dealerDistanceY = dealer.position.y - customer.position.y;
+                    const dealerDistanceX = EisDealer.dealer.position.x - customer.position.x;
+                    const dealerDistanceY = EisDealer.dealer.position.y - customer.position.y;
                     const dealerDistance = Math.sqrt(dealerDistanceX * dealerDistanceX + dealerDistanceY * dealerDistanceY);
-                    if (dealer.type === EisDealer.DealerType.withIce && dealerDistance < 150) {
-                        const customerOrderCorrect = customer.compareOrders(selectionScreen);
+                    if (EisDealer.dealer.type === EisDealer.DealerType.withIce && dealerDistance < 100 && customer.currentlySelected === true) {
+                        const customerOrderCorrect = customer.compareOrders(EisDealer.selectionScreen);
                         if (customerOrderCorrect) {
                             //customer wird glücklich wenn bestllung richtig ist
                             console.log("Customer's order matches dealer's selection!");
@@ -136,9 +133,13 @@ var EisDealer;
                 const offsetAngle = Math.random() * 2 * Math.PI;
                 const offsetDistance = 80;
                 const targetPosition = new EisDealer.Vector(customer.position.x + offsetDistance * Math.cos(offsetAngle), customer.position.y + offsetDistance * Math.sin(offsetAngle));
-                dealer.updateDealerType();
-                dealer.setTargetPosition(targetPosition);
+                //dealer.updateDealerType();
+                EisDealer.dealer.updateDealerType();
+                EisDealer.dealer.setTargetPosition(targetPosition);
                 break;
+            }
+            else {
+                customer.currentlySelected = false;
             }
         }
         //console.log('No customer clicked.');
@@ -149,9 +150,9 @@ var EisDealer;
                 if (x >= scoop.position.x && x <= scoop.position.x + 50 &&
                     y >= scoop.position.y && y <= scoop.position.y + 50) {
                     //console.log('Scoop clicked!');
-                    selectionScreen.addItem(scoop);
-                    dealer.moveToOriginalPosition();
-                    dealer.setSelectedScoop(scoop);
+                    EisDealer.selectionScreen.addItem(scoop);
+                    EisDealer.dealer.moveToOriginalPosition();
+                    EisDealer.dealer.setSelectedScoop(scoop);
                     itemSelected = true;
                     break;
                 }
@@ -165,9 +166,9 @@ var EisDealer;
                     if (x >= sauce.position.x - 20 && x <= sauce.position.x + 20 &&
                         y >= sauce.position.y - 20 && y <= sauce.position.y + 20) {
                         //console.log('Sauce clicked!');
-                        selectionScreen.addItem(sauce);
-                        dealer.moveToOriginalPosition();
-                        dealer.setSelectedSauce(sauce);
+                        EisDealer.selectionScreen.addItem(sauce);
+                        EisDealer.dealer.moveToOriginalPosition();
+                        EisDealer.dealer.setSelectedSauce(sauce);
                         itemSelected = true;
                         break;
                     }
@@ -182,9 +183,9 @@ var EisDealer;
                     if (x >= topping.position.x - 20 && x <= topping.position.x + 20 &&
                         y >= topping.position.y - 20 && y <= topping.position.y + 20) {
                         //console.log('Topping clicked!');
-                        selectionScreen.addItem(topping);
-                        dealer.moveToOriginalPosition();
-                        dealer.addSelectedTopping(topping);
+                        EisDealer.selectionScreen.addItem(topping);
+                        EisDealer.dealer.moveToOriginalPosition();
+                        EisDealer.dealer.addSelectedTopping(topping);
                         itemSelected = true;
                         break;
                     }
@@ -192,9 +193,9 @@ var EisDealer;
             }
         }
         // Nur wenn ein Kunde angeklickt wurde und mindestens ein Item ausgewählt wurde, den Typ ändern
-        if (customerClicked || itemSelected) {
-            dealer.updateDealerType();
-        }
+        // if (customerClicked || itemSelected) {
+        //     dealer.updateDealerType();
+        // }
         // Überprüfe ob eine Rechnung geklickt wurde
         for (let object of EisDealer.allObjects) {
             if (object instanceof EisDealer.Receipt) {
@@ -203,7 +204,7 @@ var EisDealer;
                 const dx = x - receipt.position.x;
                 const dy = y - receipt.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 50) {
+                if (distance < 100) {
                     receipt.handleClicked();
                     return;
                 }
@@ -213,9 +214,9 @@ var EisDealer;
         for (let object of EisDealer.allObjects) {
             if (object instanceof EisDealer.Trash) {
                 const trash = object;
-                if (x >= trash.position.x - 20 && x <= trash.position.x + 20 &&
-                    y >= trash.position.y - 20 && y <= trash.position.y + 20) {
-                    selectionScreen.clearItems();
+                if (x >= trash.position.x - 20 && x <= trash.position.x + 40 &&
+                    y >= trash.position.y - 20 && y <= trash.position.y + 40) {
+                    EisDealer.selectionScreen.clearItems();
                     return;
                 }
             }

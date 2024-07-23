@@ -13,10 +13,12 @@ namespace EisDealer {
             this.color = _color;
         }
         
+        //Scoop nach Klick im Selection screen anzeigen
         public handleClicked(selectionScreen: SelectionScreen): void {
             selectionScreen.addItem(this);
         }
 
+        //Zeichen Scoop im Screen
         public drawSymbol(position: Vector): void {
             crc2.save();
             crc2.fillStyle = this.color;
@@ -26,16 +28,16 @@ namespace EisDealer {
             crc2.restore();
         }
 
+        //Zeichne Eis an Theke
         public draw():void{
 
             const x = this.position.x;
             const y = this.position.y;
 
-            // Draw the square ice cream (chocolate)
             crc2.save();
             crc2.beginPath();
-            crc2.rect(x, y,50, 50); // Square shape
-            crc2.fillStyle = this.color; // Chocolate color
+            crc2.rect(x, y,50, 50); 
+            crc2.fillStyle = this.color; 
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 1;

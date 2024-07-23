@@ -32,9 +32,9 @@ namespace EisDealer {
             let totalPrice = 0;
             const order = orderScreen.getOrder();
 
-            order.scoops.forEach(scoop => totalPrice += scoop.price);
-            if (order.sauce) totalPrice += order.sauce.price;
-            if (order.topping) totalPrice += order.topping.price;
+            order._scoops.forEach(scoop => totalPrice += scoop.price);
+            if (order._sauce) totalPrice += order._sauce.price;
+            if (order._topping) totalPrice += order._topping.price;
 
             return totalPrice;
         }
@@ -51,7 +51,6 @@ namespace EisDealer {
 
         //Rechnung wird bei klick entfernt
         private remove(): void {
-            console.log("?")
             const index = allObjects.indexOf(this);
             if (index !== -1) {
                 allObjects.splice(index, 1);
@@ -83,7 +82,7 @@ namespace EisDealer {
 
             // Zeige Bestellungen an
             const order = orderScreen.getOrder();
-            const items = [...order.scoops, order.topping, order.sauce].filter(item => item !== null) as (Scoop | Topping | Sauce)[];
+            const items = [...order._scoops, order._topping, order._sauce].filter(item => item !== null) as (Scoop | Topping | Sauce)[];
             
             crc2.font = "10px Arial";
             let yOffset = 30; // Startposition für die ersten Textzeilen

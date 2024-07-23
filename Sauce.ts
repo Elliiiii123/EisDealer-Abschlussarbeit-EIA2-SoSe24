@@ -13,15 +13,15 @@ namespace EisDealer {
             this.color = _color;
         }
         
+        //Sauce wird nach clickhinzugefügt
         public handleClicked(selectionScreen: SelectionScreen): void {
-            //selectionScreen.addItem(this);
             selectionScreen.addItem(this);
 
         }
     
+        //Zeichne Soße auf Tisch
         public draw():void{
             //console.log("Sauce draw")
-            //console.log("Sauce choclate")
             const centerX = this.position.x;
             const centerY = this.position.y;
 
@@ -32,7 +32,7 @@ namespace EisDealer {
             crc2.beginPath();
             crc2.arc(0, 0, 15, 0, Math.PI * 2); // Runder Flaschenkörper
             crc2.closePath();
-            crc2.fillStyle = this.color; // Schokoladenfarbe für den Flaschenkörper
+            crc2.fillStyle = this.color; // Individuelle Farbe
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 2;
@@ -41,7 +41,7 @@ namespace EisDealer {
             crc2.beginPath();
             crc2.arc(0, -7, 15, 0, Math.PI * 2); // Runder Flaschenkörper
             crc2.closePath();
-            crc2.fillStyle = this.color; // Schokoladenfarbe für den Flaschenkörper
+            crc2.fillStyle = this.color; //  Individuelle Farbe
             crc2.fill();
             crc2.strokeStyle = "black";
             crc2.lineWidth = 2;
@@ -60,6 +60,7 @@ namespace EisDealer {
             crc2.restore(); // Zurücksetzen der Transformation
         }
 
+        //Zeichne soße im screen
         public drawSymbol(_position: Vector): void {
             const radius = 20;  // Der Radius der Kugel
             const waveHeight = 5;  // Die Höhe der Wellen an der unteren Kante

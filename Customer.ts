@@ -1,13 +1,11 @@
 namespace EisDealer {
     export class Customer extends Moveable{
 
-        private static readonly WAIT_TIME_MS = 20000; // 40 Sekunden in Millisekunden
+        private static readonly WAIT_TIME_MS = 20000; // 40 Sekunden in Millisekunden bis Customer wütend wird
         private static chairOffset = new Vector(25, 25);
         private static waitingStartPosition = new Vector(810, 215); // Startposition für wartende Kunden
         private static waitingSpacing = 60; // Abstand zwischen wartenden Kunden
-
         private waitingCustomer: boolean; // Warteschlange für Kunden
-
         private chairId: number;
         private targetPosition: Vector | null = null;
         private passingPointReached: boolean = false;
@@ -20,6 +18,7 @@ namespace EisDealer {
         public receiptCreated: boolean = false;
         private waitStartTime: number | null = null; // Zeitpunkt, wann der Kunde draußen zu warten begonnen hat
         private isSeated: boolean = false; // Status, ob der Kunde auf einem Stuhl sitzt oder in der Warteschlange ist
+        public currentlySelected: boolean = false;
         
         constructor (_position: Vector, _speed: Vector, _direction: Vector, _type: EisDealer.CustomerType, _moneyScreen: Money){
             //console.log("Receipt Constructor")
@@ -32,14 +31,17 @@ namespace EisDealer {
             this.findNextTargetPosition(); 
         }
 
+        //Set the customer Position
         public setPosition(position: Vector): void {
             this.position = position;
         }
 
+        //set the Customer Type
         public setType(type: CustomerType): void {
             this.type = type;
         }
 
+        // Bewegungsmethode für den Customer
         public move(): void {
             if (this.speed.x === 0 && this.speed.y === 0) return; // Keine Bewegung, wenn Geschwindigkeit 0
 
@@ -53,11 +55,13 @@ namespace EisDealer {
                     this.moveToPoint(this.passingPoint);
                     if (this.position.equals(this.passingPoint)) {
                         this.passingPointReached = true;
-                    }
+                    }// Kunde muss erst durch Tür
                 } else {
                     this.moveToPoint(this.targetPosition);
+                    //danach zum stuhl
                     if (this.position.equals(this.targetPosition)) {
                         if (this.type === CustomerType.Happy || this.type === CustomerType.Sad) {
+                            //Kunde verlässt den Canvas nach Bestellung
                             this.targetPosition = this.returnPoint;
                             this.speed = new Vector(5, 5); // Geschwindigkeit zurücksetzen
                             setTimeout(() => this.removeCustomer(), 5000); // 5 Sekunden warten, bevor der Kunde entfernt wird
@@ -68,20 +72,22 @@ namespace EisDealer {
                 }
             }
         }    
+
+        //Methode die nach der wartezeit den customer aktualisiert
         private handleWaiting(): void {
             const elapsedTime = Date.now() - (this.waitStartTime ?? 0);
             if (elapsedTime >= Customer.WAIT_TIME_MS) {
                 this.changeToSad();
                 this.waitStartTime = null;
                 this.waitingCustomer = false;
-                this.updateWaitingQueue();
-                
+                this.updateWaitingQueue();            
             }
             if (this.targetPosition) {
                 this.moveToPoint(this.targetPosition);
             }
         }
 
+        //Allgemeine Methode um neuen Punkt zu berechnen
         private moveToPoint(point: Vector): void {
             const dx = point.x - this.position.x;
             const dy = point.y - this.position.y;
@@ -96,14 +102,17 @@ namespace EisDealer {
             }
         }
 
+        //Methode um die zielposition des Kunden zu ermitteln
         private findNextTargetPosition(): void {
             const availableChairs = this.getAvailableChairs();
 
+            //Wenn es keine stühle gibt betritt customer warteschlange
             if (availableChairs.length === 0) {
                 this.joinWaitingQueue();
                 return;
             }
 
+            //Customer findet zugehörigen Stuhl
             const chosenChair = availableChairs[0];
             this.targetPosition = chosenChair.position.add(this.calculateOffset(chosenChair.rotation));
             this.chairId = chosenChair.id;
@@ -113,6 +122,7 @@ namespace EisDealer {
             this.waitStartTime = null;
         }
 
+        //Position damit customer innder Mitte des stuhls sitzt
         private calculateOffset(rotation: number): Vector {
             const radians = rotation * Math.PI / 180;
             const offsetX = Customer.chairOffset.x * Math.cos(radians) - Customer.chairOffset.y * Math.sin(radians);
@@ -120,11 +130,13 @@ namespace EisDealer {
             return new Vector(offsetX, offsetY);
         }
 
+
         private getAvailableChairs(): Chair[] {
             // Filtere alle Objekte und erhalte nur die verfügbaren Stühle
             return allObjects.filter(obj => obj instanceof Chair && !obj.isOccupied()) as Chair[];
         }
 
+        //Methode die Verhalten beim betreten der Warteschlange regelt
         private joinWaitingQueue(): void {
             const waitingCustomers = allCustomers.filter(customer=>customer.waitingCustomer=== true);
             const queueLength = waitingCustomers.length;
@@ -135,6 +147,7 @@ namespace EisDealer {
             this.speed = new Vector(1, 1); // Langsame Bewegung, falls nötig
         }
 
+        //Stuhl wird freigegeben und kann wieder besetzt werden
         private freeChair(): void {
             console.log("trigger free chair")
             const chairToFree: Chair = allObjects.find(obj => obj instanceof Chair && obj.id === this.chairId) as Chair
@@ -142,6 +155,7 @@ namespace EisDealer {
             this.assignWaitingCustomerToChair();
         }
 
+        // Customer bekommt neuen Stuhl
         private assignWaitingCustomerToChair(): void {
             const waitingCustomers = allCustomers.filter(customer=>customer.waitingCustomer=== true);
             if (waitingCustomers.length > 0) {
@@ -153,7 +167,7 @@ namespace EisDealer {
             }   
         }
 
-        //Customer position wird geupdated
+        //Customer position in der Schalnge wird geupdated und alle rücken auf
         private updateWaitingQueue(): void {
             const waitingCustomers = allCustomers.filter(customer=>customer.waitingCustomer=== true);
             for (let i = 0; i < waitingCustomers.length; i++) {
@@ -163,6 +177,7 @@ namespace EisDealer {
             }
         }
 
+        // Customer entfernen nachdem er den canvas verlässt
         private removeCustomer(): void {
             const index = allObjects.indexOf(this);
             if (index !== -1) {
@@ -172,6 +187,7 @@ namespace EisDealer {
             }
         }
 
+        //Customer Verlässt den canvas
         public moveToOriginalPosition(): void {
             console.log("Kunde geht")
             this.targetPosition = this.returnPoint;
@@ -179,8 +195,9 @@ namespace EisDealer {
             this.passingPointReached = false; // Damit der Kunde nicht beim Punkt hängen bleibt
         }
     
+        //Generirung der zufälligen Bestllung
         public generateRandomOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null }  {
-            const numberOfScoops = Math.floor(Math.random() * 3) + 1; // Zufällige Anzahl von Kugeln (1 bis 3)
+            const numberOfScoops = Math.floor(Math.random() * 6) + 1; // Zufällige Anzahl von Kugeln (1 bis 6)
             const selectedScoops = [];
 
             for (let i = 0; i < numberOfScoops; i++) {
@@ -202,22 +219,24 @@ namespace EisDealer {
         private getRandomScoop(): Scoop {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Ice.length);
             const randomIce = EisDealer.data.Ice[randomIndex];
-            const scoop = new Scoop(new Vector(0, 0), randomIce.name as any, randomIce.price, randomIce.color as any); // Cast name to any to match constructor
+            const scoop = new Scoop(new Vector(0, 0), randomIce.name as any, randomIce.price, randomIce.color as any); 
             return scoop;
         }
         private getRandomTopping(): Topping {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Toppings.length);
             const randomTopping = EisDealer.data.Toppings[randomIndex];
-            const topping = new Topping(new Vector(0, 0), randomTopping.name as any, randomTopping.price, randomTopping.color as any); // Cast name to any to match constructor
+            const topping = new Topping(new Vector(0, 0), randomTopping.name as any, randomTopping.price, randomTopping.color as any); 
             return topping;
         }
 
         private getRandomSauce(): Sauce {
             const randomIndex = Math.floor(Math.random() * EisDealer.data.Sauce.length);
             const randomSauce = EisDealer.data.Sauce[randomIndex];
-            const sauce = new Sauce(new Vector(0, 0), randomSauce.name as any, randomSauce.price, randomSauce.color as any); // Cast name to any to match constructor
+            const sauce = new Sauce(new Vector(0, 0), randomSauce.name as any, randomSauce.price, randomSauce.color as any); 
             return sauce;
         }
+
+        //Die Items werden an den Order Screen übergeben
         public showOrder(): void {
             if (this.isSeated &&!this.orderPlaced && this.targetPosition && this.position.equals(this.targetPosition)) {
                 const order = this.generateRandomOrder();
@@ -236,7 +255,21 @@ namespace EisDealer {
 
                 this.orderPlaced = true;  // Markiere die Bestellung als aufgegeben
             } else if (this.orderPlaced) {
-                //console.log("This customer has already placed an order.");
+                const orderFromCustomer = this.order;
+
+                orderScreen.clearItems();
+
+                if(orderFromCustomer){
+                    orderFromCustomer.scoops.forEach(scoop=>{
+                        orderScreen.addItem(scoop);
+                    });
+                    if (orderFromCustomer.topping) {
+                        orderScreen.addItem(orderFromCustomer.topping);
+                    }
+                    if (orderFromCustomer.sauce) {
+                        orderScreen.addItem(orderFromCustomer.sauce);
+                    }
+                }
             } else {
                 //console.log("Customer is not seated yet.");
             }
@@ -252,19 +285,24 @@ namespace EisDealer {
             }
         }
 
+        //Methode um customer order mit den angeklickten Items zu vergleichen
         public compareOrders(selectionScreen: SelectionScreen): boolean {
-            if (!this.order) {
+            
+            if (!this.order ) {
                 console.warn("Customer order has not been generated yet.");
                 return false;
             }
 
             const selectedOrder = selectionScreen.getSelection();
+            customerClicked = false;
 
             return this.compareScoops(this.order.scoops, selectedOrder.scoops) &&
                    this.compareTopping(this.order.topping, selectedOrder.topping) &&
                    this.compareSauce(this.order.sauce, selectedOrder.sauce);
-            }
+        }
 
+
+        //Individuelle Vergleiche für Scoop, Topping und Sauce
         private compareScoops(scoops1: Scoop[], scoops2: Scoop[]): boolean {
             if (scoops1.length !== scoops2.length) return false;
 
@@ -294,6 +332,7 @@ namespace EisDealer {
             return sauce1.name === sauce2.name && sauce1.color === sauce2.color;
         }
 
+        //Customer wird glücklich und kriert Rechnung
         public changeToHappy(): void {
             //console.log("HAPPY");
             this.setType(CustomerType.Happy);
@@ -324,14 +363,16 @@ namespace EisDealer {
             return false; // Kein Beleg in der Nähe gefunden
         }
 
+        //Kunde wird traurig und verlässt den laden ohne zu zahlen
         public changeToSad(): void {
             //console.log("SAD")
             this.setType(CustomerType.Sad);
             this.targetPosition = this.passingPoint;
             this.passingPointReached = false;
-            this.speed = new Vector(5, 5); // Geschwindigkeit zurücksetzen
+            this.speed = new Vector(5, 5); // Geschwindigkeit für schnelles Laden verlassen
         }
 
+        //Zeichne den Kunden für die verschiedenen customer Typen
         public draw(): void {
             switch (this.type) {
                 case CustomerType.Normal:

@@ -4,7 +4,6 @@ namespace EisDealer{
         private selectedTopping: Topping | null;
         private scoops: Scoop[];
 
-
         constructor(_position: Vector) {
             super(_position);
             this.selectedSauce = null;
@@ -13,6 +12,7 @@ namespace EisDealer{
             this.draw();
         }
 
+        //Items hinzufügen udn zeichnen
         public addItem(item: Scoop | Sauce | Topping): void {
             if (item instanceof Scoop) {
                 this.scoops.push(item);
@@ -24,6 +24,7 @@ namespace EisDealer{
             }
         }
 
+        //Itmes aus orderscreen löschen
         public clearItems(): void {
             this.scoops = [];
             this.selectedSauce = null;
@@ -31,38 +32,37 @@ namespace EisDealer{
             this.draw();
         }
 
-        public getOrder(): { scoops: Scoop[], topping: Topping | null, sauce: Sauce | null } {
+        //Erhalte die Bestllung
+        public getOrder(): { _scoops: Scoop[], _topping: Topping | null, _sauce: Sauce | null } {
             return {
-                scoops: this.scoops,
-                topping: this.selectedTopping,
-                sauce: this.selectedSauce
+                _scoops: this.scoops,
+                _topping: this.selectedTopping,
+                _sauce: this.selectedSauce
             };
         }
 
+        // Zeichne den Screen
         public draw(): void {
             const x = this.position.x;
             const y = this.position.y;
 
-            // Clear previous content
             crc2.save();
             crc2.fillStyle = "beige";
-            crc2.fillRect(x, y, 160, 200); // Draw a beige 200x200 area for the screen
+            crc2.fillRect(x, y, 160, 200); 
 
-            // Draw background green circle
             crc2.beginPath();
-            crc2.arc(x + 80, y + 125, 70, 0, 2 * Math.PI); // Adjust radius and position as needed
+            crc2.arc(x + 80, y + 125, 70, 0, 2 * Math.PI); 
             crc2.fillStyle = "#bff461";
             crc2.fill();
             crc2.closePath();
 
-            // Draw text "Your selection:"
+            // Text
             crc2.fillStyle = "black";
             crc2.font = "20px Arial";
             crc2.fillText("Current Order:", x + 10, y + 45);
 
-            // Draw a simple bowl shape
             crc2.beginPath();
-            crc2.fillStyle = "#f5deb3"; // BurlyWood color
+            crc2.fillStyle = "#f5deb3"; 
             crc2.fill();
             crc2.beginPath();
             crc2.moveTo(x + 15, y + 120);
@@ -74,10 +74,8 @@ namespace EisDealer{
             crc2.closePath();
             crc2.fill();
 
-            // Draw floral patterns or other decorations below the bowl
-            const patternY = y + 140; // Position 20 pixels below the bowl
+            const patternY = y + 140; 
 
-            // Example floral patterns (adjust as needed)
             this.drawFloralPattern(x + 20, patternY);
             this.drawFloralPattern(x + 50, patternY);
             this.drawFloralPattern(x + 80, patternY);
@@ -86,19 +84,18 @@ namespace EisDealer{
             crc2.restore();
 
             // Zeichne die Kugeln in einer Pyramidenform
-            const centerX = x + 80; // Center X of the bowl
-            const baseY = y + 120; // Base Y of the bowl (where it ends horizontally)
+            const centerX = x + 80; 
+            const baseY = y + 120; 
             const radius = 20;
 
-            // Positions for each row of scoops
             const positions = [
-                [new Vector(centerX, baseY - radius)], // Row 1 (top row)
+                [new Vector(centerX, baseY - radius)], 
                 [
-                    new Vector(centerX - radius, baseY), // Row 2
+                    new Vector(centerX - radius, baseY), 
                     new Vector(centerX + radius, baseY)
                 ],
                 [
-                    new Vector(centerX - radius * 2, baseY + radius), // Row 3
+                    new Vector(centerX - radius * 2, baseY + radius), 
                     new Vector(centerX, baseY + radius),
                     new Vector(centerX + radius * 2, baseY + radius)
                 ]
@@ -111,12 +108,12 @@ namespace EisDealer{
                 const position = positions[row][col];
                 scoop.drawSymbol(position);
 
-                // Draw sauce on the scoop if a sauce is selected
+                // Zeichne Saucen wenn ausgewählt
                 if (this.selectedSauce) {
                     this.selectedSauce.drawSymbol(position);
                 }
 
-                // Draw toppings on the scoop if toppings are selected
+                // Zeichne Toppings wenn ausgewählt
                 if (this.selectedTopping) {
                     this.selectedTopping.drawSymbol(position);
                 }
@@ -124,7 +121,7 @@ namespace EisDealer{
             crc2.restore();
         }
 
-        // Helper method to draw a floral pattern
+        // Methode zum zeichnen des musters
         private drawFloralPattern(x: number, y: number): void {
             crc2.beginPath();
             crc2.moveTo(x, y);
@@ -132,7 +129,7 @@ namespace EisDealer{
             crc2.lineTo(x + 20, y);
             crc2.lineTo(x + 10, y + 10);
             crc2.closePath();
-            crc2.fillStyle = "#ffb6c1"; // LightPink color
+            crc2.fillStyle = "#ffb6c1"; 
             crc2.fill();
         }
     }
